@@ -1,0 +1,11 @@
+les resultats en français uniqument, je veux :
+ 1) que tu extrais les user stories, puis les découper en tâche, puis chiffrer chaque tâche dont l'unité de mesure sera le jour par homme "j/H". 
+Tu me présentera ces resultats sous forme de tableau CSV dont :
+ - le séparateur de colonne sera ";" 
+ - les colonnes seront :
+   - "UserStoryId" pour le numero de l'user story
+   - "UserStoryName" pour le nom de l'user story
+   - "TaskId" pour le numero de la tache
+   - "TaskName" pour le nom de la tache
+   - "Cost" pour le chiffrage de la tache, dont la valeur sera de type float 
+ 2) que tu me donnes une explication de comment tu as fait pour chiffrer en décrivant ta méthode de chiffrage précisement

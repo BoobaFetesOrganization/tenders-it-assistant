@@ -1,0 +1,44 @@
+﻿using GenAIChat.Infrastructure.Api.Gemini.Configuation;
+using GenAIChat.Infrastructure.Api.Gemini.Entity;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+
+namespace GenAIChat.Infrastructure.Api.Gemini.Service
+{
+
+    public class GeminiGenerateContentService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly GeminiApiConfiguration _apiConfiguration;
+        private string Endpoint { get => $"https://generativelanguage.googleapis.com/v1beta/models/{_apiConfiguration.Version}:generateContent?key={_apiConfiguration.ApiKey}"; }
+
+        public GeminiGenerateContentService(HttpClient httpClient, GeminiApiConfiguration apiConfiguration)
+        {
+            _apiConfiguration = apiConfiguration;
+
+            _httpClient = httpClient;
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
+        public async Task<PromptResult> CallAsync(PromptData data)
+        {
+            var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync(Endpoint, content);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new InvalidOperationException("Error while calling the Gemini GenerateContent API");
+            }
+
+            Console.WriteLine("");
+            Console.WriteLine("GeminiGenerateContentService : CallAsync : Result");
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+            var responseContent = await response.Content.ReadFromJsonAsync<PromptResult>();
+            return responseContent ?? throw new JsonException("Error while converting the result of the Gemini GenerateContent Api to JSON");
+        }
+    }
+
+}

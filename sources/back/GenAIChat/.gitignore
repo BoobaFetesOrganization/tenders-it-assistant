@@ -1,0 +1,56 @@
+# Fichiers de build
+bin/
+obj/
+out/
+
+# Fichiers de dépendances
+packages/
+*.nupkg
+*.snupkg
+
+# Fichiers de configuration utilisateur
+*.user
+*.userosscache
+*.suo
+.vscode/
+
+# Fichiers de base de données locales
+*.db
+*.sqlite
+
+# Dossiers de logs
+*.log
+logs/
+
+# Fichiers de configuration spécifique à l'environnement
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Production.json
+
+# Fichiers de test
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Fichiers de publication
+publish/
+wwwroot/
+
+# Fichiers de jetBrains Rider
+.idea/
+.idea/
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.pid
+
+# Fichiers spécifiques à Visual Studio
+.vs/
+.idea/
+*.vspscc
+*.vssscc
+
+# Fichiers générés par JetBrains Rider
+.idea/
