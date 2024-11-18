@@ -16,7 +16,7 @@ packages/
 
 # Fichiers de base de données locales
 *.db
-*.db-shm
+*.db-*
 *.sqlite
 
 # Dossiers de logs
