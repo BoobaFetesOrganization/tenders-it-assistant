@@ -1,6 +1,6 @@
-﻿using GenAIChat.Domain;
-using GenAIChat.Domain.Document;
+﻿using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
+using GenAIChat.Domain.Prompt;
 using Microsoft.EntityFrameworkCore;
 
 namespace GenAIChat.Infrastructure.Database
@@ -33,16 +33,19 @@ namespace GenAIChat.Infrastructure.Database
             modelBuilder.Entity<ProjectDomain>()
                 .HasMany(p => p.Documents)
                 .WithOne()
+                .HasForeignKey(r => r.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProjectDomain>()
                 .HasMany(p => p.UserStories)
                 .WithOne()
+                .HasForeignKey(r => r.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserStoryDomain>()
                 .HasMany(us => us.Tasks)
                 .WithOne()
+                .HasForeignKey(r => r.UserStoryId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

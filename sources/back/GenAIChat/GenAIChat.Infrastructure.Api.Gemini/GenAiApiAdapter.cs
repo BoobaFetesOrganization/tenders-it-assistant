@@ -1,7 +1,8 @@
-﻿using GenAIChat.Application.Adapter;
-using GenAIChat.Domain;
-using GenAIChat.Infrastructure.Api.Gemini.Entity;
-using GenAIChat.Infrastructure.Api.Gemini.Entity.Common;
+﻿using GenAIChat.Application.Adapter.Api;
+using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Gemini;
+using GenAIChat.Domain.Gemini.GeminiCommon;
+using GenAIChat.Domain.Prompt;
 using GenAIChat.Infrastructure.Api.Gemini.Service;
 
 namespace GenAIChat.Infrastructure.Api.Gemini
@@ -10,36 +11,33 @@ namespace GenAIChat.Infrastructure.Api.Gemini
     {
         public async Task<PromptDomain> SendPromptAsync(string prompt, IEnumerable<DocumentDomain>? documents = null)
         {
-            PromptData data = new();
-            Content content = new();
-            data.contents.Add(content);
+            GeminiPromptData data = new();
+            GeminiContent content = new();
+            data.Contents.Add(content);
 
-            content.parts.Add(new(prompt));
+            content.Parts.Add(new(prompt));
 
-            if (documents is not null) 
-                content.parts.AddRange(
-                    documents.Select(document => new ContentPart(document.Metadata.MimeType, document.Metadata.Uri)));
+            if (documents is not null)
+                content.Parts.AddRange(
+                    documents.Select(document => new GeminiContentPart(document.Metadata.MimeType, document.Metadata.Uri)));
 
-            var result = await generateContentService.CallAsync(data);
-            var responseText = result.Candidates.Last().content?.parts.Last();
 
-            string text = string.Empty;
-            if (responseText?.Text is not null)
-            {
-                text = responseText.Text;
-                responseText.Text = "ref: text";
-            }
+            PromptDomain result = new(await generateContentService.CallAsync(data));
+            result.LoadTextAsGeminiResult();
 
-            return new PromptDomain { Text = text, Payload = result };
+            return result;
         }
 
-        public async Task SendFilesAsync(IEnumerable<DocumentDomain> documents)
+
+        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain> documents)
         {
             // upload files asynchroneously
-            var actions = documents.Select(async document => await fileService.UploadAsync(document));            
+            var actions = documents.Select(async document => await fileService.UploadAsync(document));
 
             // wait for all files to be uploaded
-            var asyncResult = await Task.WhenAll(actions);
+            var results = await Task.WhenAll(actions);
+
+            return results;
         }
     }
 }

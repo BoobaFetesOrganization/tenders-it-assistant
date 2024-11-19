@@ -8,5 +8,10 @@ namespace GenAIChat.Domain.Project
         public string Name { get; set; } = string.Empty;
         public ICollection<UserStoryTaskDomain> Tasks { get; set; } = [];
         public double Cost { get => Tasks.Sum(t => t.Cost); }
+
+        #region  navigation properties
+        public int ProjectId { get; set; }
+        #endregion
+
     }
 }

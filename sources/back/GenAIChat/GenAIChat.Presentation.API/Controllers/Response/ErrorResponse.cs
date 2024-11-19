@@ -5,7 +5,7 @@ namespace GenAIChat.Presentation.API.Controllers.Response
     public class ErrorResponse
     {
         public string Message { get; set; } = string.Empty;
-        public IEnumerable<ErrorMessage> Errors { get; set; } = new List<ErrorMessage>();
+        public IDictionary<string, ICollection<ErrorMessage>> Errors { get; set; } = new Dictionary<string, ICollection<ErrorMessage>>();
 
         public ErrorResponse(string message, IEnumerable<Exception>? exceptions = null)
         {
@@ -25,25 +25,27 @@ namespace GenAIChat.Presentation.API.Controllers.Response
             {
                 foreach (var modelError in modelStateEntry.Value.Errors)
                 {
-                    AddError(modelError.ErrorMessage, modelError.Exception);
+                    AddError(modelStateEntry.Key, modelError.ErrorMessage);
                 }
             }
         }
 
-        public void AddError(Exception ex) => AddError(ex.Message, ex);
-        public void AddError(string message, Exception? error) => AddError("Unknow", message, error);
-        public void AddError(string code, string message, Exception? error) => ((List<ErrorMessage>)Errors).Add(new ErrorMessage
+        public void AddError(Exception ex) => AddError(ex.Message);
+        public void AddError(string message) => AddError("Unknow", message);
+        public void AddError(string code, string message)
         {
-            Code = code,
-            Message = message,
-            Error = error
-        });
+            Errors.TryAdd(code, new List<ErrorMessage>());
+            Errors[code].Add(new ErrorMessage
+            {
+                Code = code,
+                Message = message
+            });
+        }
     }
 
     public class ErrorMessage
     {
         public string Code { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
-        public Exception? Error { get; set; } = null;
     }
 }

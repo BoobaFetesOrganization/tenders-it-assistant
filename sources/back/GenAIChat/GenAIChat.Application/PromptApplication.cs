@@ -1,5 +1,5 @@
-﻿using GenAIChat.Application.Adapter;
-using GenAIChat.Domain;
+﻿using GenAIChat.Application.Adapter.Api;
+using GenAIChat.Domain.Prompt;
 
 namespace GenAIChat.Application
 {

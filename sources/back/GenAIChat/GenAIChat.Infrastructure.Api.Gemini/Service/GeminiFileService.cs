@@ -1,8 +1,7 @@
-﻿using GenAIChat.Domain;
-using GenAIChat.Domain.Document;
+﻿using GenAIChat.Domain.Document;
 using GenAIChat.Infrastructure.Api.Gemini.Configuation;
+using GenAIChat.Infrastructure.Api.Gemini.Converter;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace GenAIChat.Infrastructure.Api.Gemini.Service
@@ -26,14 +25,14 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
         public async Task<DocumentDomain> UploadAsync(DocumentDomain document)
         {
             // upoad file
-            await UploadFileMetadataAsync(document);
+            var uploadUrl = await UploadFileMetadataAsync(document);
 
             // Assuming the response contains the upload URL
-            await UploadFileContentAsync(document);
+            await UploadFileContentAsync(document, uploadUrl);
 
             return document;
         }
-        private async Task UploadFileMetadataAsync(DocumentDomain document)
+        private async Task<string> UploadFileMetadataAsync(DocumentDomain document)
         {
             // action
             HttpRequestMessage request = new(HttpMethod.Post, Endpoint);
@@ -54,16 +53,18 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
                 throw new InvalidOperationException("Error while starting the upload to the Gemini API");
             }
 
-            document.UploadUrl = response.Headers.GetValues("X-Goog-Upload-URL").FirstOrDefault();
-            if (string.IsNullOrEmpty(document.UploadUrl))
+            var uploadUrl = response.Headers.GetValues("X-Goog-Upload-URL").FirstOrDefault();
+            if (string.IsNullOrEmpty(uploadUrl))
             {
                 throw new InvalidOperationException("Upload URL not found in the response headers");
             }
+
+            return uploadUrl;
         }
 
-        private async Task UploadFileContentAsync(DocumentDomain document)
+        private async Task UploadFileContentAsync(DocumentDomain document, string uploadUrl)
         {
-            HttpRequestMessage request = new(HttpMethod.Put, document.UploadUrl)
+            HttpRequestMessage request = new(HttpMethod.Put, uploadUrl)
             {
                 Content = new StreamContent(new MemoryStream(document.Content))
             };
@@ -77,9 +78,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
                 throw new InvalidOperationException("Error while uploading the file to the Gemini API");
             }
 
-            var result = await uploadResponse.Content.ReadFromJsonAsync<DocumentMetadataDomain>()
-                ?? throw new InvalidOperationException("Failed to deserialize the response from the Gemini API in charge to upload documents");
-            document.Metadata = result;
+            document.Metadata = await UploadFileContentConverter.Convert(uploadResponse.Content);
         }
     }
 

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
-using GenAIChat.Domain;
 using GenAIChat.Domain.Common;
+using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Project;
+using GenAIChat.Presentation.API.Controllers.Response.Document;
 using GenAIChat.Presentation.API.Controllers.Response.Project;
 
 namespace GenAIChat.Presentation.API
@@ -9,16 +11,28 @@ namespace GenAIChat.Presentation.API
     {
         public MappingProfile()
         {
+            // technical mapping
+
             // mapping du domain en DTO
-            CreateMap<Paged<ProjectDomain>, Paged<ProjectDto>>()
-                .ConvertUsing(new PagedDomainToPagedDtoConverter<ProjectDomain, ProjectDto>());
-            CreateMap<ProjectDomain, ProjectDto>();
-            CreateMap<ProjectDomain, ProjectCreateDto>();
-
-
+            SetMappingFor<ProjectDomain, ProjectDto, ProjectItemDto>();
+            SetMappingFor<DocumentDomain, DocumentDto, DocumentItemDto>();
+            SetMappingFor<UserStoryDomain, UserStoryDto, UserStoryItemDto>();
+            SetMappingFor<UserStoryTaskDomain, UserStoryTaskDto, UserStoryTaskDto>();
         }
 
-        public class PagedDomainToPagedDtoConverter<TSource, TDestination> : ITypeConverter<Paged<TSource>, Paged<TDestination>>
+
+        public void SetMappingFor<TSource, TDestination, TDestinationItem>()
+            where TSource : class, IEntityDomain
+            where TDestination : class
+            where TDestinationItem : class
+        {
+            CreateMap<Paged<TSource>, Paged<TDestinationItem>>()
+                .ConvertUsing(new DomainToDtoPagedConverter<TSource, TDestinationItem>());
+            CreateMap<TSource, TDestination>();
+            CreateMap<TSource, TDestinationItem>();
+        }
+
+        public class DomainToDtoPagedConverter<TSource, TDestination> : ITypeConverter<Paged<TSource>, Paged<TDestination>>
             where TSource : class, IEntityDomain
             where TDestination : class
         {

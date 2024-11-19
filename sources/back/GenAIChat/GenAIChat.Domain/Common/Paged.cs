@@ -9,7 +9,7 @@
         public Paged(PaginationOptions options, IEnumerable<T>? data)
         {
             Data = data ?? Enumerable.Empty<T>();
-            Page = new PaginationOptions(options, Data.Count());
+            Page = new PaginationOptions(options);
         }
     }
 }

@@ -1,10 +1,4 @@
 ﻿using GenAIChat.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GenAIChat.Domain.Document
 {
@@ -21,5 +15,9 @@ namespace GenAIChat.Domain.Document
         public string Sha256Hash { get; set; }
         public string Uri { get; set; }
         public string State { get; set; }
+
+        #region  navigation properties
+        public int DocumentId { get; set; }
+        #endregion
     }
 }

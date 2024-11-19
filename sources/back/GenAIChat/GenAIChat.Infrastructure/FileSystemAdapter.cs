@@ -1,4 +1,4 @@
-﻿using GenAIChat.Application.Adapter;
+﻿using GenAIChat.Application.Adapter.File;
 
 namespace GenAIChat.Infrastructure
 {

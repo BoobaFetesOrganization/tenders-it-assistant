@@ -1,10 +1,11 @@
-﻿using GenAIChat.Domain.Common;
+﻿using GenAIChat.Application.Adapter.Database.Generic;
+using GenAIChat.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace GenAIChat.Infrastructure.Database.Repository.Generic
 {
-    public class GenericRepository<TEntity> : IRepositoryAdapter<TEntity> where TEntity : class, IEntityDomain
+    public abstract class GenericRepository<TEntity> : IRepositoryAdapter<TEntity> where TEntity : class, IEntityDomain
     {
         private readonly GenAiDbContext _dbContext;
         private readonly DbSet<TEntity> _dbSet;
@@ -15,25 +16,22 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
             _dbSet = _dbContext.Set<TEntity>();
         }
 
-        public async Task<Paged<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
         {
-            return await GetAllAsync(new PaginationOptions(), filter);
-        }
-        public async Task<Paged<TEntity>> GetAllAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
-        {
-            IQueryable<TEntity> query = _dbSet;
+            IQueryable<TEntity> query = GetPropertiesForCollection(_dbSet);
 
-            if (filter != null) query = query.Where(filter);
+            query = query.Skip(options.Offset);
+            if (options.Limit.HasValue) query = query.Take(options.Limit.Value);
 
-            query = query.Skip(options.Offset).Take(options.Limit);
+            if (filter is not null) query = query.Where(filter);
 
-            return new Paged<TEntity>(options, await query.ToListAsync());
+            return await query.ToListAsync();
         }
 
-        public async Task<TEntity?> GetByIdAsync(int id)
-        {
-            return await _dbSet.FindAsync(id);
-        }
+        protected virtual IQueryable<TEntity> GetPropertiesForCollection(IQueryable<TEntity> query) => query;
+        protected virtual IQueryable<TEntity> GetProperties(IQueryable<TEntity> query) => query;
+
+        public async Task<TEntity?> GetByIdAsync(int id) => await GetProperties(_dbSet).FirstOrDefaultAsync(i => i.Id == id);
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
@@ -41,15 +39,44 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
             return entry.Entity;
         }
 
-        public TEntity Update(TEntity entity)
+        public async Task<TEntity> UpdateAsync(TEntity entity)
         {
             var entry = _dbSet.Update(entity);
-            return entry.Entity;
+            return await Task.FromResult(entry.Entity);
         }
 
-        public void Delete(TEntity entity)
+        public async Task DeleteAsync(TEntity entity)
         {
             _dbSet.Remove(entity);
+            await Task.CompletedTask;
         }
+
+        #region implements IDisposable
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                // Libérer les ressources managées
+                _dbContext.Dispose();
+            }
+
+            // Libérer les ressources non managées si nécessaire
+            _disposed = true;
+        }
+
+        ~GenericRepository()
+        {
+            Dispose(false);
+        }
+        #endregion
     }
 }

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GenAIChat.Application;
-using GenAIChat.Domain;
 using GenAIChat.Domain.Common;
+using GenAIChat.Domain.Document;
 using GenAIChat.Infrastructure.Configuration;
 using GenAIChat.Presentation.API.Controllers.Request;
 using GenAIChat.Presentation.API.Controllers.Response;
@@ -17,11 +17,25 @@ namespace GenAIChat.Presentation.API.Controllers
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int? offset, [FromQuery] int? limit)
+        public async Task<IActionResult> GetAllAsync([FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
             var result = await application.GetAllAsync(options);
-            return Ok(mapper.Map<Paged<ProjectDto>>(result));
+            return Ok(mapper.Map<Paged<ProjectItemDto>>(result));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            var result = await application.GetByIdAsync(id);
+            return Ok(mapper.Map<ProjectDto>(result));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            var result = await application.DeleteAsync(id);
+            return Ok(mapper.Map<ProjectDto>(result));
         }
 
         [HttpPost]
@@ -43,7 +57,7 @@ namespace GenAIChat.Presentation.API.Controllers
                 var documents = await Task.WhenAll(convertions);
 
                 // create project
-                ProjectDomain result = await application.CreateAsync(request.Name, promptConfiguration.UserStories, documents);
+                var result = await application.CreateAsync(request.Name, promptConfiguration.UserStories, documents);
 
                 // store physically the prompt and the documents - its not a part of the application layer, the presentation need this behavior
                 // may be this will moved to the application layer in the future if you consider this as a business logic
@@ -70,7 +84,7 @@ namespace GenAIChat.Presentation.API.Controllers
                     await Task.WhenAll(fileCreationActions);
                 }
 
-                return Ok(mapper.Map<ProjectCreateDto>(result));
+                return Ok(mapper.Map<ProjectDto>(result));
             }
             catch (Exception ex)
             {

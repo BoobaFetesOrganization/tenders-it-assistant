@@ -1,8 +1,6 @@
-﻿using GenAIChat.Infrastructure.Api.Gemini.Configuation;
-using GenAIChat.Infrastructure.Api.Gemini.Entity;
-using Microsoft.AspNetCore.Http;
+﻿using GenAIChat.Domain.Gemini;
+using GenAIChat.Infrastructure.Api.Gemini.Configuation;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
@@ -24,7 +22,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<PromptResult> CallAsync(PromptData data)
+        public async Task<string> CallAsync(GeminiPromptData data)
         {
             var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(Endpoint, content);
@@ -33,11 +31,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
                 throw new InvalidOperationException("Error while calling the Gemini GenerateContent API");
             }
 
-            Console.WriteLine("");
-            Console.WriteLine("GeminiGenerateContentService : CallAsync : Result");
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
-            var responseContent = await response.Content.ReadFromJsonAsync<PromptResult>();
-            return responseContent ?? throw new JsonException("Error while converting the result of the Gemini GenerateContent Api to JSON");
+            return await response.Content.ReadAsStringAsync();
         }
     }
 
