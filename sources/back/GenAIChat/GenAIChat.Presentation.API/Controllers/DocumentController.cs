@@ -14,6 +14,17 @@ namespace GenAIChat.Presentation.API.Controllers
     public class DocumentController(DocumentApplication application, IMapper mapper)
         : ControllerBase
     {
+
+        private static async Task<byte[]?> ReadFile(IFormFile file)
+        {
+            if (file is null || file.Length == 0) return null;
+
+            // read file content
+            byte[] buffer = new byte[file.Length];
+            await file.OpenReadStream().ReadAsync(buffer);
+            return buffer;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllAsync(int projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
@@ -26,6 +37,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await application.GetByIdAsync(id);
+            if (result is null) return NotFound();
             return Ok(mapper.Map<DocumentDto>(result));
         }
 
@@ -38,17 +50,15 @@ namespace GenAIChat.Presentation.API.Controllers
             // action
             try
             {
-                if (request.File is null || request.File.Length == 0) return BadRequest(new ErrorDto("File is empty or null"));
+                var content = await ReadFile(request.File);
+                if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
-                // read file content
-                var buffer = new byte[request.File.Length];
-                await request.File.OpenReadStream().ReadAsync(buffer);
-                var document = new DocumentDomain(request.File.Name, request.File.ContentType, request.File.Length, buffer, projectId);
+                var document = new DocumentDomain(request.File.FileName, request.File.ContentType, request.File.Length, content, projectId);
 
                 // create document
                 var result = await application.CreateAsync(document);
 
-                return Created(string.Empty, mapper.Map<DocumentDto>(result));
+                return Created(string.Empty, mapper.Map<DocumentBaseDto>(result));
             }
             catch (Exception ex)
             {
@@ -65,15 +75,15 @@ namespace GenAIChat.Presentation.API.Controllers
             // action
             try
             {
-                if (request.File?.Length == 0) return BadRequest(new ErrorDto("File is empty or null"));
+                var content = await ReadFile(request.File);
+                if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
-                // read file content
-                var buffer = new byte[request.File.Length];
-                await request.File.OpenReadStream().ReadAsync(buffer);
-                var document = new DocumentDomain(id, request.File.Name, request.File.ContentType, request.File.Length, buffer, projectId);
+                var document = new DocumentDomain(id, request.File.FileName, request.File.ContentType, request.File.Length, content, projectId);
 
                 // create document
                 var result = await application.UpdateAsync(document);
+
+                if (result is null) return NotFound();
 
                 return Ok(mapper.Map<DocumentDto>(result));
             }

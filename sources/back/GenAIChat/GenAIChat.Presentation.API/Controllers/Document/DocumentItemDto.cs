@@ -1,8 +1,6 @@
 ﻿namespace GenAIChat.Presentation.API.Controllers.Document
 {
-    public class DocumentItemDto
+    public class DocumentItemDto : DocumentBaseDto
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
     }
 }

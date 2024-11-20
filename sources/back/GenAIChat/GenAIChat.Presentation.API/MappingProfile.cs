@@ -13,7 +13,7 @@ namespace GenAIChat.Presentation.API
         public MappingProfile()
         {
             SetMappingWithBaseFor<ProjectDomain, ProjectBaseDto, ProjectDto, ProjectItemDto>();
-            SetMappingFor<DocumentDomain, DocumentDto, DocumentItemDto>();
+            SetMappingWithBaseFor<DocumentDomain, DocumentBaseDto, DocumentDto, DocumentItemDto>();
             SetMappingFor<UserStoryDomain, UserStoryDto, UserStoryItemDto>();
             SetMappingFor<UserStoryTaskDomain, UserStoryTaskDto, UserStoryTaskDto>();
         }

@@ -40,6 +40,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var result = await application.GetByIdAsync(id);
+            if (result is null) return NotFound();
             return Ok(mapper.Map<ProjectDto>(result));
         }
 
@@ -75,12 +76,9 @@ namespace GenAIChat.Presentation.API.Controllers
             // action
             try
             {
-                var result = await application.UpdateAsync(
-                    new ProjectDomain(
-                        id,
-                        request.Name,
-                        request.Prompt,
-                        await ConvertFileFormToDocumentDomain(request.Files)));
+                var result = await application.UpdateAsync(new ProjectDomain(id, request.Name, request.Prompt));
+
+                if (result is null) return NotFound();
 
                 return Ok(mapper.Map<ProjectDto>(result));
             }
