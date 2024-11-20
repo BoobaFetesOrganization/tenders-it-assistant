@@ -13,7 +13,7 @@ namespace GenAIChat.Presentation.API.Controllers.Common
             if (exceptions is not null)
                 foreach (var exception in exceptions) AddError(exception);
         }
-        public ErrorDto(Exception exception) : this(new List<Exception> { exception }) { }
+        public ErrorDto(Exception exception) : this([exception]) { }
         public ErrorDto(IEnumerable<Exception> exceptions)
         {
             foreach (var exception in exceptions) AddError(exception);
@@ -30,11 +30,17 @@ namespace GenAIChat.Presentation.API.Controllers.Common
             }
         }
 
-        public void AddError(Exception ex) => AddError(ex.Message);
+        public void AddError(Exception ex)
+        {
+            if (ex is AggregateException aggregate)
+                aggregate.InnerExceptions.ToList().ForEach(AddError);
+            else
+                AddError(ex.Message);
+        }
         public void AddError(string message) => AddError("Unknow", message);
         public void AddError(string code, string message)
         {
-            Errors.TryAdd(code, new List<ErrorMessage>());
+            Errors.TryAdd(code, []);
             Errors[code].Add(new ErrorMessage
             {
                 Code = code,

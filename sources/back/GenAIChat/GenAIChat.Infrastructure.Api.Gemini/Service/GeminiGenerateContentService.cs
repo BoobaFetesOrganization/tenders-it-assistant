@@ -26,13 +26,15 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
         {
             var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(Endpoint, content);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException($"Error while calling the Gemini GenerateContent API: {(int)response.StatusCode} - {response.ReasonPhrase}");
-            }
 
-            return await response.Content.ReadAsStringAsync();
+            var result = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+                throw new AggregateException(string.Empty, [
+                    new Exception("Error while calling the Gemini GenerateContent API"),
+                    new Exception(result)
+                    ]);
+
+            return result;
         }
     }
-
 }

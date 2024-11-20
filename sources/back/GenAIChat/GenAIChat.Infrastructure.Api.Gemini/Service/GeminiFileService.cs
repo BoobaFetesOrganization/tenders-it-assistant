@@ -49,15 +49,15 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
 
             HttpResponseMessage response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException($"Error while starting the upload to the Gemini API: {(int)response.StatusCode} - {response.ReasonPhrase}");
-            }
+                throw new AggregateException(string.Empty, [
+                    new Exception("Error while starting the upload to the Gemini API"),
+                    new Exception(await response.Content.ReadAsStringAsync())
+                    ]);
 
             var uploadUrl = response.Headers.GetValues("X-Goog-Upload-URL").FirstOrDefault();
             if (string.IsNullOrEmpty(uploadUrl))
-            {
                 throw new InvalidOperationException("Upload URL not found in the response headers");
-            }
+
 
             return uploadUrl;
         }
@@ -74,9 +74,10 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
 
             var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException($"Error while uploading the file to the Gemini API: {(int)response.StatusCode} - {response.ReasonPhrase}");
-            }
+                throw new AggregateException(string.Empty, [
+                    new Exception("Error while uploading the file to the Gemini API"),
+                    new Exception(await response.Content.ReadAsStringAsync())
+                    ]);
 
             document.Metadata = await UploadFileContentConverter.Convert(response.Content);
         }
