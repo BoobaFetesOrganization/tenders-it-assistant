@@ -19,7 +19,7 @@ les endpoints doivent toujours refleter le domaine :
 - chaque segment représente soit un domain soit l'identifiant d'un element du domain
 - un segment d'url intermediaire peut etre insérer pour des actions qui ne sont pas de l'ordre du CRUD
   - bien souvent il s'agit d'action modifiant l'état du domain donc le verbe PUT doit etre utilisé
-
+- tout endpoint retourne l'objet du domain sur lequel il a travaillé (incluant les DELETE et les POST)
 voici quelques exemples :
 
 |Endpoint|Explication|
