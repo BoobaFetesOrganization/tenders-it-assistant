@@ -55,6 +55,3 @@ wwwroot/
 
 # Fichiers générés par JetBrains Rider
 .idea/
-
-# Fichiers générés par l'application
-projects
