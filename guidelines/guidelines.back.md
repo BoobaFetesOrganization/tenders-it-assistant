@@ -12,21 +12,28 @@ Tout non respect de règles ci-dessous fera l'objet d'un refus catégorique de P
 
 [article vers les verbes HTTP à utiliser pour les API](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods?form=MG0AV3)
 
+De plus, toutes les APIs doivent :
+- retourner l'objet du domain sur lequel il a travaillé (incluant les DELETE et les POST) 
+- être implementé sur le contoller représentant ce domain
+
 ### Endpoints
 
-les endpoints doivent toujours refleter le domaine :
+Les endpoints ou point de terminaisons doivent toujours refleter le domaine.
+
+Voici les règles de présentation de nos APIs :
 
 - chaque segment représente soit un domain soit l'identifiant d'un element du domain
+- tout segment est un mot au singulier
+
 - un segment d'url intermediaire peut etre insérer pour des actions qui ne sont pas de l'ordre du CRUD
   - bien souvent il s'agit d'action modifiant l'état du domain donc le verbe PUT doit etre utilisé
-- tout endpoint retourne l'objet du domain sur lequel il a travaillé (incluant les DELETE et les POST)
 voici quelques exemples :
 
 |Endpoint|Explication|
 |-|-|
 |/project| liste les projets|
 |/project/:id| fourni les details d'un projet|
-|/projet/:id/generate/userstories| génère les user stories du projet cible|
+|/projet/:id/generate/userstory| génère les user stories du projet cible|
 |/project/:projectId/document|liste les documents du projet cible|
 |/project/:projectId/document/:id| fourni les détails d'un document du projet cible|
 |/project/:projectId/userstory|liste les userstories du projet cible|
