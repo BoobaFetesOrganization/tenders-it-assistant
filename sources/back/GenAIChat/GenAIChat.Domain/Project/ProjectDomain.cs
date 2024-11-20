@@ -17,10 +17,16 @@ namespace GenAIChat.Domain.Project
         public ICollection<UserStoryDomain> UserStories { get; private set; } = [];
 
         public ProjectDomain() { }
-        public ProjectDomain(string name, string prompt) : this()
+        public ProjectDomain(string name, string prompt, IEnumerable<DocumentDomain>? documents = null) : this()
         {
             Name = name;
             Prompt = prompt;
+            if (documents != null) Documents = documents.ToList();
+        }
+        public ProjectDomain(int id, string name, string prompt, IEnumerable<DocumentDomain>? documents = null)
+            : this(name, prompt, documents)
+        {
+            Id = id;
         }
 
         public void SetUserStories(IEnumerable<UserStoryDomain> userstories) => UserStories = userstories.ToList();

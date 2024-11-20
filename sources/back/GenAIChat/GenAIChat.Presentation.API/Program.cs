@@ -25,8 +25,4 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// add a physical directory for uploaded files (by project)
-var rootDir = Path.Combine(Path.GetDirectoryName(app.Environment.ContentRootPath)!, "projects");
-if (!Directory.Exists(rootDir)) Directory.CreateDirectory(rootDir);
-
 app.Run();

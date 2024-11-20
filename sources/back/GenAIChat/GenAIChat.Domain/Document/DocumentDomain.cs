@@ -11,22 +11,23 @@ namespace GenAIChat.Domain.Document
         public DocumentMetadataDomain Metadata { get; set; } = new DocumentMetadataDomain();
 
         #region  navigation properties
-        public int ProjectId { get; set; }
+        public int ProjectId { get; set; } = 0;
         #endregion
 
         public DocumentDomain() { }
 
-        public DocumentDomain(string filename) : this()
+        public DocumentDomain(string filename, string contentType, long length, byte[] content, int? projectId = null)
         {
             Name = filename;
-        }
-
-        public DocumentDomain(string filename, string contentType, long length, byte[] content) : this(filename)
-        {
             Metadata.MimeType = contentType;
-            Metadata.SizeBytes = length;
+            Metadata.Length = length;
             Content = content;
-
+            if (projectId.HasValue) ProjectId = projectId.Value;
+        }
+        public DocumentDomain(int id, string filename, string contentType, long length, byte[] content, int? projectId = null)
+            : this(filename, contentType, length, content, projectId)
+        {
+            Id = id;
         }
     }
 }

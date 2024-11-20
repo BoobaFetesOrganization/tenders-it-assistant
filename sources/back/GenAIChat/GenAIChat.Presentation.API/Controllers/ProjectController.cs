@@ -1,21 +1,33 @@
 ﻿using AutoMapper;
-using GenAIChat.Application;
+using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Project;
 using GenAIChat.Infrastructure.Configuration;
-using GenAIChat.Presentation.API.Controllers.Request;
-using GenAIChat.Presentation.API.Controllers.Response;
-using GenAIChat.Presentation.API.Controllers.Response.Project;
+using GenAIChat.Presentation.API.Controllers.Common;
+using GenAIChat.Presentation.API.Controllers.Project;
+using GenAIChat.Presentation.API.Controllers.Project.Request;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 
 namespace GenAIChat.Presentation.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ProjectController(ProjectApplication application, PromptConfiguration promptConfiguration, IWebHostEnvironment webHostEnvironment, IMapper mapper)
+    public class ProjectController(ProjectApplication application, PromptConfiguration promptConfiguration, IMapper mapper)
         : ControllerBase
     {
+        private static async Task<DocumentDomain[]> ConvertFileFormToDocumentDomain(IEnumerable<IFormFile> files)
+        {
+            IEnumerable<Task<DocumentDomain>> convertions = files.Select(async file =>
+            {
+                var buffer = new byte[file.Length];
+                await file.OpenReadStream().ReadAsync(buffer);
+                return new DocumentDomain(file.FileName, file.ContentType, file.Length, buffer);
+            });
+            var documents = await Task.WhenAll(convertions);
+            return documents;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
@@ -31,65 +43,58 @@ namespace GenAIChat.Presentation.API.Controllers
             return Ok(mapper.Map<ProjectDto>(result));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var result = await application.DeleteAsync(id);
-            return Ok(mapper.Map<ProjectDto>(result));
-        }
-
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] ProjectCreateRequest request)
         {
             // check
-            if (!ModelState.IsValid) return BadRequest(new ErrorResponse(ModelState));
+            if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
 
             // action
             try
             {
-                // convert uploaded files to DocumentDomain
-                var convertions = request.Files.Select(async file =>
-                {
-                    var buffer = new byte[file.Length];
-                    await file.OpenReadStream().ReadAsync(buffer);
-                    return new DocumentDomain(file.FileName, file.ContentType, file.Length, buffer);
-                });
-                var documents = await Task.WhenAll(convertions);
-
                 // create project
-                var result = await application.CreateAsync(request.Name, promptConfiguration.UserStories, documents);
-
-                // store physically the prompt and the documents - its not a part of the application layer, the presentation need this behavior
-                // may be this will moved to the application layer in the future if you consider this as a business logic
-                // but is is already in the database....
-                if (result is not null && result.Id > 0)
-                {
-                    var rootDir = Path.Combine(Path.GetDirectoryName(webHostEnvironment.ContentRootPath)!, "projects");
-                    string directory = Path.Combine(rootDir, result.Id.ToString());
-                    if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
-
-                    var fileInfos = new[]
-                    {
-                        new { FileName = "prompt.request.txt", Value = Encoding.Unicode.GetBytes(result.Prompt) },
-                        new { FileName = "prompt.response.txt", Value =  Encoding.Unicode.GetBytes(result.PromptResponse.Text) }
-                    }.ToList();
-                    fileInfos.AddRange(result.Documents.Select(document => new { FileName = document.Name, Value = document.Content }));
-
-                    var fileCreationActions = fileInfos.Select(async item =>
-                    {
-                        var promptPath = Path.Combine(directory, item.FileName);
-                        using var fs = new FileStream(promptPath, FileMode.Create, FileAccess.ReadWrite);
-                        await fs.WriteAsync(item.Value);
-                    });
-                    await Task.WhenAll(fileCreationActions);
-                }
+                var result = await application.CreateAsync(
+                    request.Name,
+                    promptConfiguration.UserStories,
+                    await ConvertFileFormToDocumentDomain(request.Files));
 
                 return Ok(mapper.Map<ProjectDto>(result));
             }
             catch (Exception ex)
             {
-                return BadRequest(new ErrorResponse(ex));
+                return BadRequest(new ErrorDto(ex));
             }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] ProjectUpdateRequest request)
+        {
+            // check
+            if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
+
+            // action
+            try
+            {
+                var result = await application.UpdateAsync(
+                    new ProjectDomain(
+                        id,
+                        request.Name,
+                        request.Prompt,
+                        await ConvertFileFormToDocumentDomain(request.Files)));
+
+                return Ok(mapper.Map<ProjectDto>(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorDto(ex));
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            var result = await application.DeleteAsync(id);
+            return Ok(mapper.Map<ProjectDto>(result));
         }
     }
 }

@@ -29,8 +29,10 @@ namespace GenAIChat.Infrastructure.Api.Gemini
         }
 
 
-        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain> documents)
+        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain>? documents)
         {
+            if (documents is null) return [];
+
             // upload files asynchroneously
             var actions = documents.Select(async document => await fileService.UploadAsync(document));
 

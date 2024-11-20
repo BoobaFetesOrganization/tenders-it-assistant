@@ -1,4 +1,5 @@
 ﻿using GenAIChat.Domain.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenAIChat.Domain.Document
 {
@@ -8,7 +9,11 @@ namespace GenAIChat.Domain.Document
         public string Name { get; set; }
         public string DisplayName { get; set; } = string.Empty;
         public string MimeType { get; set; } = string.Empty;
-        public long SizeBytes { get; set; }
+
+        //used to 
+        [NotMapped]
+        public long SizeBytes { get => Length; set=> Length=value; }
+        public long Length { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime ExpirationTime { get; set; }

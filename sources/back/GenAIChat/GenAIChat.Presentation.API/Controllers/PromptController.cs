@@ -1,6 +1,6 @@
-﻿using GenAIChat.Application;
-using GenAIChat.Presentation.API.Controllers.Request;
-using GenAIChat.Presentation.API.Controllers.Response;
+﻿using GenAIChat.Application.Usecase;
+using GenAIChat.Presentation.API.Controllers.Common;
+using GenAIChat.Presentation.API.Controllers.Prompt.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GenAIChat.Presentation.API.Controllers
@@ -13,7 +13,7 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpPost]
         public async Task<IActionResult> SendAsync(/*[FromRoute] string chatId,*/ [FromForm] PromptSendRequest request)
         {
-            if (!ModelState.IsValid) return BadRequest(new ErrorResponse(ModelState));
+            if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
 
             try
             {
@@ -21,7 +21,7 @@ namespace GenAIChat.Presentation.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ErrorResponse(ex));
+                return BadRequest(new ErrorDto(ex));
             }
         }
     }

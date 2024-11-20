@@ -38,7 +38,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             HttpRequestMessage request = new(HttpMethod.Post, Endpoint);
             request.Headers.Add("X-Goog-Upload-Protocol", "resumable");
             request.Headers.Add("X-Goog-Upload-Command", "start");
-            request.Headers.Add("X-Goog-Upload-Header-Content-Length", document.Metadata.SizeBytes.ToString());
+            request.Headers.Add("X-Goog-Upload-Header-Content-Length", document.Metadata.Length.ToString());
             request.Headers.Add("X-Goog-Upload-Header-Content-Type", document.Metadata.MimeType);
 
             request.Content = new StringContent(JsonSerializer.Serialize(
@@ -50,7 +50,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             HttpResponseMessage response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
-                throw new InvalidOperationException("Error while starting the upload to the Gemini API");
+                throw new InvalidOperationException($"Error while starting the upload to the Gemini API: {(int)response.StatusCode} - {response.ReasonPhrase}");
             }
 
             var uploadUrl = response.Headers.GetValues("X-Goog-Upload-URL").FirstOrDefault();
@@ -72,13 +72,13 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             request.Headers.Add("X-Goog-Upload-Command", "upload, finalize");
             request.Content.Headers.ContentType = new MediaTypeHeaderValue(document.Metadata.MimeType);
 
-            var uploadResponse = await _httpClient.SendAsync(request);
-            if (!uploadResponse.IsSuccessStatusCode)
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
             {
-                throw new InvalidOperationException("Error while uploading the file to the Gemini API");
+                throw new InvalidOperationException($"Error while uploading the file to the Gemini API: {(int)response.StatusCode} - {response.ReasonPhrase}");
             }
 
-            document.Metadata = await UploadFileContentConverter.Convert(uploadResponse.Content);
+            document.Metadata = await UploadFileContentConverter.Convert(response.Content);
         }
     }
 
