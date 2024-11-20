@@ -5,7 +5,7 @@ namespace GenAIChat.Domain.Gemini.GeminiCommon
     public class GeminiContentFilePart : IGeminiContentPart
     {
         [JsonPropertyName("file_data")]
-        public GeminiContentFilePartData FileData { get; set; }
+        public GeminiContentFilePartData FileData { get; set; } = new GeminiContentFilePartData();
 
         public GeminiContentFilePart() { }
 

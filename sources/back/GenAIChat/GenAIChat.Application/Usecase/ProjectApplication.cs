@@ -1,14 +1,27 @@
 ﻿using GenAIChat.Application.Adapter.Database;
+using GenAIChat.Application.Command.Project;
 using GenAIChat.Application.Usecase.Common;
-using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
 using MediatR;
 
 namespace GenAIChat.Application.Usecase
 {
-    public class ProjectApplication(IMediator mediator, IGenAiUnitOfWorkAdapter unitOfWork) : ApplicationBase<ProjectDomain>(mediator, unitOfWork)
+    public class ProjectApplication : ApplicationBase<ProjectDomain>
     {
-        public async Task<ProjectDomain> CreateAsync(string name, string prompt, IEnumerable<DocumentDomain>? documents = null)
-            => await CreateAsync(new ProjectDomain(name, prompt, documents));
+        private readonly IMediator _mediator;
+        private readonly IGenAiUnitOfWorkAdapter _unitOfWork;
+
+        public ProjectApplication(IMediator mediator, IGenAiUnitOfWorkAdapter unitOfWork) : base(mediator, unitOfWork)
+        {
+            _mediator = mediator;
+            _unitOfWork = unitOfWork;
+        }
+
+        public async Task<ProjectDomain> GenerateUserStories(int id)
+        {
+            var project = await _mediator.Send(new ProjectGenerateUserStoriesCommand { Id = id });
+            await _unitOfWork.SaveChangesAsync();
+            return project;
+        }
     }
 }

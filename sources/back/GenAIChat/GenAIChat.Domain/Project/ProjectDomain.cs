@@ -8,8 +8,8 @@ namespace GenAIChat.Domain.Project
     public class ProjectDomain : IEntityDomain
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Prompt { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Prompt { get; set; } = string.Empty;
         public PromptDomain PromptResponse { get; set; } = new PromptDomain();
 
         public ICollection<DocumentDomain> Documents { get; private set; } = [];
@@ -17,14 +17,13 @@ namespace GenAIChat.Domain.Project
         public ICollection<UserStoryDomain> UserStories { get; private set; } = [];
 
         public ProjectDomain() { }
-        public ProjectDomain(string name, string prompt, IEnumerable<DocumentDomain>? documents = null) : this()
+        public ProjectDomain(string name, string prompt) : this()
         {
             Name = name;
             Prompt = prompt;
-            if (documents != null) Documents = documents.ToList();
         }
-        public ProjectDomain(int id, string name, string prompt, IEnumerable<DocumentDomain>? documents = null)
-            : this(name, prompt, documents)
+        public ProjectDomain(int id, string name, string prompt)
+            : this(name, prompt)
         {
             Id = id;
         }

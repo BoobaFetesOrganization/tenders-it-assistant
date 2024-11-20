@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Common;
-using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
 using GenAIChat.Infrastructure.Configuration;
 using GenAIChat.Presentation.API.Controllers.Common;
@@ -16,18 +15,6 @@ namespace GenAIChat.Presentation.API.Controllers
     public class ProjectController(ProjectApplication application, PromptConfiguration promptConfiguration, IMapper mapper)
         : ControllerBase
     {
-        private static async Task<DocumentDomain[]> ConvertFileFormToDocumentDomain(IEnumerable<IFormFile> files)
-        {
-            IEnumerable<Task<DocumentDomain>> convertions = files.Select(async file =>
-            {
-                var buffer = new byte[file.Length];
-                await file.OpenReadStream().ReadAsync(buffer);
-                return new DocumentDomain(file.FileName, file.ContentType, file.Length, buffer);
-            });
-            var documents = await Task.WhenAll(convertions);
-            return documents;
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAllAsync([FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
@@ -53,13 +40,9 @@ namespace GenAIChat.Presentation.API.Controllers
             // action
             try
             {
-                // create project
-                var result = await application.CreateAsync(
-                    request.Name,
-                    promptConfiguration.UserStories,
-                    await ConvertFileFormToDocumentDomain(request.Files));
+                var result = await application.CreateAsync(new ProjectDomain(request.Name, promptConfiguration.UserStories));
 
-                return Ok(mapper.Map<ProjectDto>(result));
+                return Created(string.Empty, mapper.Map<ProjectDto>(result));
             }
             catch (Exception ex)
             {
@@ -79,6 +62,23 @@ namespace GenAIChat.Presentation.API.Controllers
                 var result = await application.UpdateAsync(new ProjectDomain(id, request.Name, request.Prompt));
 
                 if (result is null) return NotFound();
+
+                return Ok(mapper.Map<ProjectDto>(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorDto(ex));
+            }
+        }
+
+        [HttpPut("{id}/generate/userstory")]
+        public async Task<IActionResult> GenerateUserStories(int id)
+        {
+            // action
+            try
+            {
+                // create project
+                var result = await application.GenerateUserStories(id);
 
                 return Ok(mapper.Map<ProjectDto>(result));
             }

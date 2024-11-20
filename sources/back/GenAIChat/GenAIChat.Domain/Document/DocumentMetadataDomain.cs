@@ -6,7 +6,7 @@ namespace GenAIChat.Domain.Document
     public class DocumentMetadataDomain : IEntityDomain
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string MimeType { get; set; } = string.Empty;
 
@@ -14,9 +14,9 @@ namespace GenAIChat.Domain.Document
         public DateTime CreateTime { get; set; }
         public DateTime UpdateTime { get; set; }
         public DateTime ExpirationTime { get; set; }
-        public string Sha256Hash { get; set; }
-        public string Uri { get; set; }
-        public string State { get; set; }
+        public string Sha256Hash { get; set; } = string.Empty;
+        public string Uri { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
 
         #region  navigation properties
         public int DocumentId { get; set; }

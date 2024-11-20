@@ -2,6 +2,6 @@
 {
     public class PromptConfiguration
     {
-        public string UserStories { get; set; }
+        public string UserStories { get; set; } = string.Empty;
     }
 }
