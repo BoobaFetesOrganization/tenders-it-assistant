@@ -2,6 +2,79 @@ fichier généré avec *ChatGpt-4o*
 
 # Guidelines pour les intervenants d'un projet WebAPI en C #
 
+## Bonnes pratiques des API
+
+Tout non respect de règles ci-dessous fera l'objet d'un refus catégorique de PR.
+
+### APIs RestFull
+
+[article expliquant ce que sont les API RestFULL](https://www.redhat.com/fr/topics/api/what-is-a-rest-api?form=MG0AV3)
+
+[article vers les verbes HTTP à utiliser pour les API](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods?form=MG0AV3)
+
+### Endpoints
+
+les endpoints doivent toujours refleter le domaine :
+
+- chaque segment représente soit un domain soit l'identifiant d'un element du domain
+- un segment d'url intermediaire peut etre insérer pour des actions qui ne sont pas de l'ordre du CRUD
+  - bien souvent il s'agit d'action modifiant l'état du domain donc le verbe PUT doit etre utilisé
+
+voici quelques exemples :
+
+|Endpoint|Explication|
+|-|-|
+|/project| liste les projets|
+|/project/:id| fourni les details d'un projet|
+|/projet/:id/generate/userstories| génère les user stories du projet cible|
+|/project/:projectId/document|liste les documents du projet cible|
+|/project/:projectId/document/:id| fourni les détails d'un document du projet cible|
+|/project/:projectId/userstory|liste les userstories du projet cible|
+|/project/:projectId/userstory/:id| fourni les détails d'une userstory du projet cible|
+|/project/:projectId/userstory/:id/task| fourni les détails d'une tache d'une userstory d'un projet|
+|/project/:projectId/userstory/:userstoryId/task/:id| fourni les détails d'une tache d'une userstory d'un projet|
+
+### Code de retour
+
+| Code | Description |
+|------|-------------|
+| 200 OK | La requête a réussi. |
+| 201 Created | La requête POST a réussi et une nouvelle ressource a été créée. |
+| 204 No Content | La requête a réussi, mais il n'y a pas de contenu à retourner. |
+| 400 Bad Request | La requête est mal formée ou invalide. |
+| 401 Unauthorized | L'utilisateur n'est pas authentifié. |
+| 403 Forbidden | L'utilisateur n'a pas les permissions nécessaires. |
+| 404 Not Found | La ressource demandée n'existe pas. |
+| 409 Conflict | Le contenu de la requête est en conflit avec l'état actuel du serveur. |
+| 500 Internal Server Error | Une erreur interne du serveur s'est produite. |
+
+### Code de retour par Verbe HTTP
+
+| Méthode | Réussite                       | Échec                                     |
+|---------|--------------------------------|-------------------------------------------|
+| **GET** | 200 OK                         | 400 Bad Request                           |
+|         |                                | 401 Unauthorized                          |
+|         |                                | 403 Forbidden                             |
+|         |                                | 404 Not Found                             |
+|         |                                | 500 Internal Server Error                 |
+| **POST**| 201 Created                    | 400 Bad Request                           |
+|         | 200 OK (si aucune ressource n'est créée) | 401 Unauthorized                          |
+|         |                                | 403 Forbidden                             |
+|         |                                | 404 Not Found                             |
+|         |                                | 409 Conflict (si le contenu est en conflit avec l'état actuel du serveur) |
+|         |                                | 500 Internal Server Error                 |
+| **PUT** | 200 OK                         | 400 Bad Request                           |
+|         | 204 No Content (si aucune réponse n'est nécessaire) | 401 Unauthorized                          |
+|         |                                | 403 Forbidden                             |
+|         |                                | 404 Not Found                             |
+|         |                                | 409 Conflict (si le contenu est en conflit avec l'état actuel du serveur) |
+|         |                                | 500 Internal Server Error                 |
+| **DELETE**| 200 OK                       | 400 Bad Request                           |
+|         | 204 No Content (si l'opération est réussie mais aucune réponse n'est nécessaire) | 401 Unauthorized                          |
+|         |                                | 403 Forbidden                             |
+|         |                                | 404 Not Found                             |
+|         |                                | 500 Internal Server Error                 |
+
 ## Bonnes pratiques de développement
 
 1. **Respecter les conventions de nommage** : Utilisez des noms de variables, de méthodes et de classes clairs et significatifs.
