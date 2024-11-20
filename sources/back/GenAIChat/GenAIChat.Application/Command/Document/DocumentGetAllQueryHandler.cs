@@ -5,7 +5,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Document
 {
-    public class GetAllDocumentsQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetAllQuery<DocumentDomain>, IEnumerable<DocumentDomain>>
+    public class DocumentGetAllQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetAllQuery<DocumentDomain>, IEnumerable<DocumentDomain>>
     {
         public async Task<IEnumerable<DocumentDomain>> Handle(GetAllQuery<DocumentDomain> request, CancellationToken cancellationToken)
             => await unitOfWork.Documents.GetAllAsync(request.Options, request.Filter);

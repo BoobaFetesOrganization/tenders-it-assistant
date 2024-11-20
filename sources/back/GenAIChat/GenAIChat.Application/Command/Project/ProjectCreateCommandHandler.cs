@@ -8,7 +8,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project
 {
-    public class CreateProjectCommandHandler(IGenAiApiAdapter genAiAdapter, IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CreateCommand<ProjectDomain>, ProjectDomain>
+    public class ProjectCreateCommandHandler(IGenAiApiAdapter genAiAdapter, IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CreateCommand<ProjectDomain>, ProjectDomain>
     {
         public async Task<ProjectDomain> Handle(CreateCommand<ProjectDomain> request, CancellationToken cancellationToken)
         {

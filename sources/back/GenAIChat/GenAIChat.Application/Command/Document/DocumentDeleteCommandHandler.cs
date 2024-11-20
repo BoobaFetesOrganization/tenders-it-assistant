@@ -5,7 +5,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Document
 {
-    public class DeleteDocumentCommandHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<DeleteCommand<DocumentDomain>, DocumentDomain?>
+    public class DocumentDeleteCommandHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<DeleteCommand<DocumentDomain>, DocumentDomain?>
     {
         public async Task<DocumentDomain?> Handle(DeleteCommand<DocumentDomain> request, CancellationToken cancellationToken)
         {

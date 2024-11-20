@@ -5,7 +5,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Document
 {
-    public class GetDocumentByIdQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetByIdQuery<DocumentDomain>, DocumentDomain?>
+    public class DocumentGetByIdQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetByIdQuery<DocumentDomain>, DocumentDomain?>
     {
         public async Task<DocumentDomain?> Handle(GetByIdQuery<DocumentDomain> request, CancellationToken cancellationToken)
             => await unitOfWork.Documents.GetByIdAsync(request.Id);
