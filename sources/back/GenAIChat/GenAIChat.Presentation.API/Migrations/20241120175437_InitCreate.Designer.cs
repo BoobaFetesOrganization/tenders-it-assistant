@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenAIChat.Presentation.API.Migrations
 {
     [DbContext(typeof(GenAiDbContext))]
-    [Migration("20241120155644_InitCreate")]
+    [Migration("20241120175437_InitCreate")]
     partial class InitCreate
     {
         /// <inheritdoc />
