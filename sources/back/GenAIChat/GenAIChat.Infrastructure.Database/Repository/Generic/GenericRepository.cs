@@ -5,16 +5,9 @@ using System.Linq.Expressions;
 
 namespace GenAIChat.Infrastructure.Database.Repository.Generic
 {
-    public abstract class GenericRepository<TEntity> : IRepositoryAdapter<TEntity> where TEntity : class, IEntityDomain
+    public abstract class GenericRepository<TEntity>(GenAiDbContext dbContext) : IRepositoryAdapter<TEntity> where TEntity : class, IEntityDomain
     {
-        private readonly GenAiDbContext _dbContext;
-        private readonly DbSet<TEntity> _dbSet;
-
-        public GenericRepository(GenAiDbContext dbContext)
-        {
-            _dbContext = dbContext;
-            _dbSet = _dbContext.Set<TEntity>();
-        }
+        private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
         public async Task<IEnumerable<TEntity>> GetAllAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
         {
@@ -66,7 +59,7 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
             if (disposing)
             {
                 // Libérer les ressources managées
-                _dbContext.Dispose();
+                dbContext.Dispose();
             }
 
             // Libérer les ressources non managées si nécessaire

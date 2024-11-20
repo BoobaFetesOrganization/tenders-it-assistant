@@ -5,14 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GenAIChat.Infrastructure.Database.Repository
 {
-    public class ProjectRepository : GenericRepository<ProjectDomain>, IProjectRepositoryAdapter
+    public class ProjectRepository(GenAiDbContext dbContext) : GenericRepository<ProjectDomain>(dbContext), IProjectRepositoryAdapter
     {
-        public ProjectRepository(GenAiDbContext dbContext) : base(dbContext)
-        {
-        }
         protected override IQueryable<ProjectDomain> GetProperties(IQueryable<ProjectDomain> query) => query
             .Include(i => i.PromptResponse)
             .Include(i => i.Documents)
+                .ThenInclude(d => d.Metadata)
             .Include(i => i.UserStories)
                 .ThenInclude(us => us.Tasks);
     }

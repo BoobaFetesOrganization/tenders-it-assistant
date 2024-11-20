@@ -10,9 +10,6 @@ namespace GenAIChat.Domain.Document
         public string DisplayName { get; set; } = string.Empty;
         public string MimeType { get; set; } = string.Empty;
 
-        //used to 
-        [NotMapped]
-        public long SizeBytes { get => Length; set=> Length=value; }
         public long Length { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime UpdateTime { get; set; }
@@ -24,5 +21,9 @@ namespace GenAIChat.Domain.Document
         #region  navigation properties
         public int DocumentId { get; set; }
         #endregion
+
+        //used to deserialize the response from the API
+        [NotMapped]
+        public long SizeBytes { get => Length; set => Length = value; }
     }
 }
