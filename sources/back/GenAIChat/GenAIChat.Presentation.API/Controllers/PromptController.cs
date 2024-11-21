@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GenAIChat.Presentation.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    //[Route("chat/{chatId}/[controller]")]
+    [Route("api/[controller]")]
     public class PromptController(PromptApplication prompt) : ControllerBase
     {
         [HttpPost]

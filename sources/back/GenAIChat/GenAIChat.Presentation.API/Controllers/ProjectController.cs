@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GenAIChat.Presentation.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ProjectController(ProjectApplication application, PromptConfiguration promptConfiguration, IMapper mapper)
         : ControllerBase
     {

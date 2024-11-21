@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GenAIChat.Presentation.API.Controllers
 {
     [ApiController]
-    [Route("project/{projectId}/[controller]")]
+    [Route("api/project/{projectId}/[controller]")]
     public class DocumentController(DocumentApplication application, IMapper mapper)
         : ControllerBase
     {

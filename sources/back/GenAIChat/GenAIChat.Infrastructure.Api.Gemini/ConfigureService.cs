@@ -2,6 +2,7 @@
 using GenAIChat.Infrastructure.Api.Gemini.Configuation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
 namespace GenAIChat.Infrastructure.Api.Gemini
 {
@@ -9,9 +10,13 @@ namespace GenAIChat.Infrastructure.Api.Gemini
     {
         public static void AddGenAiChatApiServices(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb)
         {
-            // app settings configuration            
+            // app settings configuration 
+            Console.WriteLine("Infrastructure.Api.Gemini : Configuration : 'AI:Gemini' :");
             var geminiApiConfig = configuration.GetSection("AI:Gemini").Get<GeminiApiConfiguration>()
-             ?? throw new InvalidOperationException("AI:Gemini section is missing or invalid in appsettings.json, it should be { \"AI\": { \"Gemini\": { \"Version\": \"something\", \"ApiKey\": \"something\" } }}");
+                ?? throw new InvalidOperationException("AI:Gemini section is missing or invalid in appsettings.json, it should be { \"AI\": { \"Gemini\": { \"Version\": \"something\", \"ApiKey\": \"something\" } }}");
+
+            Console.WriteLine(JsonSerializer.Serialize(geminiApiConfig, new JsonSerializerOptions { WriteIndented = true }));
+
 
             services.AddSingleton(geminiApiConfig);
 
