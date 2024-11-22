@@ -1,6 +1,8 @@
-﻿namespace GenAIChat.Presentation.API.Controllers.UserStory
+﻿using GenAIChat.Domain.Common;
+
+namespace GenAIChat.Presentation.API.Controllers.UserStory
 {
-    public class UserStoryItemDto
+    public class UserStoryBaseDto : IEntityDomain
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

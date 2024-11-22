@@ -20,7 +20,7 @@ namespace GenAIChat.Presentation.API.Controllers
         {
             var options = new PaginationOptions(offset, limit);
             var result = await application.GetAllAsync(options);
-            return Ok(mapper.Map<Paged<ProjectItemDto>>(result));
+            return Ok(mapper.Map<Paged<ProjectBaseDto>>(result));
         }
 
         [HttpGet("{id}")]

@@ -30,7 +30,7 @@ namespace GenAIChat.Presentation.API.Controllers
         {
             var options = new PaginationOptions(offset, limit);
             var result = await application.GetAllAsync(options, i => i.ProjectId == projectId);
-            return Ok(mapper.Map<Paged<DocumentItemDto>>(result));
+            return Ok(mapper.Map<Paged<DocumentBaseDto>>(result));
         }
 
         [HttpGet("{id}")]
@@ -58,7 +58,7 @@ namespace GenAIChat.Presentation.API.Controllers
                 // create document
                 var result = await application.CreateAsync(document);
 
-                return Created(string.Empty, mapper.Map<DocumentBaseDto>(result));
+                return Created(string.Empty, mapper.Map<DocumentDto>(result));
             }
             catch (Exception ex)
             {
