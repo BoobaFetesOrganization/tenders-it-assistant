@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const CreateDocumentMutation = gql`
-  mutation CreateDocument {
-    document
+  mutation CreateDocument($projectId: Int!) {
+    document(projectId: $projectId)
       @rest(
         type: "IDocumentDto"
         method: "POST"

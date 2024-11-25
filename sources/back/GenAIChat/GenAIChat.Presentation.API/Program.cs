@@ -32,8 +32,6 @@ app.MapControllers();
 // Serve the SPA for the root URL
 app.MapFallbackToFile("/index.html");
 
-// Configurer le middleware pour servir la SPA
-app.UseDefaultFiles();
-app.UseStaticFiles();
+
 
 app.Run();

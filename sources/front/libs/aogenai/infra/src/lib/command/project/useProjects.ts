@@ -1,12 +1,21 @@
-import { IProjectBaseDto } from '@aogenai/domain';
+import { IPaged, IProjectBaseDto } from '@aogenai/domain';
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import { getInfraSettings } from '../../settings';
 import { GetProjectsQuery } from './cqrs';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type
-interface Request {}
+interface Request {
+  limit: number;
+  offset: number;
+}
 interface Response {
-  projects: IProjectBaseDto[];
+  projects: IPaged<IProjectBaseDto>;
 }
 
-export const useProjects = (options?: QueryHookOptions<Response, Request>) =>
-  useQuery<Response, Request>(GetProjectsQuery, options);
+export const useProjects = (options?: QueryHookOptions<Response, Request>) => {
+  const maxLimit = getInfraSettings().api.maxLimit;
+
+  return useQuery<Response, Request>(GetProjectsQuery, {
+    ...options,
+    variables: { offset: 0, limit: maxLimit, ...options?.variables },
+  });
+};

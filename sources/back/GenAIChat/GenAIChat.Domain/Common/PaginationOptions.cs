@@ -13,6 +13,8 @@
         public int Offset { get; set; } = DefaultOffset;
         public int? Limit { get; set; } = DefaultLimit;
 
+        public int? Count { get; set; } = null;
+
         public PaginationOptions() { }
         public PaginationOptions(int offset, int? limit)
         {
@@ -26,6 +28,9 @@
         {
             Offset = options.Offset;
             Limit = options.Limit;
+            Count = options.Count;
         }
+
+        public void SetCount(int count) => Count = count;
     }
 }

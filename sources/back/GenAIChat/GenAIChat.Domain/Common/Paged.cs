@@ -11,5 +11,9 @@
             Data = data ?? Enumerable.Empty<T>();
             Page = new PaginationOptions(options);
         }
+        public Paged(PaginationOptions options, int count, IEnumerable<T>? data) : this(options, data)
+        {
+            Page.SetCount(count);
+        }
     }
 }

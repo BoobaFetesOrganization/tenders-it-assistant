@@ -9,14 +9,24 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
     {
         private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> query = _dbSet;
+            if (filter is not null) query = query.Where(filter);
+            return await query.CountAsync();
+        }
+
         public async Task<IEnumerable<TEntity>> GetAllAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
         {
             IQueryable<TEntity> query = GetPropertiesForCollection(_dbSet);
+            
+            if (filter is not null) query = query.Where(filter);
 
+            var countAction = query.CountAsync();
+            
             query = query.Skip(options.Offset);
             if (options.Limit.HasValue) query = query.Take(options.Limit.Value);
 
-            if (filter is not null) query = query.Where(filter);
 
             return await query.ToListAsync();
         }

@@ -6,10 +6,12 @@ using GenAIChat.Infrastructure.Configuration;
 using GenAIChat.Presentation.API.Controllers.Common;
 using GenAIChat.Presentation.API.Controllers.Project;
 using GenAIChat.Presentation.API.Controllers.Project.Request;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GenAIChat.Presentation.API.Controllers
 {
+    [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/[controller]")]
     public class ProjectController(ProjectApplication application, PromptConfiguration promptConfiguration, IMapper mapper)

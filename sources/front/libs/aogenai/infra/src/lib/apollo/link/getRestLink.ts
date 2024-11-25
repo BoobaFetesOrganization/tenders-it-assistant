@@ -1,6 +1,9 @@
 import { RestLink } from 'apollo-link-rest';
 import { IInfraSettings } from '../../settings';
+import { GetApolloLinkType } from './GetLinkType';
 
-export function getRestLink({ api: { url } }: IInfraSettings) {
+export const getRestLink: GetApolloLinkType = ({
+  api: { url },
+}: IInfraSettings) => {
   return new RestLink({ uri: url });
-}
+};

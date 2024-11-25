@@ -12,7 +12,7 @@ namespace GenAIChat.Presentation.API
 {
     public static class ConfigureService
     {
-        public const string SpaCors = "AllowSpecificOrigin";
+        public const string SpaCors = "SpaCors";
         public static void AddGenAiChatServices(this IServiceCollection services, IConfiguration configuration)
         {
 
@@ -41,33 +41,39 @@ namespace GenAIChat.Presentation.API
 
             // register the configuration for the CORS policy
             Console.WriteLine("Persenter.API : Conviguration : Cors:");
-            var corsConfigs = configuration.GetSection("Cors").Get<List<CorsConfiguration>>()
-                ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": [\r\n    {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  ]\r\n}");
+            CorsConfiguration corsConfig = configuration.GetSection("Cors:SpaCors").Get<CorsConfiguration>()
+                ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": {\r\n    \"SpaCors\": {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"http://localhost:3000\", \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\", \"OPTIONS\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  }\r\n}");
 
-            Console.WriteLine(JsonSerializer.Serialize(corsConfigs, new JsonSerializerOptions { WriteIndented = true }));
+            Console.WriteLine(JsonSerializer.Serialize(corsConfig, new JsonSerializerOptions { WriteIndented = true }));
 
             services.AddCors(options =>
             {
-                corsConfigs.ForEach(corsConfig =>
+                options.AddPolicy(SpaCors, builder =>
                 {
-                    options.AddPolicy(corsConfig.Name, builder =>
-                    {
-                        if (corsConfig.Origins is not null) builder.WithOrigins(corsConfig.Origins.ToArray());
-                        if (corsConfig.AllowedVerbs is not null) builder.WithMethods(corsConfig.AllowedVerbs.ToArray());
-                        if (corsConfig.AllowedHeaders is not null) builder.WithHeaders(corsConfig.AllowedHeaders.ToArray());
-                    });
+                    if (corsConfig.Origins is not null) builder.WithOrigins(corsConfig.Origins.ToArray());
+                    if (corsConfig.AllowedVerbs is not null) builder.WithMethods(corsConfig.AllowedVerbs.ToArray());
+                    if (corsConfig.AllowedHeaders is not null) builder.WithHeaders(corsConfig.AllowedHeaders.ToArray());
                 });
             });
         }
 
-        public static void UseGenAiChatPresentationServices(this IApplicationBuilder app, IConfiguration configuration)
+        public static void UseGenAiChatPresentationServices(this WebApplication app, IConfiguration configuration)
         {
-            var corsConfigs = configuration.GetSection("Cors").Get<List<CorsConfiguration>>()
-                ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": [\r\n    {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  ]\r\n}");
+            var corsConfig = configuration.GetSection("Cors:SpaCors").Get<CorsConfiguration>()
+                ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": {\r\n    \"SpaCors\": {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"http://localhost:3000\", \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\", \"OPTIONS\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  }\r\n}");
 
+            app.UseRouting();
+            app.UseCors(SpaCors);
+            app.UseAuthorization();
+            app.MapControllers();
+            
+            // Serve the SPA for the root URL
+            app.MapFallbackToFile("/index.html");
 
-            // Utiliser la configuration CORS
-            corsConfigs.ForEach(corsConfig => app.UseCors(corsConfig.Name));
+            // Configurer le middleware pour servir la SPA
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
         }
     }
 }

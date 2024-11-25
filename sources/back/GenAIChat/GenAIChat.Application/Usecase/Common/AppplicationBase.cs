@@ -11,8 +11,9 @@ namespace GenAIChat.Application.Usecase.Common
     {
         public async Task<Paged<TDomain>> GetAllAsync(PaginationOptions options, Expression<Func<TDomain, bool>>? filter = null)
         {
+            var count = await mediator.Send(new CountQuery<TDomain> { Filter = filter });
             var data = await mediator.Send(new GetAllQuery<TDomain> { Options = options, Filter = filter });
-            return new Paged<TDomain>(options, data);
+            return new Paged<TDomain>(options, count, data);
         }
 
         public async Task<TDomain?> GetByIdAsync(int id)

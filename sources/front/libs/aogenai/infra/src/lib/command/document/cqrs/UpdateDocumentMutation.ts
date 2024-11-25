@@ -1,8 +1,13 @@
 import { gql } from '@apollo/client';
 
 export const UpdateDocumentMutation = gql`
-  mutation UpdateDocument {
-    document @rest(type: "IDocumentDto", method: "PUT", path: "/document") {
+  mutation UpdateDocument($projectId: Int!) {
+    document(projectId: $projectId)
+      @rest(
+        type: "IDocumentDto"
+        method: "PUT"
+        path: "project/{args.projectId}/document"
+      ) {
       id
       name
       prompt

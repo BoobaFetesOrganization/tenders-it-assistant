@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GetDocumentQuery = gql`
-  query GetDocument {
-    documents
+  query GetDocument($id: Int!) {
+    documents(id: $id)
       @rest(
         type: "IDocumentDto"
         method: "GET"
