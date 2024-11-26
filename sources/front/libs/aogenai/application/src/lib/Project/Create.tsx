@@ -3,17 +3,16 @@ import { useCreateProject } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
 import { ProjectItem } from './Item';
 
-export const ProjectCreate: FC = memo(() => {
-  // const navigate = useNavigate();
-
-  const [intial] = useState(newProjectDto);
+interface IProjectCreateProps {
+  onCreated: (item: IProjectDto) => void;
+}
+export const ProjectCreate: FC<IProjectCreateProps> = memo(({ onCreated }) => {
+  const [intial, setInitial] = useState(newProjectDto);
 
   const [call] = useCreateProject({
     onCompleted({ project }) {
-      alert(`Project created : ${project.id} - ${project.name}`);
-      alert(
-        `createion termione donc on redirige vers l'edition : ${project.id} - ${project.name}`
-      );
+      if (!project.id) onCreated(project);
+      else setInitial(project);
     },
   });
 
@@ -26,7 +25,7 @@ export const ProjectCreate: FC = memo(() => {
 
   return (
     <ProjectItem
-      mode="create"
+      className="create-project"
       data={intial}
       reset={newProjectDto}
       save={save}

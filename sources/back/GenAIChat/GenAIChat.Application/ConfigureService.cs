@@ -1,4 +1,5 @@
-﻿using GenAIChat.Application.Usecase;
+﻿using GenAIChat.Application.Resources;
+using GenAIChat.Application.Usecase;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GenAIChat.Application
@@ -11,6 +12,7 @@ namespace GenAIChat.Application
             services.AddScoped<ProjectApplication>();
             services.AddScoped<DocumentApplication>();
             services.AddScoped<PromptApplication>();
+            services.AddScoped<EmbeddedResource>();
 
             // register MediatR to scan all assemblies in the current domain
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));

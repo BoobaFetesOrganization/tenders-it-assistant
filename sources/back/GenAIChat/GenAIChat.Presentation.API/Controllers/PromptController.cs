@@ -10,7 +10,7 @@ namespace GenAIChat.Presentation.API.Controllers
     public class PromptController(PromptApplication prompt) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> SendAsync(/*[FromRoute] string chatId,*/ [FromForm] PromptSendRequest request)
+        public async Task<IActionResult> SendAsync(/*[FromRoute] string chatId,*/ [FromBody] PromptSendRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
 

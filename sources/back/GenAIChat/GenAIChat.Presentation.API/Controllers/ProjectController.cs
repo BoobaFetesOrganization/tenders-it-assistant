@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project;
-using GenAIChat.Infrastructure.Configuration;
 using GenAIChat.Presentation.API.Controllers.Common;
 using GenAIChat.Presentation.API.Controllers.Project;
 using GenAIChat.Presentation.API.Controllers.Project.Request;
@@ -14,7 +14,7 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectController(ProjectApplication application, PromptConfiguration promptConfiguration, IMapper mapper)
+    public class ProjectController(ProjectApplication application, EmbeddedResource resource, IMapper mapper)
         : ControllerBase
     {
         [HttpGet]
@@ -34,7 +34,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] ProjectCreateRequest request)
+        public async Task<IActionResult> Create([FromBody] ProjectCreateRequest request)
         {
             // check
             if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
@@ -42,7 +42,7 @@ namespace GenAIChat.Presentation.API.Controllers
             // action
             try
             {
-                var result = await application.CreateAsync(new ProjectDomain(request.Name, promptConfiguration.UserStories));
+                var result = await application.CreateAsync(new ProjectDomain(request.Name, resource[EmbeddedResource.UserStoryPrompt]));
 
                 return Created(string.Empty, mapper.Map<ProjectDto>(result));
             }
@@ -53,7 +53,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromForm] ProjectUpdateRequest request)
+        public async Task<IActionResult> Update(int id, [FromBody] ProjectUpdateRequest request)
         {
             // check
             if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));

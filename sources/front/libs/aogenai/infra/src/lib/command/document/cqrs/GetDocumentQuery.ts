@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const GetDocumentQuery = gql`
   query GetDocument($id: Int!) {
-    documents(id: $id)
+    document(id: $id)
       @rest(
         type: "IDocumentDto"
         method: "GET"

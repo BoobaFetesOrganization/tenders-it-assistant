@@ -44,7 +44,7 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
     );
 
     return (
-      <StyledRoot container>
+      <StyledRoot container className="collection-project">
         <StyledTitle>
           <Typography variant="h3">Projects</Typography>
         </StyledTitle>

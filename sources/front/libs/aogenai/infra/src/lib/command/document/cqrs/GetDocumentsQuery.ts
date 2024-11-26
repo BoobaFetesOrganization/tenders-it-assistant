@@ -1,26 +1,15 @@
 import { gql } from '@apollo/client';
 
 export const GetDocumentsQuery = gql`
-  query GetDocument($limit: Int!, $offset: Int!) {
-    documents(limit: $limit, offset: $offset)
+  query GetDocuments($projectId: Int!, $limit: Int!, $offset: Int!) {
+    documents(projectId: $projectId, limit: $limit, offset: $offset)
       @rest(
-        type: "IDocumentDto"
+        type: "[IDocumentBaseDto]"
         method: "GET"
-        path: "/project/{args.projectId}/document/{args.id}"
+        path: "/project/{args.projectId}/document?limit={args.limit}&offset={args.offset}"
       ) {
-      id
-      name
-      prompt
-      responseId
-      documents {
-        id
-        name
-      }
-      userStories {
-        id
-        name
-        cost
-      }
+      page
+      data
     }
   }
 `;

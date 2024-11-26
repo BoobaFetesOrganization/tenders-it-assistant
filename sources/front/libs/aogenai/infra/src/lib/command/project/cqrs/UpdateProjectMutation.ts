@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client';
 
 export const UpdateProjectMutation = gql`
-  mutation UpdateProject {
-    project @rest(type: "IProjectDto", method: "PUT", path: "/project") {
+  mutation UpdateProject($input: IProjectDto!) {
+    project(input: $input)
+      @rest(type: "IProjectDto", method: "PUT", path: "/project") {
       id
       name
       prompt

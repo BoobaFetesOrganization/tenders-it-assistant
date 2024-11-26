@@ -1,34 +1,23 @@
 import { IDocumentBaseDto, IPaged } from '@aogenai/domain';
-import { gql, QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { getInfraSettings } from '../../settings';
+import { GetDocumentsQuery } from './cqrs';
 
-interface Request {
+export interface UseDocumentRequest {
   projectId: number;
-  limit?: number;
-  offset?: number;
+  limit: number;
+  offset: number;
 }
 interface Response {
   documents: IPaged<IDocumentBaseDto>;
 }
 
-export const GetDocumentsQuery = gql`
-  query GetDocuments {
-    documents
-      @rest(
-        type: "[IDocumentBaseDto]"
-        method: "GET"
-        path: "/project/{args.projectId}/document?limit={args.limit}&offset={args.offset}"
-      ) {
-      page
-      data
-    }
-  }
-`;
-
-export const useDocuments = (options?: QueryHookOptions<Response, Request>) => {
+export const useDocuments = (
+  options?: QueryHookOptions<Response, UseDocumentRequest>
+) => {
   const maxLimit = getInfraSettings().api.maxLimit;
 
-  return useQuery<Response, Request>(GetDocumentsQuery, {
+  return useQuery<Response, UseDocumentRequest>(GetDocumentsQuery, {
     ...options,
     skip: !options?.variables?.projectId || options.variables.projectId < 0,
     variables: {

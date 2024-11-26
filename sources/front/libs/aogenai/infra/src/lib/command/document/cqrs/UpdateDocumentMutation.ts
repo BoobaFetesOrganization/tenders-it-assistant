@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const UpdateDocumentMutation = gql`
-  mutation UpdateDocument($projectId: Int!) {
-    document(projectId: $projectId)
+  mutation UpdateDocument($projectId: Int!, $input: IProjectDto!) {
+    document(projectId: $projectId, input: $input)
       @rest(
         type: "IDocumentDto"
         method: "PUT"

@@ -56,10 +56,10 @@ export const DashBoard: FC = memo(() => {
               {
                 data: projects
                   .reverse()
-                  .filter(
-                    (i, index) =>
-                      index < 18 && i.name.toLowerCase().includes(projectName)
-                  )
+                  .filter((i) => {
+                    return i.name.toLowerCase().includes(projectName);
+                  })
+                  .slice(0, 18)
                   .map((i) => ({
                     id: i.id,
                     value: 1,

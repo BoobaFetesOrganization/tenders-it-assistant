@@ -5,21 +5,22 @@ import { ProjectItem } from './Item';
 
 interface IEditProps {
   id: number;
+  onSaved?: (item: IProjectDto) => void;
 }
-export const ProjectEdit: FC<IEditProps> = memo(({ id }) => {
-  const [intial, setInitial] = useState(newProjectDto);
+export const ProjectEdit: FC<IEditProps> = memo(({ id, onSaved }) => {
+  const [initial, setInitial] = useState(newProjectDto);
 
-  const { data: { project } = { project: newProjectDto() }, loading } =
-    useProject({
-      variables: { id },
-      onCompleted({ project }) {
-        setInitial(project);
-      },
-    });
+  const { loading } = useProject({
+    variables: { id },
+    onCompleted({ project }) {
+      setInitial(project);
+    },
+  });
 
   const [call] = useUpdateProject({
-    onCompleted() {
+    onCompleted({ project }) {
       alert(`Project updated`);
+      onSaved?.(project);
     },
   });
 
@@ -30,11 +31,16 @@ export const ProjectEdit: FC<IEditProps> = memo(({ id }) => {
     [call]
   );
 
-  const reset = useCallback(() => intial, [intial]);
+  const reset = useCallback(() => initial, [initial]);
 
   return loading ? (
     'is loading'
   ) : (
-    <ProjectItem data={project} reset={reset} save={save} />
+    <ProjectItem
+      className="edit-project"
+      data={initial}
+      reset={reset}
+      save={save}
+    />
   );
 });

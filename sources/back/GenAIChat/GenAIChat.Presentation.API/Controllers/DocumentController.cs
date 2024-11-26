@@ -42,7 +42,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(int projectId, [FromForm] DocumentRequest request)
+        public async Task<IActionResult> Create(int projectId, [FromBody] DocumentRequest request)
         {
             // check
             if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
@@ -67,7 +67,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int projectId, int id, [FromForm] DocumentRequest request)
+        public async Task<IActionResult> Update(int projectId, int id, [FromBody] DocumentRequest request)
         {
             // check
             if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));

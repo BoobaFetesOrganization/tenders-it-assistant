@@ -1,0 +1,188 @@
+{
+  "UserStory": [
+    {
+      "Id": 1,
+      "Name": "Administrateur : En tant qu'administrateur, je veux pouvoir gérer les droits d'accès au backoffice par role (analyste société, analyste groupe, statisticien groupe, et admin)",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Conception et développement de la gestion des rôles d'utilisateurs",
+          "Cost": 4
+        },
+        {
+          "Id": 2,
+          "Name": "Création d'une interface d'administration pour la gestion des rôles",
+          "Cost": 6
+        },
+        {
+          "Id": 3,
+          "Name": "Tests et validation de la gestion des rôles",
+          "Cost": 2
+        }
+      ]
+    },
+    {
+      "Id": 2,
+      "Name": "Administrateur : En tant qu'administrateur, je veux pouvoir gérer la liste des sociétés qui seront proposées en choix par défaut aux informateurs dans leur interface de saisie, afin de pouvoir leur proposer une liste à jour",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Création d'une table pour stocker la liste des sociétés",
+          "Cost": 2
+        },
+        {
+          "Id": 2,
+          "Name": "Développement d'une API pour gérer la liste des sociétés",
+          "Cost": 4
+        },
+        {
+          "Id": 3,
+          "Name": "Création d'une interface d'administration pour gérer la liste des sociétés",
+          "Cost": 6
+        },
+        {
+          "Id": 4,
+          "Name": "Tests et validation de la gestion de la liste des sociétés",
+          "Cost": 2
+        }
+      ]
+    },
+    {
+      "Id": 3,
+      "Name": "Informateur : En tant qu'informateur, je veux pouvoir voir quelles données le service collecte et pour quelle raison elles sont collectées, afin d'utiliser le service en connaissance de cause",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Rédaction d'une page d'information sur les données collectées",
+          "Cost": 4
+        },
+        {
+          "Id": 2,
+          "Name": "Intégration de la page d'information dans l'application",
+          "Cost": 2
+        },
+        {
+          "Id": 3,
+          "Name": "Tests et validation de la page d'information",
+          "Cost": 1
+        }
+      ]
+    },
+    {
+      "Id": 4,
+      "Name": "Informateur : En tant qu'utilisateur du service, je veux pouvoir choisir la langue utilisée dans les interfaces (Français et Anglais), afin de lire plus confortablement les textes",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Conception et développement de la fonctionnalité de choix de langue",
+          "Cost": 4
+        },
+        {
+          "Id": 2,
+          "Name": "Traduction des interfaces en anglais",
+          "Cost": 8
+        },
+        {
+          "Id": 3,
+          "Name": "Tests et validation de la fonctionnalité de choix de langue",
+          "Cost": 2
+        }
+      ]
+    },
+    {
+      "Id": 5,
+      "Name": "Informateur : - En tant qu'informateur, je veux pouvoir entrer des informations sous forme d'une description, du choix d'une ou plusieurs catégories d'information, du choix d’une ou plusieurs sociétés, afin de partager des informations de veille avec des analystes",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Conception et développement du formulaire de saisie d'informations",
+          "Cost": 6
+        },
+        {
+          "Id": 2,
+          "Name": "Intégration du formulaire de saisie dans l'application",
+          "Cost": 2
+        },
+        {
+          "Id": 3,
+          "Name": "Tests et validation du formulaire de saisie",
+          "Cost": 2
+        }
+      ]
+    },
+    {
+      "Id": 6,
+      "Name": "Informateur : En tant qu'informateur, je veux pouvoir joindre des photos à mon rapport, afin de partager des informations de veille avec des analystes",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Conception et développement de la fonctionnalité de téléchargement de photos",
+          "Cost": 4
+        },
+        {
+          "Id": 2,
+          "Name": "Intégration de la fonctionnalité de téléchargement dans l'application",
+          "Cost": 2
+        },
+        {
+          "Id": 3,
+          "Name": "Tests et validation de la fonctionnalité de téléchargement",
+          "Cost": 2
+        }
+      ]
+    },
+    {
+      "Id": 7,
+      "Name": "Informateur : En tant qu'utilisateur, je veux pouvoir être authentifié automatiquement afin de gagner du temps lorsque j'accède au service",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Intégration d'un système d'authentification unique (SSO)",
+          "Cost": 6
+        },
+        {
+          "Id": 2,
+          "Name": "Tests et validation du système d'authentification",
+          "Cost": 2
+        }
+      ]
+    },
+    {
+      "Id": 8,
+      "Name": "Analyste : En tant qu'utilisateur du backoffice, je veux pouvoir voir quelles données le service collecte et pour quelle raison elles sont collectées, afin d'utiliser le service en connaissance de cause",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Rédaction d'une page d'information sur les données collectées",
+          "Cost": 4
+        },
+        {
+          "Id": 2,
+          "Name": "Intégration de la page d'information dans le backoffice",
+          "Cost": 2
+        },
+        {
+          "Id": 3,
+          "Name": "Tests et validation de la page d'information",
+          "Cost": 1
+        }
+      ]
+    },
+    {
+      "Id": 9,
+      "Name": "Analyste : En tant qu'analyste groupe, je veux pouvoir consulter la liste de tous les rapports, afin d'effectuer mon travail de vérification",
+      "Tasks": [
+        {
+          "Id": 1,
+          "Name": "Conception et développement de la liste des rapports pour les analystes groupe",
+          "Cost": 6
+        },
+        {
+          "Id": 2,
+          "Name": "Tests et validation de la liste des rapports",
+          "Cost": 2
+        }
+      ]
+    }
+  ]
+}
