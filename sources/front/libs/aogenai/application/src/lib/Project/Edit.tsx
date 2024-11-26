@@ -1,12 +1,12 @@
 import { IProjectDto, newProjectDto } from '@aogenai/domain';
 import { useProject, useUpdateProject } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
-import { Item } from './Item';
+import { ProjectItem } from './Item';
 
 interface IEditProps {
   id: number;
 }
-export const Edit: FC<IEditProps> = memo(({ id }) => {
+export const ProjectEdit: FC<IEditProps> = memo(({ id }) => {
   const [intial, setInitial] = useState(newProjectDto);
 
   const { data: { project } = { project: newProjectDto() }, loading } =
@@ -35,6 +35,6 @@ export const Edit: FC<IEditProps> = memo(({ id }) => {
   return loading ? (
     'is loading'
   ) : (
-    <Item data={project} reset={reset} save={save} />
+    <ProjectItem data={project} reset={reset} save={save} />
   );
 });

@@ -1,14 +1,14 @@
 import { RouteObject } from 'react-router';
-import { ProjectCollection } from './ProjectCollection';
-import { ProjectEdit } from './ProjectEdit';
+import { ProjectCollectionWrapper } from './ProjectCollectionWrapper';
+import { ProjectItemWrapper } from './ProjectItemWrapper';
 
 export const projectRoutes: RouteObject[] = [
   {
     path: 'project/*',
-    element: <ProjectCollection />,
+    element: <ProjectCollectionWrapper />,
   },
   {
     path: 'project/:id',
-    element: <ProjectEdit />,
+    element: <ProjectItemWrapper />,
   },
 ];

@@ -1,9 +1,9 @@
 import { IProjectDto, newProjectDto } from '@aogenai/domain';
 import { useCreateProject } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
-import { Item } from './Item';
+import { ProjectItem } from './Item';
 
-export const Create: FC = memo(() => {
+export const ProjectCreate: FC = memo(() => {
   // const navigate = useNavigate();
 
   const [intial] = useState(newProjectDto);
@@ -24,5 +24,12 @@ export const Create: FC = memo(() => {
     [call]
   );
 
-  return <Item mode="create" data={intial} reset={newProjectDto} save={save} />;
+  return (
+    <ProjectItem
+      mode="create"
+      data={intial}
+      reset={newProjectDto}
+      save={save}
+    />
+  );
 });

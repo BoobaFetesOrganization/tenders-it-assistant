@@ -1,6 +1,8 @@
 import { IProjectBaseDto, newPage } from '@aogenai/domain';
 import { useProjects } from '@aogenai/infra';
 import CreateIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
+import SendIcon from '@mui/icons-material/Send';
 import {
   Button,
   Grid2,
@@ -15,16 +17,17 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { FC, memo, ReactNode, useCallback, useState } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 
 interface IProjectCollectionProps {
   onCreate?: () => void;
-  onActions?: (item: IProjectBaseDto) => ReactNode;
+  onSelect?: (item: IProjectBaseDto) => void;
+  onDelete?: (item: IProjectBaseDto) => void;
 }
 
 const maxItemPerPage = 10;
-export const Collection: FC<IProjectCollectionProps> = memo(
-  ({ onActions, onCreate }) => {
+export const ProjectCollection: FC<IProjectCollectionProps> = memo(
+  ({ onCreate, onDelete, onSelect }) => {
     const [variables, setVariables] = useState({
       offset: 0,
       limit: maxItemPerPage,
@@ -85,7 +88,7 @@ export const Collection: FC<IProjectCollectionProps> = memo(
                   <TableCell sx={{ width: '100%' }}>
                     <Typography fontWeight="bold">Name</Typography>
                   </TableCell>
-                  {onActions && (
+                  {onCreate && (
                     <TableCell>
                       <Typography fontWeight="bold">Actions</Typography>
                     </TableCell>
@@ -96,11 +99,34 @@ export const Collection: FC<IProjectCollectionProps> = memo(
                 {projects.data.map((project) => (
                   <TableRow key={project.id}>
                     <StyledTableCell>{project.id}</StyledTableCell>
-                    <StyledTableCell sx={{ width: '100%' }}>
+                    <StyledTableCell
+                      sx={{
+                        width: '100%',
+                        '&:hover': {
+                          textDecoration: onSelect && 'underline',
+                        },
+                      }}
+                      onClick={() => onSelect?.(project)}
+                    >
                       <Typography fontWeight="bold">{project.name}</Typography>
                     </StyledTableCell>
-                    {onActions && (
-                      <StyledTableCell>{onActions(project)}</StyledTableCell>
+                    {(onSelect || onDelete) && (
+                      <StyledTableCell>
+                        {onDelete && (
+                          <StyledItemButton
+                            id={`project-delete-${project.id}`}
+                            onClick={() => onDelete(project)}
+                            endIcon={<CloseIcon />}
+                          />
+                        )}
+                        {onSelect && (
+                          <StyledItemButton
+                            id={`project-navigate-${project.id}`}
+                            onClick={() => onSelect(project)}
+                            endIcon={<SendIcon />}
+                          />
+                        )}
+                      </StyledTableCell>
                     )}
                   </TableRow>
                 ))}
@@ -135,16 +161,21 @@ const StyledPagination = styled(Grid2)(({ theme }) => ({
   margin: theme.spacing(2, 0, 0, 0),
 }));
 
-const CreateButtonItem = styled(Grid2)(({ theme }) => ({
-  margin: theme.spacing(0, 2, 0, 0),
-}));
-
 const StyledContent = styled(Grid2)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   flexGrow: 1,
   overflow: 'hidden',
+  '& table > tbody> tr>td': { cursor: 'context-menu' },
 }));
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(1),
+}));
+
+const CreateButtonItem = styled(Grid2)(({ theme }) => ({
+  margin: theme.spacing(0, 2, 0, 0),
+}));
+
+const StyledItemButton = styled(Button)(({ theme }) => ({
+  padding: theme.spacing(0, 2),
 }));
