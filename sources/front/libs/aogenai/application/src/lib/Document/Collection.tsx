@@ -1,9 +1,7 @@
 import { IDocumentBaseDto, IProjectBaseDto, newPage } from '@aogenai/domain';
 import { useDocuments } from '@aogenai/infra';
-import CreateIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-  Button,
   Grid2,
   IconButton,
   List,
@@ -13,6 +11,7 @@ import {
   styled,
 } from '@mui/material';
 import { FC, memo, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 interface IDocumentCollectionProps {
   projectId: IProjectBaseDto['id'];
@@ -45,14 +44,28 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
       [projectId, refetch]
     );
 
+    const onDrop = useCallback(
+      (acceptedFiles: File[]) => {
+        if (acceptedFiles.length > 0) {
+          let message = '';
+          acceptedFiles
+            .filter(
+              (file) =>
+                !documents.data.map((doc) => doc.name).includes(file.name)
+            )
+            .forEach((file) => {
+              message += `${file.name} (${file.size} bytes)\n`;
+            });
+          alert(message);
+        }
+      },
+      [documents.data]
+    );
+
     return (
       <StyledRoot container className="collection-document">
         <StyledPagination>
-          <CreateButtonItem>
-            <Button id={`document-create`} startIcon={<CreateIcon />}>
-              Create
-            </Button>
-          </CreateButtonItem>
+          <DropZone onDrop={onDrop} />
           <Grid2 flexGrow={0}>
             <Pagination
               count={Math.ceil((documents.page.count ?? 0) / maxItemPerPage)}
@@ -114,6 +127,29 @@ const StyledContent = styled(Grid2)(({ theme }) => ({
   '& table > tbody> tr>td': { cursor: 'context-menu' },
 }));
 
-const CreateButtonItem = styled(Grid2)(({ theme }) => ({
-  margin: theme.spacing(0, 2, 0, 0),
-}));
+interface IDropZoneProps {
+  onDrop(acceptedFiles: File[]): void;
+}
+const DropZone: FC<IDropZoneProps> = memo(({ onDrop }) => {
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/png': ['.png'],
+    },
+  });
+
+  return (
+    <div
+      {...getRootProps()}
+      style={{
+        border: '2px dashed #ccc',
+        padding: '0 8px',
+        textAlign: 'center',
+      }}
+    >
+      <input {...getInputProps()} />
+      <p style={{ width: 300 }}>Drop files here, to send them ...</p>
+    </div>
+  );
+});
