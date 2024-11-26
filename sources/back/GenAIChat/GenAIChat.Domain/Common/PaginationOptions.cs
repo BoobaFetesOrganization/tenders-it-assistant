@@ -24,7 +24,8 @@
                 ? null
                 : limit.Value > MaxLimit ? MaxLimit : limit.Value;
         }
-        public PaginationOptions(PaginationOptions options)
+        public PaginationOptions(PaginationOptions options
+            )
         {
             Offset = options.Offset;
             Limit = options.Limit;

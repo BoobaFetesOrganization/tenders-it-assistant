@@ -6,7 +6,7 @@ export interface IPaged<T> {
 export interface IPageOptions {
   offset: number;
   limit: number;
-  count?: number;
+  count: number;
 }
 
 export function newPage<T>(obj?: Partial<IPaged<T>>): IPaged<T> {
@@ -20,6 +20,6 @@ export function newPageOptions(obj?: Partial<IPageOptions>): IPageOptions {
   return {
     offset: obj?.offset ?? 0,
     limit: obj?.limit ?? 10,
-    count: obj?.count,
+    count: obj?.count ?? -1,
   };
 }

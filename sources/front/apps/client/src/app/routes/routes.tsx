@@ -1,10 +1,11 @@
+import { DashBoard } from '@aogenai/application';
 import { RouteObject } from 'react-router';
-import { ProjectCollection, projectRoutes } from './project';
+import { projectRoutes } from './project';
 
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: <ProjectCollection />,
+    element: <DashBoard />,
   },
   ...projectRoutes,
 ];

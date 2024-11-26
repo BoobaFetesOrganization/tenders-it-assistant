@@ -7,7 +7,8 @@ import IconButton from '@mui/material/IconButton';
 import { alpha, styled } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { FC, memo, useCallback, useState } from 'react';
+import { FC, memo, MouseEvent, useCallback, useState } from 'react';
+import { AppBarMenu } from '../menus';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -67,10 +68,12 @@ interface ISearchAppBarProps {
   title: string;
 }
 export const SearchAppBar: FC<ISearchAppBarProps> = memo(({ title }) => {
-  const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const toggleMenu = useCallback(
-    () => setMenuIsOpen(!menuIsOpen),
-    [menuIsOpen]
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const onOpen = useCallback(
+    (event: MouseEvent<HTMLElement>) => {
+      setAnchorEl(event.currentTarget);
+    },
+    [setAnchorEl]
   );
 
   return (
@@ -81,9 +84,9 @@ export const SearchAppBar: FC<ISearchAppBarProps> = memo(({ title }) => {
             size="large"
             edge="start"
             color="inherit"
-            aria-label="open drawer"
             sx={{ mr: 2 }}
-            onClick={toggleMenu}
+            onClick={onOpen}
+            aria-label="open menu"
           >
             <MenuIcon />
           </IconButton>
@@ -112,6 +115,7 @@ export const SearchAppBar: FC<ISearchAppBarProps> = memo(({ title }) => {
           </Search> */}
         </Toolbar>
       </AppBar>
+      <AppBarMenu anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
     </Box>
   );
 });
