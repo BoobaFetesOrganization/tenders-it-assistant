@@ -5,10 +5,12 @@ using GenAIChat.Domain.Document;
 using GenAIChat.Presentation.API.Controllers.Common;
 using GenAIChat.Presentation.API.Controllers.Document;
 using GenAIChat.Presentation.API.Controllers.Document.Request;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GenAIChat.Presentation.API.Controllers
 {
+    [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/project/{projectId}/[controller]")]
     public class DocumentController(DocumentApplication application, IMapper mapper)
@@ -67,7 +69,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int projectId, int id, [FromBody] DocumentRequest request)
+        public async Task<IActionResult> Update(int projectId, int id, [FromForm] DocumentRequest request)
         {
             // check
             if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));

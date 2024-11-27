@@ -1,23 +1,19 @@
-import { IDocumentDto } from '@aogenai/domain';
-import { MutationHookOptions, useMutation } from '@apollo/client';
-import {
-  CreateDocumentMutation,
-  GetDocumentQuery,
-  GetDocumentsQuery,
-} from './cqrs';
+import { MutationHookOptions, MutationTuple } from '@apollo/client';
+import { CreateDocumentRequest, CreateDocumentResponse } from './arguments';
+import { createDocumentCommand, GetDocumentsQuery } from './cqrs';
+import { useUploadFile } from './cqrs/tools/useUploadFile';
 
-interface Request {
-  projectId: number;
-  input: { file: File };
+export function useCreateDocument(
+  options?: MutationHookOptions<CreateDocumentResponse, CreateDocumentRequest>
+): MutationTuple<CreateDocumentResponse, CreateDocumentRequest> {
+  return useUploadFile<CreateDocumentResponse, CreateDocumentRequest>(
+    async (variables) =>
+      await createDocumentCommand(variables.projectId, variables.file),
+    options,
+    (client, data) => {
+      client.refetchQueries({
+        include: [GetDocumentsQuery],
+      });
+    }
+  );
 }
-interface Response {
-  document: IDocumentDto;
-}
-
-export const useCreateDocument = (
-  options?: MutationHookOptions<Response, Request>
-) =>
-  useMutation<Response, Request>(CreateDocumentMutation, {
-    ...options,
-    refetchQueries: [GetDocumentQuery, GetDocumentsQuery],
-  });

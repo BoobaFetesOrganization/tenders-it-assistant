@@ -15,7 +15,7 @@ import {
   Pagination,
   styled,
 } from '@mui/material';
-import { FC, memo, useCallback } from 'react';
+import { FC, memo, useCallback, useState } from 'react';
 import { DropZone } from './DropZone';
 
 interface IDocumentCollectionProps {
@@ -29,6 +29,7 @@ interface IDocumentCollectionProps {
 const maxItemPerPage = 10;
 export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
   ({ projectId, onCreated, onDeleted, onSelected, onUpdated }) => {
+    const [error, setError] = useState<Error | null>(null);
     const { data: { documents } = { documents: newPage() }, refetch } =
       useDocuments({
         variables: {
@@ -37,14 +38,32 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
           limit: maxItemPerPage,
         },
       });
-    const [createDocument] = useCreateDocument({
-      onCompleted: ({ document }) => onCreated?.(document),
+    const [createDocument, { loading: createLoading }] = useCreateDocument({
+      onCompleted: ({ document }) => {
+        onCreated?.(document);
+        setError(null);
+      },
+      onError(error) {
+        setError(error);
+      },
     });
-    const [updateDocument] = useUpdateDocument({
-      onCompleted: ({ document }) => onUpdated?.(document),
+    const [updateDocument, { loading: updateLoading }] = useUpdateDocument({
+      onCompleted: ({ document }) => {
+        onUpdated?.(document);
+        setError(null);
+      },
+      onError(error) {
+        setError(error);
+      },
     });
-    const [deleteDocument] = useDeleteDocument({
-      onCompleted: ({ document }) => onDeleted?.(document),
+    const [deleteDocument, { loading: deleteLoading }] = useDeleteDocument({
+      onCompleted: ({ document }) => {
+        onDeleted?.(document);
+        setError(null);
+      },
+      onError(error) {
+        setError(error);
+      },
     });
 
     const onDelete = useCallback(
@@ -69,10 +88,15 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
       (acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
           acceptedFiles.forEach((file) => {
-            if (documents.data.find((doc) => doc.name === file.name)) {
-              updateDocument({ variables: { projectId, input: { file } } });
+            const existingDocument = documents.data.find(
+              (doc) => doc.name === file.name
+            );
+            if (existingDocument) {
+              updateDocument({
+                variables: { projectId, id: existingDocument.id, file },
+              });
             } else {
-              createDocument({ variables: { projectId, input: { file } } });
+              createDocument({ variables: { projectId, file } });
             }
           });
         }
@@ -80,10 +104,13 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
       [createDocument, documents.data, projectId, updateDocument]
     );
 
+    const loading = createLoading || updateLoading || deleteLoading;
     return (
       <StyledRoot container className="collection-document">
         <StyledPagination>
           <DropZone onDrop={onDrop} />
+          {error && <div>{error.message}</div>}
+          {loading && <div>Loading...</div>}
           <Grid2 flexGrow={0}>
             <Pagination
               count={Math.ceil((documents.page.count ?? 0) / maxItemPerPage)}
