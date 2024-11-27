@@ -3,18 +3,20 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { getInfraSettings } from '../../settings';
 import { GetProjectsQuery } from './cqrs';
 
-interface Request {
+interface GetProjectsRequest {
   limit: number;
   offset: number;
 }
-interface Response {
+export interface GetProjectsResponse {
   projects: IPaged<IProjectBaseDto>;
 }
 
-export const useProjects = (options?: QueryHookOptions<Response, Request>) => {
+export const useProjects = (
+  options?: QueryHookOptions<GetProjectsResponse, GetProjectsRequest>
+) => {
   const maxLimit = getInfraSettings().api.maxLimit;
 
-  return useQuery<Response, Request>(GetProjectsQuery, {
+  return useQuery<GetProjectsResponse, GetProjectsRequest>(GetProjectsQuery, {
     ...options,
     variables: { offset: 0, limit: maxLimit, ...options?.variables },
   });

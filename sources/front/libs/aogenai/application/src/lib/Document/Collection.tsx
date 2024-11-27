@@ -1,5 +1,10 @@
 import { IDocumentBaseDto, IProjectBaseDto, newPage } from '@aogenai/domain';
-import { useDocuments } from '@aogenai/infra';
+import {
+  useCreateDocument,
+  useDeleteDocument,
+  useDocuments,
+  useUpdateDocument,
+} from '@aogenai/infra';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Grid2,
@@ -11,17 +16,19 @@ import {
   styled,
 } from '@mui/material';
 import { FC, memo, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { DropZone } from './DropZone';
 
 interface IDocumentCollectionProps {
   projectId: IProjectBaseDto['id'];
-  onCreate?: () => void;
-  onDelete?: (item: IDocumentBaseDto) => void;
+  onSelected?: (item: IDocumentBaseDto) => void;
+  onCreated?: (item: IDocumentBaseDto) => void;
+  onUpdated?: (item: IDocumentBaseDto) => void;
+  onDeleted?: (item: IDocumentBaseDto) => void;
 }
 
 const maxItemPerPage = 10;
 export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
-  ({ projectId, onCreate, onDelete }) => {
+  ({ projectId, onCreated, onDeleted, onSelected, onUpdated }) => {
     const { data: { documents } = { documents: newPage() }, refetch } =
       useDocuments({
         variables: {
@@ -30,8 +37,22 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
           limit: maxItemPerPage,
         },
       });
-    // const [createDocument] = useCreateDocument();
-    // const [deleteDocument] = useDeleteDocument();
+    const [createDocument] = useCreateDocument({
+      onCompleted: ({ document }) => onCreated?.(document),
+    });
+    const [updateDocument] = useUpdateDocument({
+      onCompleted: ({ document }) => onUpdated?.(document),
+    });
+    const [deleteDocument] = useDeleteDocument({
+      onCompleted: ({ document }) => onDeleted?.(document),
+    });
+
+    const onDelete = useCallback(
+      (document: IDocumentBaseDto) => () => {
+        deleteDocument({ variables: { projectId, id: document.id } });
+      },
+      [deleteDocument, projectId]
+    );
 
     const onPageChange = useCallback(
       (event: React.ChangeEvent<unknown>, page: number) => {
@@ -47,19 +68,16 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
     const onDrop = useCallback(
       (acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
-          let message = '';
-          acceptedFiles
-            .filter(
-              (file) =>
-                !documents.data.map((doc) => doc.name).includes(file.name)
-            )
-            .forEach((file) => {
-              message += `${file.name} (${file.size} bytes)\n`;
-            });
-          alert(message);
+          acceptedFiles.forEach((file) => {
+            if (documents.data.find((doc) => doc.name === file.name)) {
+              updateDocument({ variables: { projectId, input: { file } } });
+            } else {
+              createDocument({ variables: { projectId, input: { file } } });
+            }
+          });
         }
       },
-      [documents.data]
+      [createDocument, documents.data, projectId, updateDocument]
     );
 
     return (
@@ -88,7 +106,7 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
                   <IconButton
                     edge="end"
                     aria-label="delete"
-                    onClick={() => onDelete?.(document)}
+                    onClick={onDelete(document)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -126,30 +144,3 @@ const StyledContent = styled(Grid2)(({ theme }) => ({
   overflow: 'hidden',
   '& table > tbody> tr>td': { cursor: 'context-menu' },
 }));
-
-interface IDropZoneProps {
-  onDrop(acceptedFiles: File[]): void;
-}
-const DropZone: FC<IDropZoneProps> = memo(({ onDrop }) => {
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'image/png': ['.png'],
-    },
-  });
-
-  return (
-    <div
-      {...getRootProps()}
-      style={{
-        border: '2px dashed #ccc',
-        padding: '0 8px',
-        textAlign: 'center',
-      }}
-    >
-      <input {...getInputProps()} />
-      <p style={{ width: 300 }}>Drop files here, to send them ...</p>
-    </div>
-  );
-});

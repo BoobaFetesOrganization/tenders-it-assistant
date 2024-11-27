@@ -1,23 +1,19 @@
 import { IDocumentDto } from '@aogenai/domain';
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import {
-  GetDocumentQuery,
-  GetDocumentsQuery,
-  UpdateDocumentMutation,
-} from './cqrs';
+import { DeleteDocumentMutation, GetDocumentsQuery } from './cqrs';
 
 interface Request {
   projectId: number;
-  input: { file: File };
+  id: number;
 }
 interface Response {
   document: IDocumentDto;
 }
 
-export const useUpdateDocument = (
+export const useDeleteDocument = (
   options?: MutationHookOptions<Response, Request>
 ) =>
-  useMutation<Response, Request>(UpdateDocumentMutation, {
+  useMutation<Response, Request>(DeleteDocumentMutation, {
     ...options,
-    refetchQueries: [GetDocumentQuery, GetDocumentsQuery],
+    refetchQueries: [GetDocumentsQuery],
   });

@@ -8,7 +8,7 @@ import {
 
 interface Request {
   projectId: number;
-  input: { name: string };
+  input: { file: File };
 }
 interface Response {
   document: IDocumentDto;

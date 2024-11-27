@@ -12,10 +12,11 @@ export const ProjectItemWrapper: FC = memo(() => {
     (item: IProjectDto) => navigate(`/project/${item.id}`),
     [navigate]
   );
+  const navigateToList = useCallback(() => navigate(`/project`), [navigate]);
 
   return id === 0 ? (
     <ProjectCreate onCreated={navigateToEdit} />
   ) : (
-    <ProjectEdit id={id} />
+    <ProjectEdit id={id} onDeleted={navigateToList} />
   );
 });

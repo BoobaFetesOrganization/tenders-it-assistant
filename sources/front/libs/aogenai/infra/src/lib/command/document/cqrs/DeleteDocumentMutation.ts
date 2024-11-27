@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client';
 
-export const GetDocumentQuery = gql`
-  query GetDocument($projectId: Int!, $id: Int!) {
+export const DeleteDocumentMutation = gql`
+  mutation DeleteDocument($projectId: Int!, $id: Int!) {
     document(projectId: $projectId, id: $id)
       @rest(
         type: "IDocumentDto"
-        method: "GET"
+        method: "DELETE"
         path: "/project/{args.projectId}/document/{args.id}"
       ) {
       id

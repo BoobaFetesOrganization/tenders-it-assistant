@@ -10,17 +10,9 @@ export const CreateDocumentMutation = gql`
       ) {
       id
       name
-      prompt
-      responseId
-      documents {
-        id
-        name
-      }
-      userStories {
-        id
-        name
-        cost
-      }
+      content
+      createTime
+      updateTime
     }
   }
 `;

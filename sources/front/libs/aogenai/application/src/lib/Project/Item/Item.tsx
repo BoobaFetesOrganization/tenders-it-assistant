@@ -9,10 +9,11 @@ interface dataProps {
   data: IProjectDto;
   save: (data: IProjectDto) => void;
   reset: () => IProjectDto;
+  remove?: (item: IProjectDto) => void;
 }
 
 export const ProjectItem: FC<dataProps> = memo(
-  ({ className, data, save, reset }) => {
+  ({ className, data, save, reset, remove }) => {
     const isCreation = !data.id;
     const [project, setProject] = useState<IProjectDto>(data);
 
@@ -28,6 +29,10 @@ export const ProjectItem: FC<dataProps> = memo(
       setProject(reset());
     }, [reset]);
 
+    const onDelete = useCallback(() => {
+      remove?.(data);
+    }, [data, remove]);
+
     return (
       <Box
         className={className}
@@ -36,7 +41,11 @@ export const ProjectItem: FC<dataProps> = memo(
         {isCreation && <CreateContent data={project} setData={setProject} />}
         {!isCreation && <EditContent data={project} setData={setProject} />}
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'end' }}>
-          {/* Add more inputs for documents and userStories if needed */}
+          {!isCreation && remove && (
+            <Button variant="contained" color="error" onClick={onDelete}>
+              Delete
+            </Button>
+          )}
           <Button variant="outlined" color="secondary" onClick={onReset}>
             Reset
           </Button>

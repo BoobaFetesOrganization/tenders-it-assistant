@@ -11,7 +11,7 @@ export const ProjectCreate: FC<IProjectCreateProps> = memo(({ onCreated }) => {
 
   const [call] = useCreateProject({
     onCompleted({ project }) {
-      if (!project.id) onCreated(project);
+      if (project.id) onCreated(project);
       else setInitial(project);
     },
   });
