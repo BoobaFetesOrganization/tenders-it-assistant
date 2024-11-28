@@ -2,44 +2,55 @@
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Gemini;
 using GenAIChat.Domain.Gemini.GeminiCommon;
-using GenAIChat.Domain.Prompt;
 using GenAIChat.Infrastructure.Api.Gemini.Service;
 
 namespace GenAIChat.Infrastructure.Api.Gemini
 {
     public class GenAiApiAdapter(GeminiGenerateContentService generateContentService, GeminiFileService fileService) : IGenAiApiAdapter
     {
-        public async Task<PromptDomain> SendPromptAsync(string prompt, IEnumerable<DocumentDomain>? documents = null)
+        public async Task<string> SendRequestAsync(string request, IEnumerable<DocumentDomain>? documents = null)
         {
             GeminiPromptData data = new();
             GeminiContent content = new();
             data.Contents.Add(content);
 
-            content.Parts.Add(new(prompt));
+            content.Parts.Add(new(request));
 
             if (documents is not null)
                 content.Parts.AddRange(
                     documents.Select(document => new GeminiContentPart(document.Metadata.MimeType, document.Metadata.Uri)));
 
+            var promptResponse = await generateContentService.CallAsync(data);
+            // todo ? => PromptDomain result = new(promptResponse);
+            // todo ? => result.LoadTextAsGeminiResult();
 
-            PromptDomain result = new(await generateContentService.CallAsync(data));
-            result.LoadTextAsGeminiResult();
-
-            return result;
+            return promptResponse;
         }
 
 
-        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain>? documents)
+        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain>? documents, Func<DocumentDomain, Task>? onSent = null)
         {
             if (documents is null) return [];
 
-            // upload files asynchroneously
-            var actions = documents.Select(async document => await fileService.UploadAsync(document));
+            // find expired documents
+            var validDocuments = documents.Where(doc => doc.Metadata.ExpirationTime > DateTime.Now);
+            var documentToUpload = documents.Except(validDocuments).ToArray();
 
-            // wait for all files to be uploaded
-            var results = await Task.WhenAll(actions);
+            // when no expired documents are found, operation should ends as expected
+            if (!documentToUpload.Any()) return documents;
 
-            return results;
+            // upload expired documents
+            var actions = documentToUpload.Select(async document => await fileService.UploadAsync(document));
+            var sentDocuments = await Task.WhenAll(actions);
+
+            // execute action onUpdated 
+            if (onSent is not null)
+            {
+                var onSentActions = sentDocuments.Select(async doc => await onSent(doc));
+                await Task.WhenAll(onSentActions);
+            }
+
+            return documents;
         }
     }
 }

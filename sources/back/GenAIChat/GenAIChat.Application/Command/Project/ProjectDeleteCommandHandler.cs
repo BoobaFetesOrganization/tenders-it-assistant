@@ -9,11 +9,11 @@ namespace GenAIChat.Application.Command.Project
     {
         public async Task<ProjectDomain?> Handle(DeleteCommand<ProjectDomain> request, CancellationToken cancellationToken)
         {
-            var project = await unitOfWork.Projects.GetByIdAsync(request.Id);
+            var item = await unitOfWork.Project.GetByIdAsync(request.Id);
 
-            if (project is not null) await unitOfWork.Projects.DeleteAsync(project);
+            if (item is not null) await unitOfWork.Project.DeleteAsync(item);
 
-            return project;
+            return item;
         }
     }
 

@@ -1,0 +1,6 @@
+﻿{
+  "Context": "Je souhaites extraire toutes les user stories et les chiffrer en tâches en fonction des documents fournis",
+  "Personas": "- Product Owner, - developpeur fullstack",
+  "Tasks": "- Extraire les user stories, - Découper les user stories en tâches, - Chiffrer chaque tâche",
+  "Results": "- un objet JSON contenant les user stories, les tâches et leur chiffrage, - aucune autre information ne doit être présent dans la réponse fourni, - ton retour devra être sérialisable directement en JSON selon le schema suivant : { \"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": { \"Id\": { \"type\": \"integer\" }, \"Name\": { \"type\": \"string\" }, \"Tasks\": { \"type\": \"array\", \"items\": { \"type\": \"object\", \"properties\": { \"Id\": { \"type\": \"integer\" }, \"Name\": { \"type\": \"string\" }, \"Cost\": { \"type\": \"number\" } }, \"required\": [\"Id\", \"Name\", \"Cost\"] } } }, \"required\": [\"Id\", \"Name\", \"Tasks\"] }"
+}

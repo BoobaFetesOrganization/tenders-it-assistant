@@ -1,52 +1,70 @@
 ﻿using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
-using GenAIChat.Domain.Prompt;
+using GenAIChat.Domain.Project.Group;
+using GenAIChat.Domain.Project.Group.UserStory;
+using GenAIChat.Domain.Project.Group.UserStory.Task;
+using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using Microsoft.EntityFrameworkCore;
 
-namespace GenAIChat.Infrastructure.Database
+namespace GenAIChat.Infrastructure
 {
-    public class GenAiDbContext : DbContext
+    public class GenAiDbContext(DbContextOptions<GenAiDbContext> options) : DbContext(options)
     {
-
-        public DbSet<ProjectDomain> Projects { get; set; }
-        public DbSet<UserStoryDomain> UserStories { get; set; }
-        public DbSet<UserStoryTaskDomain> Tasks { get; set; }
-        public DbSet<DocumentDomain> Documents { get; set; }
-
-        public DbSet<DocumentMetadataDomain> DocumentMetadatas { get; set; }
-
-        public GenAiDbContext(DbContextOptions<GenAiDbContext> contextOptions) : base(contextOptions) { }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            // Configuration des entités
+            // Nom des tables
             modelBuilder.Entity<ProjectDomain>().ToTable("Projects");
             modelBuilder.Entity<DocumentDomain>().ToTable("Documents");
+            modelBuilder.Entity<DocumentMetadataDomain>().ToTable("DocumentMetadatas");
+            modelBuilder.Entity<UserStoryGroupDomain>().ToTable("UserStoryGroups");
             modelBuilder.Entity<UserStoryDomain>().ToTable("UserStories");
-            modelBuilder.Entity<UserStoryTaskDomain>().ToTable("Tasks");
-            modelBuilder.Entity<DocumentMetadataDomain>().ToTable("Metadatas");
-            modelBuilder.Entity<PromptDomain>().ToTable("Prompts");
+            modelBuilder.Entity<TaskDomain>().ToTable("Tasks");
+            modelBuilder.Entity<TaskCostDomain>().ToTable("TaskCosts");
+            modelBuilder.Entity<UserStoryPromptDomain>().ToTable("UserStoryPrompts");
 
-            // Configuration des relations
+            // Relation ProjectDomain -> DocumentDomain
             modelBuilder.Entity<ProjectDomain>()
                 .HasMany(p => p.Documents)
                 .WithOne()
-                .HasForeignKey(r => r.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(d => d.ProjectId);
 
+            // Relation ProjectDomain -> UserStoryGroupDomain
             modelBuilder.Entity<ProjectDomain>()
-                .HasMany(p => p.UserStories)
+                .HasMany(p => p.Stories)
                 .WithOne()
-                .HasForeignKey(r => r.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(ug => ug.ProjectId);
 
+            // Relation DocumentDomain -> DocumentMetadataDomain
+            modelBuilder.Entity<DocumentDomain>()
+                .HasOne(d => d.Metadata)
+                .WithOne()
+                .HasForeignKey<DocumentMetadataDomain>(m => m.DocumentId);
+
+            // Relation UserStoryGroupDomain -> UserStoryPromptDomain
+            modelBuilder.Entity<UserStoryGroupDomain>()
+                .HasOne(ug => ug.Prompt)
+                .WithOne()
+                .HasForeignKey<UserStoryPromptDomain>(p => p.GroupId);
+
+            // Relation UserStoryGroupDomain -> UserStoryDomain
+            modelBuilder.Entity<UserStoryGroupDomain>()
+                .HasMany(ug => ug.UserStories)
+                .WithOne()
+                .HasForeignKey(us => us.GroupId);
+
+            // Relation UserStoryDomain -> TaskDomain
             modelBuilder.Entity<UserStoryDomain>()
                 .HasMany(us => us.Tasks)
                 .WithOne()
-                .HasForeignKey(r => r.UserStoryId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(t => t.UserStoryId);
+
+            // Relation TaskDomain -> TaskCostDomain
+            modelBuilder.Entity<TaskDomain>()
+                .HasMany(t => t.WorkingCosts)
+                .WithOne()
+                .HasForeignKey(tc => tc.TaskId);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

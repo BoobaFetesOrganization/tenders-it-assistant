@@ -1,6 +1,5 @@
 ﻿using GenAIChat.Application.Adapter.Api;
 using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Application.Command.Common;
 using GenAIChat.Application.Common;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
@@ -8,25 +7,29 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Document
 {
-    public class DocumentCreateCommandHandler(IGenAiApiAdapter genAiAdapter, IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CreateCommand<DocumentDomain>, DocumentDomain>
+    public class DocumentCreateCommandHandler(IGenAiUnitOfWorkAdapter unitOfWork, IGenAiApiAdapter genAiAdapter) : IRequestHandler<CreateCommand<DocumentDomain>, DocumentDomain>
     {
         public async Task<DocumentDomain> Handle(CreateCommand<DocumentDomain> request, CancellationToken cancellationToken)
         {
-            var project = await unitOfWork.Projects.GetByIdAsync(request.Entity.ProjectId) 
+            if (string.IsNullOrEmpty(request.Entity.Name)) throw new Exception("Name should not be empty");
+            if (request.Entity.Content.Length == 0) throw new Exception("Content is required");
+
+            var project = await unitOfWork.Project.GetByIdAsync(request.Entity.ProjectId)
                 ?? throw new Exception("Project not found");
 
-            var isExisting = (await unitOfWork.Documents.GetAllAsync(PaginationOptions.All,
+            var isExisting = (await unitOfWork.Document.GetAllAsync(PaginationOptions.All,
                 p => p.ProjectId == request.Entity.ProjectId
                 && p.Name.ToLower().Equals(request.Entity.Name.ToLower()))
                 ).Any();
-            if (isExisting) throw new Exception("Document with the same name already exists for the project");
+            if (isExisting) throw new Exception("Name already exists");
 
-            var document = new DocumentDomain(request.Entity.Name, request.Entity.Metadata.MimeType, request.Entity.Metadata.Length, request.Entity.Content, request.Entity.ProjectId);
+            DocumentDomain document = new(request.Entity.Name, request.Entity.Metadata.MimeType, request.Entity.Metadata.Length, request.Entity.Content, request.Entity.ProjectId);
 
-            // upload files to the GenAI
-            await genAiAdapter.SendFilesAsync([document]);
-
-            await unitOfWork.Documents.AddAsync(document);
+            // upload files to the GenAI and add the doc if successful
+            await genAiAdapter.SendFilesAsync(
+                [document],
+                async doc => await unitOfWork.Document.AddAsync(document)
+                );
 
             return document;
         }

@@ -4,10 +4,7 @@ using GenAIChat.Infrastructure.Database.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.Repository
 {
-    public class DocumentMetadataRepository : GenericRepository<DocumentMetadataDomain>, IDocumentMetadataRepositoryAdapter
+    public class DocumentMetadataRepository(GenAiDbContext dbContext) : GenericRepository<DocumentMetadataDomain>(dbContext), IDocumentMetadataRepositoryAdapter
     {
-        public DocumentMetadataRepository(GenAiDbContext dbContext) : base(dbContext)
-        {
-        }
     }
 }

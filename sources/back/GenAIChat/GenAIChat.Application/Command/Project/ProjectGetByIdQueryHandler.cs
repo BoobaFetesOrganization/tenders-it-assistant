@@ -8,6 +8,6 @@ namespace GenAIChat.Application.Command.Project
     public class ProjectGetByIdQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetByIdQuery<ProjectDomain>, ProjectDomain?>
     {
         public async Task<ProjectDomain?> Handle(GetByIdQuery<ProjectDomain> request, CancellationToken cancellationToken)
-            => await unitOfWork.Projects.GetByIdAsync(request.Id);
+            => await unitOfWork.Project.GetByIdAsync(request.Id);
     }
 }

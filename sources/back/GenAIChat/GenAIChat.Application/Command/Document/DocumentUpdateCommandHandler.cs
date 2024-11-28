@@ -11,10 +11,13 @@ namespace GenAIChat.Application.Command.Document
     {
         public async Task<DocumentDomain?> Handle(UpdateCommand<DocumentDomain> request, CancellationToken cancellationToken)
         {
-            var document = await unitOfWork.Documents.GetByIdAsync(request.Entity.Id);
+            if (string.IsNullOrEmpty(request.Entity.Name)) throw new Exception("Name should not be empty");
+            if (request.Entity.Content.Length == 0) throw new Exception("Content is required");
+
+            var document = await unitOfWork.Document.GetByIdAsync(request.Entity.Id);
             if (document is null) return null;
 
-            var isExisting = (await unitOfWork.Documents.GetAllAsync(PaginationOptions.All,
+            var isExisting = (await unitOfWork.Document.GetAllAsync(PaginationOptions.All,
                 p => p.ProjectId == request.Entity.ProjectId
                 && p.Name.ToLower().Equals(request.Entity.Name.ToLower()))
                 ).Any();
@@ -25,10 +28,11 @@ namespace GenAIChat.Application.Command.Document
             document.Content = request.Entity.Content;
             document.Metadata = request.Entity.Metadata;
 
-            // upload files to the GenAI
-            await genAiAdapter.SendFilesAsync([document]);
-
-            await unitOfWork.Documents.UpdateAsync(document);
+            // upload files to the GenAI and update the docs if successful
+            await genAiAdapter.SendFilesAsync(
+                [document],
+                async doc => await unitOfWork.Document.UpdateAsync(document)
+                );
 
             return document;
         }

@@ -1,5 +1,6 @@
 ﻿using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Application.Command.Common;
+using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project;
 using MediatR;
 
@@ -9,15 +10,19 @@ namespace GenAIChat.Application.Command.Project
     {
         public async Task<ProjectDomain?> Handle(UpdateCommand<ProjectDomain> request, CancellationToken cancellationToken)
         {
-            var project = await unitOfWork.Projects.GetByIdAsync(request.Entity.Id);
-            if (project is null) return null;
+            if (string.IsNullOrEmpty(request.Entity.Name)) throw new Exception("Name is required");
 
-            project.Name = request.Entity.Name;
-            project.Prompt = request.Entity.Prompt;
+            var item = await unitOfWork.Project.GetByIdAsync(request.Entity.Id);
+            if (item is null) return null;
 
-            await unitOfWork.Projects.UpdateAsync(project);
+            var isExisting = (await unitOfWork.Project.GetAllAsync(PaginationOptions.All, p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()))).Any();
+            if (isExisting) throw new Exception("Name already exists");
 
-            return project;
+            item.Name = request.Entity.Name;
+
+            await unitOfWork.Project.UpdateAsync(item);
+
+            return item;
         }
     }
 

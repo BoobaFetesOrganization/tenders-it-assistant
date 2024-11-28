@@ -16,18 +16,14 @@ namespace GenAIChat.Domain.Document
 
         public DocumentDomain() { }
 
-        public DocumentDomain(string filename, string contentType, long length, byte[] content, int? projectId = null)
+        public DocumentDomain(string filename, string contentType, long length, byte[] content, int projectId, int? id = null)
         {
+            if (id.HasValue) Id = id.Value;
             Name = filename;
             Metadata.MimeType = contentType;
             Metadata.Length = length;
             Content = content;
-            if (projectId.HasValue) ProjectId = projectId.Value;
-        }
-        public DocumentDomain(int id, string filename, string contentType, long length, byte[] content, int? projectId = null)
-            : this(filename, contentType, length, content, projectId)
-        {
-            Id = id;
+            ProjectId = projectId;
         }
     }
 }

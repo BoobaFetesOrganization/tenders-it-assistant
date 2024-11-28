@@ -1,6 +1,6 @@
 ﻿using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
-using GenAIChat.Domain.Prompt;
+using GenAIChat.Domain.Project.Group;
 
 namespace GenAIChat.Domain.Project
 {
@@ -9,27 +9,27 @@ namespace GenAIChat.Domain.Project
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Prompt { get; set; } = string.Empty;
-        public PromptDomain PromptResponse { get; set; } = new PromptDomain();
 
         public ICollection<DocumentDomain> Documents { get; private set; } = [];
 
-        public ICollection<UserStoryDomain> UserStories { get; private set; } = [];
+        public ICollection<UserStoryGroupDomain> Stories { get; private set; } = [];
 
         public ProjectDomain() { }
-        public ProjectDomain(string name, string prompt) : this()
+        public ProjectDomain(string name) : this()
         {
             Name = name;
-            Prompt = prompt;
         }
-        public ProjectDomain(int id, string name, string prompt)
-            : this(name, prompt)
+        public ProjectDomain(int id, string name)
+            : this(name)
         {
             Id = id;
         }
 
-        public void SetUserStories(IEnumerable<UserStoryDomain> userstories) => UserStories = userstories.ToList();
-
-        public void SetDocuments(IEnumerable<DocumentDomain> documents) => Documents = documents.ToList();
+        public bool RemoveUserStoryGroups(IEnumerable<UserStoryGroupDomain> groups)
+        {
+            return groups
+                .Select(Stories.Remove)
+                .All(r => r);
+        }
     }
 }

@@ -1,54 +1,43 @@
-﻿using System.Reflection;
+﻿using GenAIChat.Domain.Project.Group;
+using System.Reflection;
+using System.Text.Json;
 
 namespace GenAIChat.Application.Resources
 {
     public class EmbeddedResource
     {
-        public const string UserStoryPrompt = "UserStoriesPrompt.txt";
+        public readonly UserStoryPromptDomain UserStoryPrompt;
 
         private readonly Assembly _assembly;
         private readonly string _namespaceName;
-
-        private readonly Dictionary<string, string> _memory = new Dictionary<string, string>();
 
         public EmbeddedResource()
         {
             _assembly = Assembly.GetExecutingAssembly();
             _namespaceName = GetType().Namespace ?? string.Empty;
+
+            UserStoryPrompt = GetResourceAs<UserStoryPromptDomain>("UserStoriesPrompt.json");
         }
 
-        public string? GetAsString(string resourceName)
-        {
-            try
-            {
-                var fullResourceName = $"{_namespaceName}.{resourceName}";
-                using (var stream = _assembly.GetManifestResourceStream(fullResourceName))
-                {
-                    if (stream is null) throw new FileNotFoundException($"Resource not found: {fullResourceName}");
 
-                    using (var reader = new StreamReader(stream))
-                        return reader.ReadToEnd();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex.Message);
-            }
-            return null;
-        }
-
-        public string? this[string resourceName]
+        public T GetResourceAs<T>(string resourceName)
         {
-            get
+            string? content;
+
+            var resourceFullName = $"{_namespaceName}.{resourceName}";
+            using (var stream = _assembly.GetManifestResourceStream(resourceFullName))
             {
-                if (!_memory.ContainsKey(resourceName))
-                {
-                    var content = GetAsString(resourceName);
-                    if (content is null) return null;
-                    _memory.Add(resourceName, content);
-                }
-                return _memory[resourceName];
+                if (stream is null) throw new FileNotFoundException($"Resource not found: {resourceFullName}");
+
+                using var reader = new StreamReader(stream);
+                content = reader.ReadToEnd();
             }
+
+
+            if (content is null) throw new FileNotFoundException($"Resource {resourceName} is found but there is no content");
+
+            return JsonSerializer.Deserialize<T>(content)
+                ?? throw new JsonException($"The content of {resourceName} can not be converted to UserStoryPromptDomain");
         }
     }
 }

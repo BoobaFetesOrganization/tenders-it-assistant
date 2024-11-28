@@ -9,9 +9,9 @@ namespace GenAIChat.Application.Command.Document
     {
         public async Task<DocumentDomain?> Handle(DeleteCommand<DocumentDomain> request, CancellationToken cancellationToken)
         {
-            var document = await unitOfWork.Documents.GetByIdAsync(request.Id);
+            var document = await unitOfWork.Document.GetByIdAsync(request.Id);
 
-            if (document is not null) await unitOfWork.Documents.DeleteAsync(document);
+            if (document is not null) await unitOfWork.Document.DeleteAsync(document);
 
             return document;
         }

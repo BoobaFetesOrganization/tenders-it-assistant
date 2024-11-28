@@ -14,10 +14,12 @@ namespace GenAIChat.Infrastructure.Database
             services.AddDbContext<GenAiDbContext>(dbContextBuilder);
             services.AddScoped<IGenAiUnitOfWorkAdapter, UnitOfWork.UnitOfWork>();
             services.AddScoped<IProjectRepositoryAdapter, ProjectRepository>();
-            services.AddScoped<IUserStoryRepositoryAdapter, UserStoryRepository>();
-            services.AddScoped<IUserStoryTaskRepositoryAdapter, UserStoryTaskRepository>();
             services.AddScoped<IDocumentRepositoryAdapter, DocumentRepository>();
             services.AddScoped<IDocumentMetadataRepositoryAdapter, DocumentMetadataRepository>();
+            services.AddScoped<IUserStoryGroupRepositoryAdapter, UserStoryGroupRepository>();
+            services.AddScoped<IUserStoryRepositoryAdapter, UserStoryRepository>();
+            services.AddScoped<ITaskRepositoryAdapter, TaskRepository>();
+            services.AddScoped<ITaskCostRepositoryAdapter, TaskCostRepository>();
         }
     }
 }

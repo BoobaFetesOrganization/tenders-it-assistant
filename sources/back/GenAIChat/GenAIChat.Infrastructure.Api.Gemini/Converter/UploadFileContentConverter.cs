@@ -17,7 +17,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Converter
         private class UploadFilContentResponse
         {
             [Required]
-            public DocumentMetadataDomain File { get; set; }
+            public required DocumentMetadataDomain File { get; set; }
         }
     }
 }

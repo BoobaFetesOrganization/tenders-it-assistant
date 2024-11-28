@@ -5,7 +5,7 @@ namespace GenAIChat.Application.Usecase
 {
     public interface IPromptApplication
     {
-        Task<PromptDomain> SendAsync(string prompt);
+        Task<string> SendAsync(string prompt);
     }
 
     public class PromptApplication : IPromptApplication
@@ -17,9 +17,9 @@ namespace GenAIChat.Application.Usecase
             _genAiAdapter = genAiAdapter;
         }
 
-        public async Task<PromptDomain> SendAsync(string prompt)
+        public async Task<string> SendAsync(string prompt)
         {
-            return await _genAiAdapter.SendPromptAsync(prompt);
+            return await _genAiAdapter.SendRequestAsync(prompt);
         }
     }
 }

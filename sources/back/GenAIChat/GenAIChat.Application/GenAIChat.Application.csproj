@@ -7,17 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\UserStoriesPrompt.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\UserStoriesPrompt.txt">
+    <EmbeddedResource Include="Resources\UserStoriesPrompt.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <PrivateAssets>all</PrivateAssets>

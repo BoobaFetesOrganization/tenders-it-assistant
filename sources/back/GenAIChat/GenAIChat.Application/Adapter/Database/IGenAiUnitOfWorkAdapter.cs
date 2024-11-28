@@ -4,11 +4,13 @@ namespace GenAIChat.Application.Adapter.Database
 {
     public interface IGenAiUnitOfWorkAdapter : IDisposable
     {
-        IProjectRepositoryAdapter Projects { get; }
-        IUserStoryRepositoryAdapter UserStories { get; }
-        IUserStoryTaskRepositoryAdapter UserStoryTasks { get; }
-        IDocumentRepositoryAdapter Documents { get; }
-        IDocumentMetadataRepositoryAdapter DocumentMetadatas { get; }
+        IProjectRepositoryAdapter Project { get; }
+        IUserStoryGroupRepositoryAdapter UserStoryGroup { get; }
+        IUserStoryRepositoryAdapter UserStory { get; }
+        ITaskRepositoryAdapter Task { get; }
+        ITaskCostRepositoryAdapter TaskCost { get; }
+        IDocumentRepositoryAdapter Document { get; }
+        IDocumentMetadataRepositoryAdapter DocumentMetadata { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

@@ -8,6 +8,6 @@ namespace GenAIChat.Application.Command.Project
     public class ProjectCountQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CountQuery<ProjectDomain>, int>
     {
         public async Task<int> Handle(CountQuery<ProjectDomain> request, CancellationToken cancellationToken)
-            => await unitOfWork.Projects.CountAsync(request.Filter);
+            => await unitOfWork.Project.CountAsync(request.Filter);
     }
 }

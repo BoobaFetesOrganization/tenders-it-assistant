@@ -8,11 +8,15 @@ namespace GenAIChat.Application
     {
         public static void AddGenAiChatApplicationServices(this IServiceCollection services)
         {
+            // resource registration
+            services.AddSingleton<EmbeddedResource>();
+
             // application registration
             services.AddScoped<ProjectApplication>();
             services.AddScoped<DocumentApplication>();
+            services.AddScoped<UserStoryGroupApplication>();
+            services.AddScoped<UserStoryApplication>();
             services.AddScoped<PromptApplication>();
-            services.AddScoped<EmbeddedResource>();
 
             // register MediatR to scan all assemblies in the current domain
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));

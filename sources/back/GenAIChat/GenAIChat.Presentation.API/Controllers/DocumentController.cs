@@ -3,8 +3,8 @@ using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
 using GenAIChat.Presentation.API.Controllers.Common;
-using GenAIChat.Presentation.API.Controllers.Document;
-using GenAIChat.Presentation.API.Controllers.Document.Request;
+using GenAIChat.Presentation.API.Controllers.Dto;
+using GenAIChat.Presentation.API.Controllers.Request;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,21 +46,15 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(int projectId, [FromForm] DocumentRequest request)
         {
-            // check
-            if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
-
-            // action
             try
             {
                 var content = await ReadFile(request.File);
                 if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
-                var document = new DocumentDomain(request.File.FileName, request.File.ContentType, request.File.Length, content, projectId);
-
-                // create document
-                var result = await application.CreateAsync(document);
-
-                return Created(string.Empty, mapper.Map<DocumentDto>(result));
+                var result = await application.CreateAsync(
+                    new DocumentDomain(request.File.FileName, request.File.ContentType, request.File.Length, content, projectId)
+                    );
+                return Created(string.Empty, mapper.Map<DocumentBaseDto>(result));
             }
             catch (Exception ex)
             {
@@ -71,23 +65,18 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int projectId, int id, [FromForm] DocumentRequest request)
         {
-            // check
-            if (!ModelState.IsValid) return BadRequest(new ErrorDto(ModelState));
-
-            // action
             try
             {
                 var content = await ReadFile(request.File);
                 if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
-                var document = new DocumentDomain(id, request.File.FileName, request.File.ContentType, request.File.Length, content, projectId);
-
-                // create document
-                var result = await application.UpdateAsync(document);
+                var result = await application.UpdateAsync(
+                    new DocumentDomain(request.File.FileName, request.File.ContentType, request.File.Length, content, projectId, id)
+                    );
 
                 if (result is null) return NotFound();
 
-                return Ok(mapper.Map<DocumentDto>(result));
+                return Ok(mapper.Map<DocumentBaseDto>(result));
             }
             catch (Exception ex)
             {
@@ -96,13 +85,11 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int projectId, int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            var item = await application.GetByIdAsync(id);
-            if (item?.ProjectId != projectId) return NotFound();
-
             var result = await application.DeleteAsync(id);
-            return Ok(mapper.Map<DocumentDto>(result));
+            if (result is null) return NotFound();
+            return Ok(mapper.Map<DocumentBaseDto>(result));
         }
     }
 }

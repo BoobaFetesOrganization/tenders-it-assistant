@@ -6,11 +6,13 @@ namespace GenAIChat.Infrastructure.Database.UnitOfWork
 {
     public class UnitOfWork(GenAiDbContext dbContext) : IGenAiUnitOfWorkAdapter
     {
-        public IProjectRepositoryAdapter Projects { get; } = new ProjectRepository(dbContext);
-        public IUserStoryRepositoryAdapter UserStories { get; } = new UserStoryRepository(dbContext);
-        public IUserStoryTaskRepositoryAdapter UserStoryTasks { get; } = new UserStoryTaskRepository(dbContext);
-        public IDocumentRepositoryAdapter Documents { get; } = new DocumentRepository(dbContext);
-        public IDocumentMetadataRepositoryAdapter DocumentMetadatas { get; } = new DocumentMetadataRepository(dbContext);
+        public IProjectRepositoryAdapter Project { get; } = new ProjectRepository(dbContext);
+        public IDocumentRepositoryAdapter Document { get; } = new DocumentRepository(dbContext);
+        public IDocumentMetadataRepositoryAdapter DocumentMetadata { get; } = new DocumentMetadataRepository(dbContext);
+        public IUserStoryGroupRepositoryAdapter UserStoryGroup { get; } = new UserStoryGroupRepository(dbContext);
+        public IUserStoryRepositoryAdapter UserStory { get; } = new UserStoryRepository(dbContext);
+        public ITaskRepositoryAdapter Task { get; } = new TaskRepository(dbContext);
+        public ITaskCostRepositoryAdapter TaskCost { get; } = new TaskCostRepository(dbContext);
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
