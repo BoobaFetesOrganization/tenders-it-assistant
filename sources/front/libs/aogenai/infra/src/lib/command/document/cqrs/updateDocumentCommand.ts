@@ -7,7 +7,7 @@ export async function updateDocumentCommand(
   file: File
 ) {
   const serverUri = getInfraSettings().api.url;
-  const options = await newDocumentRequestInit(file, { method: 'POST' });
+  const options = await newDocumentRequestInit(file, { method: 'PUT' });
   const response = await fetch(
     `${serverUri}/project/${projectId}/document/${id}`,
     options

@@ -1,5 +1,4 @@
 import {
-  ApolloClient,
   ApolloError,
   FetchResult,
   MutationFunctionOptions,
@@ -13,11 +12,7 @@ import { newMutationResult } from './newMutationResult';
 
 export function useUploadFile<TResponse, TRequest>(
   uploadCommand: (variables: TRequest) => Promise<TResponse>,
-  options?: MutationHookOptions<TResponse, TRequest>,
-  onCompleted?: (
-    client: ApolloClient<object>,
-    data: TResponse | undefined
-  ) => void
+  options?: MutationHookOptions<TResponse, TRequest>
 ): MutationTuple<TResponse, TRequest> {
   const client = useApolloClient();
 

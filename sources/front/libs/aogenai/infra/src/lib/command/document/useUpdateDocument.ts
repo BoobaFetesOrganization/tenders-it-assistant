@@ -17,11 +17,13 @@ export function useUpdateDocument(
         variables.id,
         variables.file
       ),
-    options,
-    (client, data) => {
-      client.refetchQueries({
-        include: [GetDocumentsQuery, GetDocumentQuery],
-      });
+    {
+      ...options,
+      onCompleted(data, clientOptions) {
+        clientOptions?.client?.refetchQueries({
+          include: [GetDocumentQuery, GetDocumentsQuery],
+        });
+      },
     }
   );
 }

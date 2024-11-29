@@ -9,11 +9,13 @@ export function useCreateDocument(
   return useUploadFile<CreateDocumentResponse, CreateDocumentRequest>(
     async (variables) =>
       await createDocumentCommand(variables.projectId, variables.file),
-    options,
-    (client, data) => {
-      client.refetchQueries({
-        include: [GetDocumentsQuery],
-      });
+    {
+      ...options,
+      onCompleted(data, opt) {
+        opt?.client?.refetchQueries({
+          include: [GetDocumentsQuery],
+        });
+      },
     }
   );
 }
