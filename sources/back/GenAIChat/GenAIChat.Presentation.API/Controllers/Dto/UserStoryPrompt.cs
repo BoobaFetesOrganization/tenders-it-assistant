@@ -2,11 +2,7 @@
 
 namespace GenAIChat.Presentation.API.Controllers.Dto
 {
-    public class UserStoryPromptBaseDto : EntityBaseDto
-    {
-    }
-
-    public class UserStoryPromptDto : UserStoryPromptBaseDto
+    public class UserStoryPromptDto : EntityBaseDto
     {
         public string Context { get; set; } = string.Empty;
         public string Personas { get; set; } = string.Empty;

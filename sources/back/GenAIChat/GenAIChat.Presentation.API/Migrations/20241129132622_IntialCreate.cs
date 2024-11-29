@@ -51,7 +51,7 @@ namespace GenAIChat.Presentation.API.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    PromptResponse = table.Column<string>(type: "TEXT", nullable: true),
+                    Response = table.Column<string>(type: "TEXT", nullable: true),
                     ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

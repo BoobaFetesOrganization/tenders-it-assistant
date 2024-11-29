@@ -6,10 +6,8 @@ export const GetProjectQuery = gql`
       @rest(type: "IProjectDto", method: "GET", path: "/project/{args.id}") {
       id
       name
-      prompt
-      responseId
       documents
-      userStories
+      stories
     }
   }
 `;

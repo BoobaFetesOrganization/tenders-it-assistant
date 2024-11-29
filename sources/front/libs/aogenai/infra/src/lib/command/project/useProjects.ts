@@ -1,12 +1,9 @@
 import { IPaged, IProjectBaseDto } from '@aogenai/domain';
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { getInfraSettings } from '../../settings';
+import { newPaginationParameter, PaginationParameter } from '../common';
 import { GetProjectsQuery } from './cqrs';
 
-interface GetProjectsRequest {
-  limit: number;
-  offset: number;
-}
+type GetProjectsRequest = PaginationParameter;
 export interface GetProjectsResponse {
   projects: IPaged<IProjectBaseDto>;
 }
@@ -14,10 +11,8 @@ export interface GetProjectsResponse {
 export const useProjects = (
   options?: QueryHookOptions<GetProjectsResponse, GetProjectsRequest>
 ) => {
-  const maxLimit = getInfraSettings().api.maxLimit;
-
   return useQuery<GetProjectsResponse, GetProjectsRequest>(GetProjectsQuery, {
     ...options,
-    variables: { offset: 0, limit: maxLimit, ...options?.variables },
+    variables: newPaginationParameter(options?.variables),
   });
 };

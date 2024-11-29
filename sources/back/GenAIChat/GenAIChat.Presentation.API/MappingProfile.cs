@@ -16,16 +16,15 @@ namespace GenAIChat.Presentation.API
         {
             SetMappingFor<ProjectDomain, ProjectBaseDto, ProjectDto>();
 
-            SetMappingFor<DocumentDomain, DocumentBaseDto, DocumentDto>();
-            SetMappingFor<DocumentMetadataDomain, DocumentMetadataBaseDto, DocumentMetadataDto>();
+            SetMappingFor<DocumentDomain, DocumentBaseDto, DocumentDto>();            
 
             SetMappingFor<UserStoryGroupDomain, UserStoryGroupBaseDto, UserStoryGroupDto>();
-            SetMappingFor<UserStoryPromptDomain, UserStoryPromptBaseDto, UserStoryPromptDto>();
+            SetMappingWithoutBaseFor<UserStoryPromptDomain, UserStoryPromptDto>();
 
             SetMappingFor<UserStoryDomain, UserStoryBaseDto, UserStoryDto>();
 
             SetMappingFor<TaskDomain, TaskBaseDto, TaskDto>();
-            SetMappingFor<TaskCostDomain, TaskCostBaseDto, TaskCostDto>();
+            SetMappingWithoutBaseFor<TaskCostDomain, TaskCostDto>();
         }
 
 
@@ -34,11 +33,20 @@ namespace GenAIChat.Presentation.API
             where TDestinationBase : class
             where TDestination : class
         {
+            SetMappingWithoutBaseFor<TSource, TDestination>();
             CreateMap<Paged<TSource>, Paged<TDestinationBase>>()
                 .ConvertUsing(new DomainToDtoPagedConverter<TSource, TDestinationBase>());
+            
             CreateMap<TSource, TDestinationBase>();
-            CreateMap<TSource, TDestination>();
             CreateMap<TDestinationBase, TSource>();
+        }
+
+
+        public void SetMappingWithoutBaseFor<TSource, TDestination>()
+            where TSource : class, IEntityDomain
+            where TDestination : class
+        {
+            CreateMap<TSource, TDestination>();
             CreateMap<TDestination, TSource>();
         }
 

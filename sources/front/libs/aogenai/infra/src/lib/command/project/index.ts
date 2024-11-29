@@ -1,3 +1,4 @@
+export * from './group';
 export * from './useAllProjects';
 export * from './useCreateProject';
 export * from './useDeleteProject';

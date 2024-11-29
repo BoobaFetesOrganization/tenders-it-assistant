@@ -9,8 +9,8 @@ namespace GenAIChat.Presentation.API.Controllers.Dto
 
     public class UserStoryGroupDto : EntityBaseDto
     {
-        public UserStoryPromptDto Prompt { get; set; } = new UserStoryPromptDto();
-        public string? PromptResponse { get; set; } = null;
+        public UserStoryPromptDto Request { get; set; } = new UserStoryPromptDto();
+        public string? Response { get; set; } = null;
         public IEnumerable<UserStoryDto> UserStories { get; set; } = [];
     }
 

@@ -1,20 +1,16 @@
 import { IDocumentBaseDto } from '../document';
-import { IUserStoryBaseDto } from '../userstory/IUserStoryBaseDto';
+import { IUserStoryGroupBaseDto } from './group';
 import { IProjectBaseDto, newProjectBaseDto } from './IProjectBaseDto';
 
 export interface IProjectDto extends IProjectBaseDto {
-  prompt: string;
-  responseId: number;
   documents: IDocumentBaseDto[];
-  userStories: IUserStoryBaseDto[];
+  stories: IUserStoryGroupBaseDto[];
 }
 
 export function newProjectDto(obj?: Partial<IProjectDto>): IProjectDto {
   return {
     ...newProjectBaseDto(obj),
-    prompt: obj?.prompt || '',
-    responseId: obj?.responseId || 0,
     documents: obj?.documents || [],
-    userStories: obj?.userStories || [],
+    stories: obj?.stories || [],
   };
 }

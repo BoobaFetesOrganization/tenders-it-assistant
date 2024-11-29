@@ -8,8 +8,8 @@ namespace GenAIChat.Domain.Project.Group
     {
         public int Id { get; set; }
 
-        public UserStoryPromptDomain Prompt { get; set; } = new UserStoryPromptDomain();
-        public string? PromptResponse { get; set; } = null;
+        public UserStoryPromptDomain Request { get; set; } = new UserStoryPromptDomain();
+        public string? Response { get; set; } = null;
 
         public ICollection<UserStoryDomain> UserStories { get; set; } = [];
 
@@ -21,7 +21,7 @@ namespace GenAIChat.Domain.Project.Group
 
         public UserStoryGroupDomain(UserStoryPromptDomain prompt)
         {
-            Prompt = new UserStoryPromptDomain(prompt);
+            Request = new UserStoryPromptDomain(prompt);
         }
 
         public void AddUserStory(UserStoryDomain userStory)

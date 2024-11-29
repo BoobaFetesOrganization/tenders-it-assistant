@@ -6,17 +6,8 @@ export const CreateProjectMutation = gql`
       @rest(type: "IProjectDto", method: "POST", path: "/project") {
       id
       name
-      prompt
-      responseId
-      documents {
-        id
-        name
-      }
-      userStories {
-        id
-        name
-        cost
-      }
+      documents
+      stories
     }
   }
 `;

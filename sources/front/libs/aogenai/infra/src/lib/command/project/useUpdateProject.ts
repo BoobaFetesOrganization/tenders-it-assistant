@@ -1,9 +1,9 @@
-import { IProjectDto } from '@aogenai/domain';
+import { IProjectBaseDto, IProjectDto } from '@aogenai/domain';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import { GetProjectQuery, UpdateProjectMutation } from './cqrs';
 
 interface Request {
-  input: { name: string };
+  input: IProjectBaseDto;
 }
 interface Response {
   project: IProjectDto;

@@ -12,8 +12,8 @@ namespace GenAIChat.Application.Command.Project.Group
             var item = await unitOfWork.UserStoryGroup.GetByIdAsync(request.Entity.Id);
             if (item is null) return null;
 
-            item.Prompt = request.Entity.Prompt;
-            item.PromptResponse = request.Entity.PromptResponse;
+            item.Request= request.Entity.Request;
+            item.Response = request.Entity.Response;
             item.ProjectId = request.Entity.ProjectId;
             item.UserStories = request.Entity.UserStories;
 

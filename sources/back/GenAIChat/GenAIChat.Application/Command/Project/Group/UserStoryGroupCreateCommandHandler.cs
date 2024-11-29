@@ -11,8 +11,8 @@ namespace GenAIChat.Application.Command.Project.Group
         {
             var item = new UserStoryGroupDomain()
             {
-                Prompt = request.Entity.Prompt,
-                PromptResponse = request.Entity.PromptResponse,
+                Request = request.Entity.Request,
+                Response = request.Entity.Response,
                 ProjectId = request.Entity.ProjectId,
                 UserStories = request.Entity.UserStories
             };

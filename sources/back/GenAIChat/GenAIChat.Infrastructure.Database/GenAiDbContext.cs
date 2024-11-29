@@ -6,7 +6,7 @@ using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using Microsoft.EntityFrameworkCore;
 
-namespace GenAIChat.Infrastructure
+namespace GenAIChat.Infrastructure.Database
 {
     public class GenAiDbContext(DbContextOptions<GenAiDbContext> options) : DbContext(options)
     {
@@ -42,7 +42,7 @@ namespace GenAIChat.Infrastructure
 
             // Relation UserStoryGroupDomain -> UserStoryPromptDomain
             modelBuilder.Entity<UserStoryGroupDomain>()
-                .HasOne(ug => ug.Prompt)
+                .HasOne(ug => ug.Request)
                 .WithOne()
                 .HasForeignKey<UserStoryPromptDomain>(p => p.GroupId);
 

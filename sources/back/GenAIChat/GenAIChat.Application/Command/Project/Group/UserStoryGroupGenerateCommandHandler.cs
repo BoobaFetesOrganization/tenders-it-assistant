@@ -31,9 +31,9 @@ namespace GenAIChat.Application.Command.Project.Group
             await Task.WhenAll(updateActions);
 
             // send prompt to the GenAI
-            var promptDomain = await genAiAdapter.SendRequestAsync(request.Prompt.ToRequest(), documents);
+            var response = await genAiAdapter.SendRequestAsync(request.Prompt.ToRequest(), documents);
 
-            group.PromptResponse = promptDomain;
+            group.Response = response;
             //todo =>  group.LoadFromResponse();
 
 

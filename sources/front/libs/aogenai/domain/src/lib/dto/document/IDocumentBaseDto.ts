@@ -1,14 +1,5 @@
-import { IEntityDomain } from '../common';
+import { IEntityBaseDto, newEntityBaseDto } from '../common';
 
-export interface IDocumentBaseDto extends IEntityDomain {
-  name: string;
-}
+export type IDocumentBaseDto = IEntityBaseDto;
 
-export function newDocumentBaseDto(
-  obj?: Partial<IDocumentBaseDto>
-): IDocumentBaseDto {
-  return {
-    id: obj?.id || 0,
-    name: obj?.name || '',
-  };
-}
+export const newDocumentBaseDto = newEntityBaseDto;
