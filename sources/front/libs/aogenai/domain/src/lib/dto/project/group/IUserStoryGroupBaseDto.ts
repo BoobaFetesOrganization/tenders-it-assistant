@@ -1,7 +1,7 @@
-import { IEntityBaseDto, newEntityBaseDto } from '../../common';
+import { IEntityDomain, newEntityBaseDto } from '../../common';
 import { IUserStoryBaseDto } from './userstory';
 
-export interface IUserStoryGroupBaseDto extends IEntityBaseDto {
+export interface IUserStoryGroupBaseDto extends IEntityDomain {
   userStories: IUserStoryBaseDto[];
 }
 

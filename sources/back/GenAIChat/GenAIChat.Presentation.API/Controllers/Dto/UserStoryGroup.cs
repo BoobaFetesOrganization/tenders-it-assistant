@@ -4,7 +4,6 @@ namespace GenAIChat.Presentation.API.Controllers.Dto
 {
     public class UserStoryGroupBaseDto : EntityBaseDto
     {
-        public IEnumerable<UserStoryBaseDto> UserStories { get; set; } = [];
     }
 
     public class UserStoryGroupDto : EntityBaseDto

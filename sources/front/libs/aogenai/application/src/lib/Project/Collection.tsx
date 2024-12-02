@@ -18,6 +18,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, memo, useCallback, useState } from 'react';
+import { Loading } from '../common';
 
 interface IProjectCollectionProps {
   onCreate?: () => void;
@@ -32,9 +33,10 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
       offset: 0,
       limit: maxItemPerPage,
     });
-    const { data: { projects } = { projects: newPage() } } = useProjects({
-      variables,
-    });
+    const { data: { projects } = { projects: newPage() }, loading } =
+      useProjects({
+        variables,
+      });
 
     const onPageChange = useCallback(
       (event: React.ChangeEvent<unknown>, page: number) => {
@@ -43,7 +45,9 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
       [variables]
     );
 
-    return (
+    return loading ? (
+      <Loading />
+    ) : (
       <StyledRoot container className="collection-project">
         <StyledTitle>
           <Typography variant="h3">Projects</Typography>

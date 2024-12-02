@@ -86,6 +86,7 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
 
     const onDrop = useCallback(
       (acceptedFiles: File[]) => {
+        if (projectId === 0) return;
         if (acceptedFiles.length > 0) {
           acceptedFiles.forEach((file) => {
             const existingDocument = documents.data.find(

@@ -9,6 +9,9 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
     {
         private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
 
+        protected virtual IQueryable<TEntity> GetPropertiesForCollection(IQueryable<TEntity> query) => query;
+        protected virtual IQueryable<TEntity> GetProperties(IQueryable<TEntity> query) => query;
+
         public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? filter = null)
         {
             IQueryable<TEntity> query = _dbSet;
@@ -21,18 +24,12 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
             IQueryable<TEntity> query = GetPropertiesForCollection(_dbSet);
             
             if (filter is not null) query = query.Where(filter);
-
-            var countAction = query.CountAsync();
-            
+           
             query = query.Skip(options.Offset);
             if (options.Limit.HasValue) query = query.Take(options.Limit.Value);
 
-
             return await query.ToListAsync();
         }
-
-        protected virtual IQueryable<TEntity> GetPropertiesForCollection(IQueryable<TEntity> query) => query;
-        protected virtual IQueryable<TEntity> GetProperties(IQueryable<TEntity> query) => query;
 
         public async Task<TEntity?> GetByIdAsync(int id) => await GetProperties(_dbSet).FirstOrDefaultAsync(i => i.Id == id);
 

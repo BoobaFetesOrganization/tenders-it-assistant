@@ -1,20 +1,22 @@
 import { ChangeEvent } from 'react';
 
-interface ISetPropertyArgs<T extends object> {
-  data: T;
-  setData: (value: T) => void;
+interface ISetPropertyChangeArgs<T extends object> {
   property: keyof T;
+  item: T;
+  setItem: (value: T) => void;
   getValue?: (value: string) => T[keyof T];
 }
-function newArgs<T extends object>(args: ISetPropertyArgs<T>) {
+function newArgs<T extends object>(args: ISetPropertyChangeArgs<T>) {
   return {
     ...args,
     getValue: args.getValue || ((value) => value),
   };
 }
-export function onPropertyChange<T extends object>(args: ISetPropertyArgs<T>) {
-  const { property, data, setData, getValue } = newArgs(args);
+export function onPropertyChange<T extends object>(
+  args: ISetPropertyChangeArgs<T>
+) {
+  const { property, item, setItem, getValue } = newArgs(args);
   return (e: ChangeEvent<HTMLInputElement>) => {
-    setData({ ...data, [property]: getValue(e.target.value) });
+    setItem({ ...item, [property]: getValue(e.target.value) });
   };
 }

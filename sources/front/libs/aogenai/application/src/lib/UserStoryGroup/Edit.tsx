@@ -5,6 +5,7 @@ import {
   useUserStoryGroup,
 } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
+import { Loading } from '../common';
 import { UserStoryGroupItem } from './Item';
 
 interface IEditProps {
@@ -54,7 +55,7 @@ export const UserStoryGroupEdit: FC<IEditProps> = memo(
     const reset = useCallback(() => initial, [initial]);
 
     return loading ? (
-      'is loading'
+      <Loading />
     ) : (
       <UserStoryGroupItem
         className="edit-group"

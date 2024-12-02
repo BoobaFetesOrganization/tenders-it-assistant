@@ -1,6 +1,7 @@
 import { IProjectDto, newProjectDto } from '@aogenai/domain';
 import { useDeleteProject, useProject, useUpdateProject } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
+import { Loading } from '../common';
 import { ProjectItem } from './Item';
 
 interface IEditProps {
@@ -49,7 +50,7 @@ export const ProjectEdit: FC<IEditProps> = memo(
     const reset = useCallback(() => initial, [initial]);
 
     return loading ? (
-      'is loading'
+      <Loading />
     ) : (
       <ProjectItem
         className="edit-project"

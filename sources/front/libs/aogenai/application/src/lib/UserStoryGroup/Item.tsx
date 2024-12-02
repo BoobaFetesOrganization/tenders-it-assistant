@@ -1,7 +1,7 @@
 import { IUserStoryGroupDto } from '@aogenai/domain';
 import { Box, Button, TextField } from '@mui/material';
 import { FC, memo, useCallback, useEffect, useState } from 'react';
-import { CustomAccordion } from '../common';
+import { CustomAccordion, DataNotFound } from '../common';
 
 interface dataProps {
   className?: string;
@@ -31,7 +31,9 @@ export const UserStoryGroupItem: FC<dataProps> = memo(
       remove?.(data);
     }, [data, remove]);
 
-    return (
+    return !data ? (
+      <DataNotFound />
+    ) : (
       <Box
         className={className}
         sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}

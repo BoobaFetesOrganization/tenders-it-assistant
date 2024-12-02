@@ -18,6 +18,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, memo, useCallback, useState } from 'react';
+import { Loading } from '../common';
 
 interface IUserStoryGroupCollectionProps {
   projectId: number;
@@ -33,9 +34,10 @@ export const UserStoryGroupCollection: FC<IUserStoryGroupCollectionProps> =
       offset: 0,
       limit: maxItemPerPage,
     });
-    const { data: { groups } = { groups: newPage() } } = useUserStoryGroups({
-      variables: { ...variables, projectId },
-    });
+    const { data: { groups } = { groups: newPage() }, loading } =
+      useUserStoryGroups({
+        variables: { ...variables, projectId },
+      });
 
     const onPageChange = useCallback(
       (event: React.ChangeEvent<unknown>, page: number) => {
@@ -44,7 +46,9 @@ export const UserStoryGroupCollection: FC<IUserStoryGroupCollectionProps> =
       [variables]
     );
 
-    return (
+    return loading ? (
+      <Loading />
+    ) : (
       <StyledRoot container className="collection-project">
         <StyledPagination>
           {onCreate && (
@@ -94,9 +98,9 @@ export const UserStoryGroupCollection: FC<IUserStoryGroupCollectionProps> =
                 </TableRow>
               </TableHead>
               <TableBody>
-                {groups.data.map((project) => (
-                  <TableRow key={project.id}>
-                    <StyledTableCell>{project.id}</StyledTableCell>
+                {groups.data.map((group, index) => (
+                  <TableRow key={group.id}>
+                    <StyledTableCell>{group.id}</StyledTableCell>
                     <StyledTableCell
                       sx={{
                         width: '100%',
@@ -104,23 +108,23 @@ export const UserStoryGroupCollection: FC<IUserStoryGroupCollectionProps> =
                           textDecoration: onSelect && 'underline',
                         },
                       }}
-                      onClick={() => onSelect?.(project)}
+                      onClick={() => onSelect?.(group)}
                     >
-                      <Typography fontWeight="bold">{project.name}</Typography>
+                      <Typography fontWeight="bold">Group {index}</Typography>
                     </StyledTableCell>
                     {(onSelect || onDelete) && (
                       <StyledTableCell>
                         {onDelete && (
                           <StyledItemButton
-                            id={`project-delete-${project.id}`}
-                            onClick={() => onDelete(project)}
+                            id={`project-delete-${group.id}`}
+                            onClick={() => onDelete(group)}
                             endIcon={<CloseIcon />}
                           />
                         )}
                         {onSelect && (
                           <StyledItemButton
-                            id={`project-navigate-${project.id}`}
-                            onClick={() => onSelect(project)}
+                            id={`project-navigate-${group.id}`}
+                            onClick={() => onSelect(group)}
                             endIcon={<SendIcon />}
                           />
                         )}
