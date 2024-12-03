@@ -12,7 +12,9 @@ namespace GenAIChat.Domain.Project
 
         public ICollection<DocumentDomain> Documents { get; private set; } = [];
 
-        public ICollection<UserStoryGroupDomain> Stories { get; private set; } = [];
+        public UserStoryGroupDomain? Stories { get; set; } = null;
+
+        public ICollection<UserStoryGroupDomain> Generated { get; private set; } = [];
 
         public ProjectDomain() { }
         public ProjectDomain(string name) : this()
@@ -23,13 +25,6 @@ namespace GenAIChat.Domain.Project
             : this(name)
         {
             Id = id;
-        }
-
-        public bool RemoveUserStoryGroups(IEnumerable<UserStoryGroupDomain> groups)
-        {
-            return groups
-                .Select(Stories.Remove)
-                .All(r => r);
         }
     }
 }

@@ -32,13 +32,11 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(int projectId, [FromBody] UserStoryGroupDto request)
+        public async Task<IActionResult> Create(int projectId)
         {
             try
-            {
-                var domain = mapper.Map<UserStoryGroupDomain>(request);
-                domain.ProjectId = projectId;
-                var result = await application.CreateAsync(domain);
+            {               
+                var result = await application.CreateAsync(projectId);
                 return Created(string.Empty, mapper.Map<UserStoryGroupDto>(result));
             }
             catch (Exception ex)
@@ -66,12 +64,12 @@ namespace GenAIChat.Presentation.API.Controllers
             }
         }
 
-        [HttpPut("generate")]
-        public async Task<IActionResult> Generate(int projectId, [FromBody] UserStoryPromptDomain prompt)
+        [HttpPut("{id}/generate")]
+        public async Task<IActionResult> Generate(int projectId, int id)
         {
             try
             {
-                var result = await application.Generate(projectId, prompt);
+                var result = await application.GenerateAsync(projectId, id);
                 return Ok(mapper.Map<UserStoryGroupDto>(result));
             }
             catch (Exception ex)
@@ -80,13 +78,13 @@ namespace GenAIChat.Presentation.API.Controllers
             }
         }
 
-        [HttpPut("validate")]
-        public async Task<IActionResult> Validate(int projectId, [FromBody] UserStoryGroupDto request)
+        [HttpPut("{id}/validate")]
+        public async Task<IActionResult> Validate(int projectId, int id)
         {
             try
             {
 
-                var result = await application.Validate(projectId, request.Id);
+                var result = await application.Validate(projectId, id);
                 return Ok(mapper.Map<UserStoryGroupDto>(result));
             }
             catch (Exception ex)

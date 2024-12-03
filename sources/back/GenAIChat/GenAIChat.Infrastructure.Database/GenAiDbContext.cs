@@ -30,7 +30,7 @@ namespace GenAIChat.Infrastructure.Database
 
             // Relation ProjectDomain -> UserStoryGroupDomain
             modelBuilder.Entity<ProjectDomain>()
-                .HasMany(p => p.Stories)
+                .HasMany(p => p.Generated)
                 .WithOne()
                 .HasForeignKey(ug => ug.ProjectId);
 

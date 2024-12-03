@@ -11,7 +11,7 @@ namespace GenAIChat.Infrastructure.Database.Repository
             .Include(i => i.Documents)
                 .ThenInclude(d => d.Metadata)
             .Include(i => i.Stories)
-                .ThenInclude(g => g.UserStories)
+                .ThenInclude(g => g!.UserStories)
                     .ThenInclude(us => us.Tasks);
     }
 }

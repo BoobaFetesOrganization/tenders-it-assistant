@@ -8,7 +8,7 @@ import {
 } from '../common';
 import { DocumentCollection } from '../Document';
 import { onPropertyChange } from '../tools';
-import { UserStoryGroupCollection } from '../UserStoryGroup';
+import { UserGroupGenerator } from '../UserStoryGroup';
 
 type IProjectItemProps = IFormWithButtonsProps<IProjectDto>;
 
@@ -18,7 +18,7 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
       NonNullable<IProjectItemProps['children']>
     >(
       (item, setItem) => {
-        const IsEdition = Boolean(data?.id);
+        const IsEdition = Boolean(item?.id);
         return (
           <>
             <TextField
@@ -34,7 +34,10 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
                   <DocumentCollection projectId={item.id} />
                 </CustomAccordion>
                 <CustomAccordion title="User stories">
-                  <UserStoryGroupCollection projectId={item.id} />
+                  <CustomAccordion title="Editor">
+                    <UserGroupGenerator projectId={item.id} />
+                  </CustomAccordion>
+                  {/* {item.stories&& <UserGroupEdit projectId={item.id} id={item.stories.id} reset={()=>item.stories!}/> */}
                 </CustomAccordion>
               </>
             )}

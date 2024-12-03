@@ -10,4 +10,7 @@ interface Response {
 }
 
 export const useProject = (options?: QueryHookOptions<Response, Request>) =>
-  useQuery<Response, Request>(GetProjectQuery, options);
+  useQuery<Response, Request>(GetProjectQuery, {
+    ...options,
+    skip: !options?.variables?.id || options?.skip,
+  });

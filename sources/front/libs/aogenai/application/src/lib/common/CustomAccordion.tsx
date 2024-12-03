@@ -28,7 +28,7 @@ export const CustomAccordion: FC<PropsWithChildren<ICustomAccordionProps>> =
 
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
   borderRadius: '5px',
-  '& .MuiButtonBase-root': {
+  '& .MuiAccordionSummary-root': {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
   },

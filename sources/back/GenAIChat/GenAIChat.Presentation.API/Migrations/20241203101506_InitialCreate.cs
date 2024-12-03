@@ -6,65 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GenAIChat.Presentation.API.Migrations
 {
     /// <inheritdoc />
-    public partial class IntialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Projects",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Documents",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Content = table.Column<byte[]>(type: "BLOB", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Documents", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Documents_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserStoryGroups",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Response = table.Column<string>(type: "TEXT", nullable: true),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserStoryGroups", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserStoryGroups_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateTable(
                 name: "DocumentMetadatas",
                 columns: table => new
@@ -86,10 +32,53 @@ namespace GenAIChat.Presentation.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DocumentMetadatas", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Documents",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Content = table.Column<byte[]>(type: "BLOB", nullable: false),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Documents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    StoriesId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserStoryGroups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Response = table.Column<string>(type: "TEXT", nullable: true),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserStoryGroups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DocumentMetadatas_Documents_DocumentId",
-                        column: x => x.DocumentId,
-                        principalTable: "Documents",
+                        name: "FK_UserStoryGroups_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -191,6 +180,11 @@ namespace GenAIChat.Presentation.API.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_StoriesId",
+                table: "Projects",
+                column: "StoriesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TaskCosts_TaskId",
                 table: "TaskCosts",
                 column: "TaskId");
@@ -215,11 +209,38 @@ namespace GenAIChat.Presentation.API.Migrations
                 table: "UserStoryPrompts",
                 column: "GroupId",
                 unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_DocumentMetadatas_Documents_DocumentId",
+                table: "DocumentMetadatas",
+                column: "DocumentId",
+                principalTable: "Documents",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Documents_Projects_ProjectId",
+                table: "Documents",
+                column: "ProjectId",
+                principalTable: "Projects",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Projects_UserStoryGroups_StoriesId",
+                table: "Projects",
+                column: "StoriesId",
+                principalTable: "UserStoryGroups",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_UserStoryGroups_Projects_ProjectId",
+                table: "UserStoryGroups");
+
             migrationBuilder.DropTable(
                 name: "DocumentMetadatas");
 
@@ -239,10 +260,10 @@ namespace GenAIChat.Presentation.API.Migrations
                 name: "UserStories");
 
             migrationBuilder.DropTable(
-                name: "UserStoryGroups");
+                name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "UserStoryGroups");
         }
     }
 }

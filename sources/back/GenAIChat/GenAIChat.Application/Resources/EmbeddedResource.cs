@@ -20,7 +20,7 @@ namespace GenAIChat.Application.Resources
         }
 
 
-        public T GetResourceAs<T>(string resourceName)
+        private T GetResourceAs<T>(string resourceName)
         {
             string? content;
 

@@ -1,11 +1,10 @@
-import { Box, Button } from '@mui/material';
+import { Button, Grid2 } from '@mui/material';
 import {
   HTMLAttributes,
   memo,
   ReactNode,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { DataNotFound } from '../common';
@@ -28,7 +27,6 @@ const FormWithButtonsInternal = <T extends object>({
   ...htmlAttributes
 }: IFormWithButtonsProps<T>) => {
   const [item, setItem] = useState<T>(data);
-  const _children = useMemo(() => children || (() => null), [children]);
 
   useEffect(() => {
     setItem(data);
@@ -49,14 +47,11 @@ const FormWithButtonsInternal = <T extends object>({
   if (!data) return <DataNotFound />;
 
   return (
-    <Box
-      {...htmlAttributes}
-      sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {_children(item, setItem)}
-      </Box>
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'end' }}>
+    <Grid2 container flex={1} direction="column" gap={2} {...htmlAttributes}>
+      <Grid2 container flex={1} direction="column" gap={2}>
+        {children?.(item, setItem)}
+      </Grid2>
+      <Grid2 container flex={0} justifyContent="end" gap={2}>
         {remove && (
           <Button variant="contained" color="error" onClick={onDelete}>
             Delete
@@ -68,8 +63,8 @@ const FormWithButtonsInternal = <T extends object>({
         <Button variant="contained" color="primary" onClick={onSave}>
           Save
         </Button>
-      </Box>
-    </Box>
+      </Grid2>
+    </Grid2>
   );
 };
 

@@ -1,6 +1,6 @@
 import { IProjectDto } from '@aogenai/domain';
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { CreateProjectMutation, GetProjectQuery } from './cqrs';
+import { CreateProjectMutation, GetProjectsQuery } from './cqrs';
 
 interface Request {
   input: { name: string };
@@ -14,5 +14,5 @@ export const useCreateProject = (
 ) =>
   useMutation<Response, Request>(CreateProjectMutation, {
     ...options,
-    refetchQueries: [GetProjectQuery, GetProjectQuery],
+    refetchQueries: [GetProjectsQuery],
   });

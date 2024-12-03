@@ -19,7 +19,8 @@ namespace GenAIChat.Application.Command.Project.Group
             var group = await unitOfWork.UserStoryGroup.GetByIdAsync(request.GroupId) 
                 ?? throw new Exception("Group not found");
 
-            project.RemoveUserStoryGroups(project.Stories.Where(g => g.Id != request.GroupId));
+            project.Stories = group;
+            project.Generated.Clear();
 
             return group;
         }

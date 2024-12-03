@@ -1,10 +1,12 @@
 import { IUserStoryGroupDto } from '@aogenai/domain';
 import { MutationHookOptions, useMutation } from '@apollo/client';
-import { CreateUserStoryGroupMutation, GetUserStoryGroupQuery } from './cqrs';
+import { CreateUserStoryGroupMutation, GetUserStoryGroupsQuery } from './cqrs';
 
 interface Request {
   projectId: number;
-  input: IUserStoryGroupDto;
+}
+interface RequestInternal extends Request {
+  input: object;
 }
 interface Response {
   group: IUserStoryGroupDto;
@@ -13,7 +15,8 @@ interface Response {
 export const useCreateUserStoryGroup = (
   options?: MutationHookOptions<Response, Request>
 ) =>
-  useMutation<Response, Request>(CreateUserStoryGroupMutation, {
+  useMutation<Response, RequestInternal>(CreateUserStoryGroupMutation, {
     ...options,
-    refetchQueries: [GetUserStoryGroupQuery, GetUserStoryGroupQuery],
+    variables: { projectId: options?.variables?.projectId ?? 0, input: {} },
+    refetchQueries: [GetUserStoryGroupsQuery],
   });

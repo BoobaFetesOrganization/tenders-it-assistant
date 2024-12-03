@@ -7,6 +7,7 @@ namespace GenAIChat.Infrastructure.Database.Repository
 {
     public class DocumentRepository(GenAiDbContext dbContext) : GenericRepository<DocumentDomain>(dbContext), IDocumentRepositoryAdapter
     {
+        protected override IQueryable<DocumentDomain> GetPropertiesForCollection(IQueryable<DocumentDomain> query) => query.Include(i => i.Metadata);
         protected override IQueryable<DocumentDomain> GetProperties(IQueryable<DocumentDomain> query) => query.Include(i => i.Metadata);
     }
 }

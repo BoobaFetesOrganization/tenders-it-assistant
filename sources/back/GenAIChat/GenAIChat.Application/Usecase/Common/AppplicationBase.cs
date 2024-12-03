@@ -21,14 +21,14 @@ namespace GenAIChat.Application.Usecase.Common
             return await mediator.Send(new GetByIdQuery<TDomain> { Id = id });
         }
 
-        public async Task<TDomain> CreateAsync(TDomain entity)
+        public async virtual Task<TDomain> CreateAsync(TDomain entity)
         {
             var result = await mediator.Send(new CreateCommand<TDomain> { Entity = entity });
             await unitOfWork.SaveChangesAsync();
             return result;
         }
 
-        public async Task<TDomain?> UpdateAsync(TDomain entity)
+        public async virtual Task<TDomain?> UpdateAsync(TDomain entity)
         {
             var result = await mediator.Send(new UpdateCommand<TDomain> { Entity = entity });
             await unitOfWork.SaveChangesAsync();

@@ -24,7 +24,7 @@ namespace GenAIChat.Domain.Project.Group
             Results = results ?? domain.Results;
         }
 
-        public string ToRequest()
+        public string ToGenAIRequest()
         {
             StringBuilder sb = new();
             void append(string key, string value) => sb.Append($"{key}: {value}{Environment.NewLine}");

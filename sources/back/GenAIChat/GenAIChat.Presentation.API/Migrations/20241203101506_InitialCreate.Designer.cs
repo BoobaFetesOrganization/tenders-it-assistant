@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenAIChat.Presentation.API.Migrations
 {
     [DbContext(typeof(GenAiDbContext))]
-    [Migration("20241129132622_IntialCreate")]
-    partial class IntialCreate
+    [Migration("20241203101506_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -224,7 +224,12 @@ namespace GenAIChat.Presentation.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("StoriesId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("StoriesId");
 
                     b.ToTable("Projects", (string)null);
                 });
@@ -277,7 +282,7 @@ namespace GenAIChat.Presentation.API.Migrations
             modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryGroupDomain", b =>
                 {
                     b.HasOne("GenAIChat.Domain.Project.ProjectDomain", null)
-                        .WithMany("Stories")
+                        .WithMany("Generated")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -290,6 +295,15 @@ namespace GenAIChat.Presentation.API.Migrations
                         .HasForeignKey("GenAIChat.Domain.Project.Group.UserStoryPromptDomain", "GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("GenAIChat.Domain.Project.ProjectDomain", b =>
+                {
+                    b.HasOne("GenAIChat.Domain.Project.Group.UserStoryGroupDomain", "Stories")
+                        .WithMany()
+                        .HasForeignKey("StoriesId");
+
+                    b.Navigation("Stories");
                 });
 
             modelBuilder.Entity("GenAIChat.Domain.Document.DocumentDomain", b =>
@@ -320,7 +334,7 @@ namespace GenAIChat.Presentation.API.Migrations
                 {
                     b.Navigation("Documents");
 
-                    b.Navigation("Stories");
+                    b.Navigation("Generated");
                 });
 #pragma warning restore 612, 618
         }

@@ -9,18 +9,15 @@ namespace GenAIChat.Application.Command.Project.Group
 {
     public class UserStoryGroupGenerateCommand : IRequest<UserStoryGroupDomain>
     {
-        public required UserStoryPromptDomain Prompt { get; init; }
-        public required int ProjectId { get; init; }
+        public required UserStoryGroupDomain Entity { get; init; }
     }
 
     public class UserStoryGroupGenerateCommandHandler(IGenAiApiAdapter genAiAdapter, IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<UserStoryGroupGenerateCommand, UserStoryGroupDomain>
     {
         public async Task<UserStoryGroupDomain> Handle(UserStoryGroupGenerateCommand request, CancellationToken cancellationToken)
         {
-            var group = new UserStoryGroupDomain(request.Prompt);
-
             // upload files to the GenAI and store new Metadata
-            IEnumerable<DocumentDomain> documents = await unitOfWork.Document.GetAllAsync(PaginationOptions.All, document => document.ProjectId == request.ProjectId);
+            IEnumerable<DocumentDomain> documents = await unitOfWork.Document.GetAllAsync(PaginationOptions.All, document => document.ProjectId == request.Entity.ProjectId);
             var expiredDocuments = documents.Where(d => d.Metadata.ExpirationTime < DateTime.Now);
             await genAiAdapter.SendFilesAsync(
                 expiredDocuments,
@@ -31,14 +28,14 @@ namespace GenAIChat.Application.Command.Project.Group
             await Task.WhenAll(updateActions);
 
             // send prompt to the GenAI
-            var response = await genAiAdapter.SendRequestAsync(request.Prompt.ToRequest(), documents);
+            var response = await genAiAdapter.SendRequestAsync(request.Entity.Request.ToGenAIRequest(), documents);
 
-            group.Response = response;
+            request.Entity.Response = response;
             //todo =>  group.LoadFromResponse();
 
 
             // load user stories from the GenAI result
-            return group;
+            return request.Entity;
         }
     }
 

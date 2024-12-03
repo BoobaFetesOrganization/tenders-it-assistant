@@ -12,4 +12,11 @@ interface Response {
 
 export const useUserStoryGroup = (
   options?: QueryHookOptions<Response, Request>
-) => useQuery<Response, Request>(GetUserStoryGroupQuery, options);
+) =>
+  useQuery<Response, Request>(GetUserStoryGroupQuery, {
+    ...options,
+    skip:
+      !options?.variables?.projectId ||
+      !options?.variables?.id ||
+      options?.skip,
+  });
