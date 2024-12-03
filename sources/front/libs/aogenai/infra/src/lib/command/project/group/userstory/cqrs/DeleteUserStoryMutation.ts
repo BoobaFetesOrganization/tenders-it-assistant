@@ -9,6 +9,7 @@ export const DeleteUserStoryMutation = gql`
         path: "/project/{args.projectId}/group/{args.groupId}/userstory/{args.id}"
       ) {
       id
+      groupId
       name
       cost
       tasks

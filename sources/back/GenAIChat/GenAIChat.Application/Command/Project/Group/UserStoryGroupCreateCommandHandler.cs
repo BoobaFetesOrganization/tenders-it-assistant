@@ -9,13 +9,7 @@ namespace GenAIChat.Application.Command.Project.Group
     {
         public async Task<UserStoryGroupDomain> Handle(CreateCommand<UserStoryGroupDomain> request, CancellationToken cancellationToken)
         {
-            var item = new UserStoryGroupDomain()
-            {
-                Request = request.Entity.Request,
-                Response = request.Entity.Response,
-                ProjectId = request.Entity.ProjectId,
-                UserStories = request.Entity.UserStories
-            };
+            UserStoryGroupDomain item = new(request.Entity) { Id = 0 };
 
             await unitOfWork.UserStoryGroup.AddAsync(item);
 

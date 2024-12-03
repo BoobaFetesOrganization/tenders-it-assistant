@@ -1,5 +1,9 @@
 import { IUserStoryGroupDto } from '@aogenai/domain';
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import {
+  MutationHookOptions,
+  MutationTuple,
+  useMutation,
+} from '@apollo/client';
 import { CreateUserStoryGroupMutation, GetUserStoryGroupsQuery } from './cqrs';
 
 interface Request {
@@ -19,4 +23,4 @@ export const useCreateUserStoryGroup = (
     ...options,
     variables: { projectId: options?.variables?.projectId ?? 0, input: {} },
     refetchQueries: [GetUserStoryGroupsQuery],
-  });
+  }) as unknown as MutationTuple<Response, Request>;

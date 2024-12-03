@@ -7,7 +7,7 @@ export const GetUserStoriesQuery = gql`
     $limit: Int!
     $offset: Int!
   ) {
-    userstories(
+    stories(
       projectId: $projectId
       groupId: $groupId
       limit: $limit
@@ -16,7 +16,7 @@ export const GetUserStoriesQuery = gql`
       @rest(
         type: "[IUserStoryBaseDto]"
         method: "GET"
-        path: "/project/{args.projectId}/group/{args.projectId}}/userstory/{args.id}?limit={args.limit}&offset={args.offset}"
+        path: "/project/{args.projectId}/group/{args.groupId}/userstory?limit={args.limit}&offset={args.offset}"
       ) {
       page
       data

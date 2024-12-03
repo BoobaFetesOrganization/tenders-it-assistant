@@ -10,10 +10,12 @@ namespace GenAIChat.Application.Command.Project.Group.UserStory
     {
         public async Task<UserStoryDomain> Handle(CreateCommand<UserStoryDomain> request, CancellationToken cancellationToken)
         {
+            if (String.IsNullOrWhiteSpace(request.Entity.Name)) throw new Exception("Name is required");
+
             var isExisting = (await unitOfWork.UserStory.GetAllAsync(PaginationOptions.All, p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()))).Any();
             if (isExisting) throw new Exception("Name already exists");
 
-            var item = new UserStoryDomain(request.Entity, true);
+            var item = new UserStoryDomain(request.Entity) { Id = 0 };
             await unitOfWork.UserStory.AddAsync(item);
 
             return item;

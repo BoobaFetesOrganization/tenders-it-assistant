@@ -11,10 +11,14 @@ import { FC, memo, PropsWithChildren } from 'react';
 interface ICustomAccordionProps {
   title: string;
   open?: boolean;
+  onChange?: (expanded: boolean) => void;
 }
 export const CustomAccordion: FC<PropsWithChildren<ICustomAccordionProps>> =
-  memo(({ title, open, children }) => (
-    <StyledAccordion expanded={open}>
+  memo(({ title, open, children, onChange }) => (
+    <StyledAccordion
+      expanded={open}
+      onChange={(_, expanded) => onChange?.(expanded)}
+    >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="document-collection-content"

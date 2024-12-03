@@ -23,9 +23,9 @@ namespace GenAIChat.Domain.Project.Group.UserStory
             GroupId = groupId;
             Tasks = tasks ?? [];
         }
-        public UserStoryDomain(UserStoryDomain entity, bool creation = false)
+        public UserStoryDomain(UserStoryDomain entity)
         {
-            if (!creation) Id = entity.Id;
+            Id = entity.Id;
             Name = entity.Name;
             GroupId = entity.GroupId;
             Tasks = entity.Tasks;

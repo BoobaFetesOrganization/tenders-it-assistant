@@ -16,6 +16,7 @@ export interface IFormWithButtonsProps<T extends object>
   reset?(): T;
   remove?(item: T): void;
   children?(item: T, setItem: (value: T) => void): ReactNode;
+  actions?: ReactNode;
 }
 
 const FormWithButtonsInternal = <T extends object>({
@@ -23,6 +24,7 @@ const FormWithButtonsInternal = <T extends object>({
   save,
   reset,
   remove,
+  actions,
   children,
   ...htmlAttributes
 }: IFormWithButtonsProps<T>) => {
@@ -47,16 +49,40 @@ const FormWithButtonsInternal = <T extends object>({
   if (!data) return <DataNotFound />;
 
   return (
-    <Grid2 container flex={1} direction="column" gap={2} {...htmlAttributes}>
-      <Grid2 container flex={1} direction="column" gap={2}>
-        {children?.(item, setItem)}
-      </Grid2>
-      <Grid2 container flex={0} justifyContent="end" gap={2}>
+    <Grid2
+      container
+      flex={1}
+      direction="column"
+      gap={2}
+      {...htmlAttributes}
+      sx={(theme) => ({
+        margin: theme.spacing(1),
+      })}
+    >
+      <Grid2 container alignItems="center" justifyContent="end" gap={2}>
+        {actions}
         {remove && (
           <Button variant="contained" color="error" onClick={onDelete}>
             Delete
           </Button>
         )}
+      </Grid2>
+      <Grid2
+        container
+        flex={1}
+        direction="column"
+        gap={2}
+        sx={(theme) => ({ margin: theme.spacing(2) })}
+      >
+        {children?.(item, setItem)}
+      </Grid2>
+      <Grid2
+        container
+        flex={0}
+        alignItems="center"
+        justifyContent="end"
+        gap={2}
+      >
         <Button variant="outlined" color="secondary" onClick={onReset}>
           Reset
         </Button>

@@ -35,7 +35,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> Create(int projectId)
         {
             try
-            {               
+            {
                 var result = await application.CreateAsync(projectId);
                 return Created(string.Empty, mapper.Map<UserStoryGroupDto>(result));
             }
@@ -70,6 +70,9 @@ namespace GenAIChat.Presentation.API.Controllers
             try
             {
                 var result = await application.GenerateAsync(projectId, id);
+
+                if (result is null) return NotFound();
+
                 return Ok(mapper.Map<UserStoryGroupDto>(result));
             }
             catch (Exception ex)
@@ -96,7 +99,7 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var result = await application.DeleteAsync(id); ;
+            var result = await application.DeleteAsync(id);
             if (result is null) return NotFound();
             return Ok(mapper.Map<UserStoryGroupDto>(result));
         }

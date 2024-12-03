@@ -9,7 +9,7 @@ import {
 } from '@aogenai/infra';
 import { Button, Grid2, Tab, Tabs } from '@mui/material';
 import { FC, memo, SyntheticEvent, useCallback, useState } from 'react';
-import { UserStoryGroupEdit } from '../Edit';
+import { UserStoryGroupEdit } from './Edit';
 
 interface IUserGroupGeneratorProps {
   projectId: number;
@@ -34,7 +34,7 @@ export const UserGroupGenerator: FC<IUserGroupGeneratorProps> = memo(
     }, []);
 
     const editedGroup =
-      tab === 0 ? project.stories : groups.data[tab] ?? undefined;
+      tab === 0 ? project.stories : groups.data[tab - 1] ?? undefined;
     return (
       <Grid2 container flex={1} direction="column">
         <Grid2>
@@ -61,7 +61,34 @@ export const UserGroupGenerator: FC<IUserGroupGeneratorProps> = memo(
           </Grid2>
           <Grid2 container flex={1} sx={{ height: 500, overflow: 'auto' }}>
             {editedGroup && (
-              <UserStoryGroupEdit projectId={projectId} id={editedGroup.id} />
+              <UserStoryGroupEdit
+                projectId={projectId}
+                groupId={editedGroup.id}
+                actions={
+                  <>
+                    <Button
+                      color="secondary"
+                      onClick={() =>
+                        generate({
+                          variables: { projectId, id: editedGroup.id },
+                        })
+                      }
+                    >
+                      Generate
+                    </Button>
+                    <Button
+                      color="primary"
+                      onClick={() =>
+                        validate({
+                          variables: { projectId, id: editedGroup.id },
+                        })
+                      }
+                    >
+                      Validate
+                    </Button>
+                  </>
+                }
+              />
             )}
           </Grid2>
         </Grid2>

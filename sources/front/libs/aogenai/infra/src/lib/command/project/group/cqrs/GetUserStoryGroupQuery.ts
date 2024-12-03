@@ -9,6 +9,7 @@ export const GetUserStoryGroupQuery = gql`
         path: "/project/{args.projectId}/group/{args.id}"
       ) {
       id
+      projectId
       request
       response
       userStories

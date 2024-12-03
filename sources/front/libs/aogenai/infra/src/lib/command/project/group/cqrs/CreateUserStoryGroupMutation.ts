@@ -9,6 +9,7 @@ export const CreateUserStoryGroupMutation = gql`
         path: "/project/{args.projectId}/group"
       ) {
       id
+      projectId
       request
       response
       userStories

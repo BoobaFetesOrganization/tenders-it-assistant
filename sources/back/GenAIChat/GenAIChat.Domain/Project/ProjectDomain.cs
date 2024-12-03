@@ -26,5 +26,13 @@ namespace GenAIChat.Domain.Project
         {
             Id = id;
         }
+        public ProjectDomain(ProjectDomain domain)
+        {
+            Id = domain.Id;
+            Name = domain.Name;
+            Documents = domain.Documents;
+            Stories = domain.Stories;
+            Generated = domain.Generated;
+        }
     }
 }

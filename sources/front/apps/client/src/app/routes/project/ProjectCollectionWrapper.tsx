@@ -7,7 +7,7 @@ export const ProjectCollectionWrapper: FC = memo(() => {
   const navigate = useNavigate();
   return (
     <ProjectCollection
-      onCreate={() => navigate(routeMapping.url({ id: 0 }).to)}
+      onCreated={({ id }) => navigate(routeMapping.url({ id }).to)}
       onSelect={({ id }) => navigate(routeMapping.url({ id }).to)}
     />
   );

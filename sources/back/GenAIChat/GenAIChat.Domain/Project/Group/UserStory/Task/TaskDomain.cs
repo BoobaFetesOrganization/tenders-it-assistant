@@ -21,9 +21,9 @@ namespace GenAIChat.Domain.Project.Group.UserStory.Task
             Cost = cost;
         }
 
-        public TaskDomain(TaskDomain entity, bool creation = false)
+        public TaskDomain(TaskDomain entity)
         {
-            if (creation) Id = entity.Id;
+            Id = entity.Id;
             UserStoryId = entity.UserStoryId;
             Name = entity.Name;
             Cost = entity.Cost;

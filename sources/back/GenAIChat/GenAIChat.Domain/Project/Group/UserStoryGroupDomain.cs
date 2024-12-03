@@ -25,6 +25,7 @@ namespace GenAIChat.Domain.Project.Group
             Request = new UserStoryPromptDomain(group.Request);
             Response = group.Response;
             UserStories = [.. group.UserStories];
+            ProjectId = group.ProjectId;
         }
 
         public UserStoryGroupDomain(UserStoryPromptDomain prompt)

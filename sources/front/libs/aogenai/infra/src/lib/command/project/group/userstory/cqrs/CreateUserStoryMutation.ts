@@ -13,6 +13,7 @@ export const CreateUserStoryMutation = gql`
         path: "/project/{args.projectId}/group/{args.groupId}/userstory"
       ) {
       id
+      groupId
       name
       cost
       tasks

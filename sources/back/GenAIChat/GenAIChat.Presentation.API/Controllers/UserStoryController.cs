@@ -28,7 +28,7 @@ namespace GenAIChat.Presentation.API.Controllers
         {
             var result = await application.GetByIdAsync(id);
             if (result is null || result.GroupId != groupId) return NotFound();
-            return Ok(mapper.Map<UserStoryGroupDto>(result));
+            return Ok(mapper.Map<UserStoryDto>(result));
         }
 
         [HttpPost]
@@ -39,7 +39,7 @@ namespace GenAIChat.Presentation.API.Controllers
                 var item = mapper.Map<UserStoryDomain>(request);
                 item.GroupId = groupId;
                 var result = await application.CreateAsync(item);
-                return Created(string.Empty, mapper.Map<UserStoryGroupDto>(result));
+                return Created(string.Empty, mapper.Map<UserStoryDto>(result));
             }
             catch (Exception ex)
             {
@@ -58,7 +58,7 @@ namespace GenAIChat.Presentation.API.Controllers
 
                 if (result is null) return NotFound();
 
-                return Ok(mapper.Map<UserStoryGroupDto>(result));
+                return Ok(mapper.Map<UserStoryDto>(result));
             }
             catch (Exception ex)
             {

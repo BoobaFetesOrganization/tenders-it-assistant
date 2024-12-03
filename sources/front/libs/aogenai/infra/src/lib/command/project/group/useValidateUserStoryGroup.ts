@@ -1,9 +1,16 @@
 import { IUserStoryGroupDto } from '@aogenai/domain';
-import { MutationHookOptions, useMutation } from '@apollo/client';
+import {
+  MutationHookOptions,
+  MutationTuple,
+  useMutation,
+} from '@apollo/client';
 import { GetUserStoryGroupQuery, ValidateUserStoryGroupMutation } from './cqrs';
 
 interface Request {
   projectId: number;
+  id: number;
+}
+interface RequestInternal extends Request {
   input: object;
 }
 interface Response {
@@ -13,7 +20,12 @@ interface Response {
 export const useValidateUserStoryGroup = (
   options?: MutationHookOptions<Response, Request>
 ) =>
-  useMutation<Response, Request>(ValidateUserStoryGroupMutation, {
+  useMutation<Response, RequestInternal>(ValidateUserStoryGroupMutation, {
     ...options,
+    variables: {
+      projectId: options?.variables?.projectId ?? 0,
+      id: options?.variables?.id ?? 0,
+      input: {},
+    },
     refetchQueries: [GetUserStoryGroupQuery, GetUserStoryGroupQuery],
-  });
+  }) as unknown as MutationTuple<Response, Request>;

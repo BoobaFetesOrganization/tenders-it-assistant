@@ -4,22 +4,30 @@ import {
   useUpdateUserStoryGroup,
   useUserStoryGroup,
 } from '@aogenai/infra';
-import { FC, memo, useCallback, useState } from 'react';
+import {
+  FC,
+  HTMLAttributes,
+  memo,
+  ReactNode,
+  useCallback,
+  useState,
+} from 'react';
 import { Loading } from '../common';
 import { UserStoryGroupItem } from './Item';
 
-interface IEditProps {
+interface IUserStoryGroupEditProps extends HTMLAttributes<HTMLElement> {
   projectId: number;
-  id: number;
+  groupId: number;
   onSaved?: (item: IUserStoryGroupDto) => void;
   onDeleted?: (item: IUserStoryGroupDto) => void;
+  actions?: ReactNode;
 }
-export const UserStoryGroupEdit: FC<IEditProps> = memo(
-  ({ projectId, id, onSaved, onDeleted }) => {
+export const UserStoryGroupEdit: FC<IUserStoryGroupEditProps> = memo(
+  ({ projectId, groupId, onSaved, onDeleted, actions, ...htmlAttr }) => {
     const [initial, setInitial] = useState(newUserStoryGroupDto);
 
     const { loading } = useUserStoryGroup({
-      variables: { projectId, id },
+      variables: { projectId, id: groupId },
       onCompleted({ group }) {
         setInitial(group);
       },
@@ -58,6 +66,8 @@ export const UserStoryGroupEdit: FC<IEditProps> = memo(
       <Loading />
     ) : (
       <UserStoryGroupItem
+        {...htmlAttr}
+        actions={actions}
         className="edit-group"
         data={initial}
         reset={reset}

@@ -1,14 +1,14 @@
 import { IPaged, IUserStoryBaseDto } from '@aogenai/domain';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { newPaginationParameter, PaginationParameter } from '../../../common';
-import { GetUserStoryQuery } from './cqrs';
+import { GetUserStoriesQuery } from './cqrs';
 
 interface GetUserStoryRequest extends PaginationParameter {
   projectId: number;
   groupId: number;
 }
 export interface GetUserStoryResponse {
-  userstories: IPaged<IUserStoryBaseDto>;
+  stories: IPaged<IUserStoryBaseDto>;
 }
 
 export const useUserStories = (
@@ -18,7 +18,7 @@ export const useUserStories = (
   const groupId = options?.variables?.groupId ?? 0;
 
   return useQuery<GetUserStoryResponse, GetUserStoryRequest>(
-    GetUserStoryQuery,
+    GetUserStoriesQuery,
     {
       ...options,
       skip: !projectId || !groupId,

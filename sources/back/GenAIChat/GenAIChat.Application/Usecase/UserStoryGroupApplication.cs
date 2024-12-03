@@ -51,16 +51,20 @@ namespace GenAIChat.Application.Usecase
         public override Task<UserStoryGroupDomain?> UpdateAsync(UserStoryGroupDomain entity)
         {
             UserStoryGroupDomain group = new(entity);
+
             // doesn't allow to change the result, because it format the result of the result of the GenAI
-            group.Request.Results = _resource.UserStoryPrompt.Results;
+            group.Request = new(group.Request, _resource.UserStoryPrompt.Results);
+
             return base.UpdateAsync(group);
         }
 
         public async Task<UserStoryGroupDomain?> GenerateAsync(int projectId, int id)
         {
             var group = await GetByIdAsync(id);
-            if (group is null) return null;
+            if (group is null || group.ProjectId != projectId) return null;
 
+            // doesn't allow to change the result, because it format the result of the result of the GenAI
+            group.Request = new(group.Request, _resource.UserStoryPrompt.Results);
 
             var item = await _mediator.Send(new UserStoryGroupGenerateCommand { Entity = group });
             await _unitOfWork.SaveChangesAsync();

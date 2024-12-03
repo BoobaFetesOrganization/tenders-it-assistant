@@ -6,8 +6,10 @@ import SendIcon from '@mui/icons-material/Send';
 import {
   Button,
   Grid2,
+  IconButton,
   Pagination,
   Paper,
+  Popover,
   styled,
   Table,
   TableBody,
@@ -19,16 +21,17 @@ import {
 } from '@mui/material';
 import { FC, memo, useCallback, useState } from 'react';
 import { Loading } from '../common';
+import { ProjectCreate } from './Create';
 
 interface IProjectCollectionProps {
-  onCreate?: () => void;
+  onCreated?: (item: IProjectBaseDto) => void;
   onSelect?: (item: IProjectBaseDto) => void;
   onDelete?: (item: IProjectBaseDto) => void;
 }
 
 const maxItemPerPage = 10;
 export const ProjectCollection: FC<IProjectCollectionProps> = memo(
-  ({ onCreate, onDelete, onSelect }) => {
+  ({ onCreated, onDelete, onSelect }) => {
     const [variables, setVariables] = useState({
       offset: 0,
       limit: maxItemPerPage,
@@ -45,6 +48,17 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
       [variables]
     );
 
+    const [createAnchor, setCreateAnchor] = useState<null | HTMLElement>(null);
+    const onCreateProjectClick = useCallback(
+      (event: React.MouseEvent<HTMLElement>) => {
+        setCreateAnchor(event.currentTarget);
+      },
+      [setCreateAnchor]
+    );
+    const onCreateProjectClose = useCallback(() => {
+      setCreateAnchor(null);
+    }, [setCreateAnchor]);
+
     return loading ? (
       <Loading />
     ) : (
@@ -53,15 +67,26 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
           <Typography variant="h3">Projects</Typography>
         </StyledTitle>
         <StyledPagination>
-          {onCreate && (
+          {onCreated && (
             <CreateButtonItem>
-              <Button
-                id={`project-create`}
-                onClick={onCreate}
-                startIcon={<CreateIcon />}
+              <IconButton onClick={onCreateProjectClick}>
+                <CreateIcon />
+              </IconButton>
+              <Popover
+                open={Boolean(createAnchor)}
+                anchorEl={createAnchor}
+                onClose={onCreateProjectClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
               >
-                Create
-              </Button>
+                <ProjectCreate onCreated={onCreated} />
+              </Popover>
             </CreateButtonItem>
           )}
           <Grid2 flexGrow={0}>
@@ -92,7 +117,7 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
                   <TableCell sx={{ width: '100%' }}>
                     <Typography fontWeight="bold">Name</Typography>
                   </TableCell>
-                  {onCreate && (
+                  {(onSelect || onDelete) && (
                     <TableCell>
                       <Typography fontWeight="bold">Actions</Typography>
                     </TableCell>

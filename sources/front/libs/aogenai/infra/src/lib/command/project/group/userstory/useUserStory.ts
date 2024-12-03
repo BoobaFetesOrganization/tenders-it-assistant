@@ -8,7 +8,7 @@ interface Request {
   id: number;
 }
 interface Response {
-  userstory: IUserStoryDto;
+  story: IUserStoryDto;
 }
 
 export const useUserStory = (options?: QueryHookOptions<Response, Request>) =>
