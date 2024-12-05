@@ -14,4 +14,11 @@ export const routeMapping = {
       to: !id ? base : `${base}/${id}`,
     };
   },
+  urlToEditor({ id }: UrlParameter = { id: undefined }): NavLinkProps {
+    const base = this.url({ id });
+    return {
+      ...base,
+      to: `${base.to}/group-editor`,
+    };
+  },
 };

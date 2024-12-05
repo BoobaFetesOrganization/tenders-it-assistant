@@ -19,6 +19,10 @@ export interface IFormWithButtonsProps<T extends object>
   actions?: ReactNode;
 }
 
+export type FormWithButtonsChildren<T extends object> = NonNullable<
+  IFormWithButtonsProps<T>['children']
+>;
+
 const FormWithButtonsInternal = <T extends object>({
   data,
   save,

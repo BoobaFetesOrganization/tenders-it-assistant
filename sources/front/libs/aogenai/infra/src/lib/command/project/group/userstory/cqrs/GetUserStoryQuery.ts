@@ -6,7 +6,7 @@ export const GetUserStoryQuery = gql`
       @rest(
         type: "IUserStoryDto"
         method: "GET"
-        path: "/project/{args.projectId}/group/{args.groupId}}/userstory/{args.id}"
+        path: "/project/{args.projectId}/group/{args.groupId}/userstory/{args.id}"
       ) {
       id
       groupId

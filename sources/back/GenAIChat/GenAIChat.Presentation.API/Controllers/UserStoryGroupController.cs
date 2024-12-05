@@ -86,7 +86,6 @@ namespace GenAIChat.Presentation.API.Controllers
         {
             try
             {
-
                 var result = await application.Validate(projectId, id);
                 return Ok(mapper.Map<UserStoryGroupDto>(result));
             }

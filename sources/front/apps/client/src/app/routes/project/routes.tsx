@@ -2,6 +2,7 @@ import { RouteObject } from 'react-router';
 import { userstoryGoupRoutes } from './group';
 import { ProjectCollectionWrapper } from './ProjectCollectionWrapper';
 import { ProjectItemWrapper } from './ProjectItemWrapper';
+import { ProjectStoriesEditorWrapper } from './ProjectStoriesEditorWrapper';
 import { routeMapping } from './routeMapping';
 
 export const projectRoutes: RouteObject[] = [
@@ -17,8 +18,8 @@ export const projectRoutes: RouteObject[] = [
         path: ':projectId/*',
         children: [
           {
-            path: 'toto',
-            element: <div>toto</div>,
+            path: 'group-editor',
+            element: <ProjectStoriesEditorWrapper />,
           },
           ...userstoryGoupRoutes,
         ],

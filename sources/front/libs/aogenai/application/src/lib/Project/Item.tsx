@@ -4,6 +4,7 @@ import { FC, memo, useCallback } from 'react';
 import {
   CustomAccordion,
   FormWithButtons,
+  FormWithButtonsChildren,
   IFormWithButtonsProps,
 } from '../common';
 import { DocumentCollection } from '../Document';
@@ -25,9 +26,7 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
     onUserStoryEditorCLick,
     ...htmlAttributes
   }) => {
-    const renderChildren = useCallback<
-      NonNullable<IProjectItemProps['children']>
-    >(
+    const renderChildren = useCallback<FormWithButtonsChildren<IProjectDto>>(
       (item, setItem) => {
         const IsEdition = Boolean(item?.id);
         return (

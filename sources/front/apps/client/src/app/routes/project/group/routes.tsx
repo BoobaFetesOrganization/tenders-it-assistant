@@ -1,13 +1,12 @@
 import { FC } from 'react';
 import { RouteObject, useParams } from 'react-router';
 import { routeMapping } from './routeMapping';
-import { UserStoryGroupEditorWrapper } from './UserStoryGroupEditorWrapper';
 
-const UserStoryGropuCollectionWrapper: FC = () => {
+const UserStoryGroupCollectionWrapper: FC = () => {
   const params = useParams();
   return (
     <div>
-      <h5>UserStoryGropuCollectionWrapper</h5>
+      <h5>UserStoryGroupCollectionWrapper</h5>
       <div>
         <p>params</p>
         <p>{JSON.stringify(params)}</p>
@@ -18,11 +17,11 @@ const UserStoryGropuCollectionWrapper: FC = () => {
     </div>
   );
 };
-const UserStoryGropuItemWrapper: FC = () => {
+const UserStoryGroupItemWrapper: FC = () => {
   const params = useParams();
   return (
     <div>
-      <h5>UserStoryGropuItemWrapper</h5>
+      <h5>UserStoryGroupItemWrapper</h5>
       <div>
         <p>params</p>
         <p>{JSON.stringify(params)}</p>
@@ -40,15 +39,11 @@ export const userstoryGoupRoutes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <UserStoryGropuCollectionWrapper />,
-      },
-      {
-        path: routeMapping.editorSegment,
-        element: <UserStoryGroupEditorWrapper />,
+        element: <UserStoryGroupCollectionWrapper />,
       },
       {
         path: ':groupId',
-        element: <UserStoryGropuItemWrapper />,
+        element: <UserStoryGroupItemWrapper />,
       },
     ],
   },

@@ -7,7 +7,6 @@ import { IDocumentDto, IProjectDto } from '@aogenai/domain';
 import { saveAs } from 'file-saver';
 import { FC, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { userStoryGroupRouteMapping } from './group';
 import { routeMapping } from './routeMapping';
 import { useProjectParams } from './useProjectParams';
 
@@ -27,9 +26,7 @@ export const ProjectItemWrapper: FC = memo(() => {
   );
   const navigateToEditor = useCallback(
     (item: IProjectDto) =>
-      navigate(
-        userStoryGroupRouteMapping.url({ projectId: item.id }, 'editor').to
-      ),
+      navigate(routeMapping.urlToEditor({ id: item.id }).to),
     [navigate]
   );
 
