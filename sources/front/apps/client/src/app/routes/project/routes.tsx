@@ -10,9 +10,18 @@ export const projectRoutes: RouteObject[] = [
     children: [
       { index: true, element: <ProjectCollectionWrapper /> },
       {
-        path: ':projectId/*',
+        path: ':projectId',
         element: <ProjectItemWrapper />,
-        children: [...userstoryGoupRoutes],
+      },
+      {
+        path: ':projectId/*',
+        children: [
+          {
+            path: 'toto',
+            element: <div>toto</div>,
+          },
+          ...userstoryGoupRoutes,
+        ],
       },
     ],
   },

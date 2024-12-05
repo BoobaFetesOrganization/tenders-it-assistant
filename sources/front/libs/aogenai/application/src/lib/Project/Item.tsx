@@ -1,5 +1,5 @@
 import { IDocumentDto, IProjectDto } from '@aogenai/domain';
-import { Button, TextField } from '@mui/material';
+import { Box, Button, TextField } from '@mui/material';
 import { FC, memo, useCallback } from 'react';
 import {
   CustomAccordion,
@@ -41,21 +41,23 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
             />
             {IsEdition && (
               <>
-                {onUserStoryEditorCLick && (
-                  <Button
-                    variant="text"
-                    color="primary"
-                    onClick={() => onUserStoryEditorCLick(item)}
-                  >
-                    User stories Editor
-                  </Button>
-                )}
                 <CustomAccordion title="Documents">
                   <DocumentCollection
                     projectId={item.id}
                     onDownloaded={onDocumentDonwloaded}
                   />
                 </CustomAccordion>
+                {onUserStoryEditorCLick && (
+                  <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => onUserStoryEditorCLick(item)}
+                    >
+                      User stories Editor
+                    </Button>
+                  </Box>
+                )}
               </>
             )}
             {children?.(item, setItem)}

@@ -1,11 +1,10 @@
 import { FC } from 'react';
-import { RouteObject } from 'react-router';
+import { RouteObject, useParams } from 'react-router';
 import { routeMapping } from './routeMapping';
 import { UserStoryGroupEditorWrapper } from './UserStoryGroupEditorWrapper';
-import { useUserStoryGroupParams } from './useUserStoryGroupParams';
 
 const UserStoryGropuCollectionWrapper: FC = () => {
-  const params = useUserStoryGroupParams();
+  const params = useParams();
   return (
     <div>
       <h5>UserStoryGropuCollectionWrapper</h5>
@@ -20,7 +19,7 @@ const UserStoryGropuCollectionWrapper: FC = () => {
   );
 };
 const UserStoryGropuItemWrapper: FC = () => {
-  const params = useUserStoryGroupParams();
+  const params = useParams();
   return (
     <div>
       <h5>UserStoryGropuItemWrapper</h5>
@@ -45,17 +44,12 @@ export const userstoryGoupRoutes: RouteObject[] = [
       },
       {
         path: routeMapping.editorSegment,
+        element: <UserStoryGroupEditorWrapper />,
+      },
+      {
+        path: ':groupId',
         element: <UserStoryGropuItemWrapper />,
       },
-      { path: ':groupId', element: <UserStoryGroupEditorWrapper /> },
     ],
   },
-  // {
-  //   path: routeMapping.root,
-  //   element: <ProjectCollectionWrapper />,
-  // },
-  // {
-  //   path: routeMapping.item,
-  //   element: <ProjectItemWrapper />,
-  // },
 ];
