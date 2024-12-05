@@ -9,12 +9,12 @@ import {
 } from '@aogenai/infra';
 import { Button, Grid2, Tab, Tabs } from '@mui/material';
 import { FC, memo, SyntheticEvent, useCallback, useState } from 'react';
-import { UserStoryGroupEdit } from './Edit';
+import { UserStoryGroupEdit } from '../Edit';
 
-interface IUserGroupGeneratorProps {
+interface IUserStoryGroupEditorProps {
   projectId: number;
 }
-export const UserGroupGenerator: FC<IUserGroupGeneratorProps> = memo(
+export const UserStoryGroupEditor: FC<IUserStoryGroupEditorProps> = memo(
   ({ projectId }) => {
     const [tab, setTab] = useState(0);
     const { data: { project } = { project: newProjectDto() } } = useProject({

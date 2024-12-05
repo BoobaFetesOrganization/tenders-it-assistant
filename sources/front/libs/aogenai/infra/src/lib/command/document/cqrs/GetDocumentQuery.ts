@@ -11,8 +11,7 @@ export const GetDocumentQuery = gql`
       id
       name
       content
-      createTime
-      updateTime
+      mimeType
     }
   }
 `;

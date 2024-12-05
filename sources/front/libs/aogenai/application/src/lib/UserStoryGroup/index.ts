@@ -1,3 +1,3 @@
 export * from './Collection';
 export * from './Edit';
-export * from './UserGroupGenerator';
+export * from './UserStoryGroupEditor';

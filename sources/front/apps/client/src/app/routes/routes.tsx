@@ -5,7 +5,12 @@ import { projectRoutes } from './project';
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: <DashBoard />,
+    children: [
+      {
+        index: true,
+        element: <DashBoard />,
+      },
+      ...projectRoutes,
+    ],
   },
-  ...projectRoutes,
 ];

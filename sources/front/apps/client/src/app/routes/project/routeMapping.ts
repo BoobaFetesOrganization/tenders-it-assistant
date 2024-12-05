@@ -4,12 +4,14 @@ import { IProjectParams } from './IProjectParams';
 type UrlParameter = Omit<IProjectParams, 'id'> &
   Partial<Pick<IProjectParams, 'id'>>;
 
+const segment = 'project';
+
 export const routeMapping = {
-  root: 'project/*',
-  item: 'project/:id',
+  segment,
   url({ id }: UrlParameter = { id: undefined }): NavLinkProps {
+    const base = `/${segment}`;
     return {
-      to: id === undefined ? `/project` : `/project/${id}`,
+      to: !id ? base : `${base}/${id}`,
     };
   },
 };

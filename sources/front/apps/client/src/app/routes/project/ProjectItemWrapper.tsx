@@ -1,9 +1,17 @@
-import { ProjectCreate, ProjectEdit } from '@aogenai/application';
-import { IProjectDto } from '@aogenai/domain';
+import {
+  DocumentConverter,
+  ProjectCreate,
+  ProjectEdit,
+} from '@aogenai/application';
+import { IDocumentDto, IProjectDto } from '@aogenai/domain';
+import { saveAs } from 'file-saver';
 import { FC, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import { userStoryGroupRouteMapping } from './group';
 import { routeMapping } from './routeMapping';
 import { useProjectParams } from './useProjectParams';
+
+const converter = new DocumentConverter();
 
 export const ProjectItemWrapper: FC = memo(() => {
   const navigate = useNavigate();
@@ -17,10 +25,27 @@ export const ProjectItemWrapper: FC = memo(() => {
     () => navigate(routeMapping.url().to),
     [navigate]
   );
+  const navigateToEditor = useCallback(
+    (item: IProjectDto) =>
+      navigate(
+        userStoryGroupRouteMapping.url({ projectId: item.id }, 'editor').to
+      ),
+    [navigate]
+  );
+
+  const onDocumentDownloaded = useCallback((document: IDocumentDto) => {
+    const { id, name } = document;
+    saveAs(converter.toBlob(document), `${id}-${name}`);
+  }, []);
 
   return id === 0 ? (
     <ProjectCreate onCreated={navigateToEdit} />
   ) : (
-    <ProjectEdit id={id} onDeleted={navigateToList} />
+    <ProjectEdit
+      id={id}
+      onDeleted={navigateToList}
+      onDocumentDonwloaded={onDocumentDownloaded}
+      onUserStoryEditorCLick={navigateToEditor}
+    />
   );
 });

@@ -1,4 +1,5 @@
 ﻿using GenAIChat.Domain.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenAIChat.Domain.Document
 {

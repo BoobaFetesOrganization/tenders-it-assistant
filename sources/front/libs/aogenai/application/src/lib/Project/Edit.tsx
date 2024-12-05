@@ -1,16 +1,23 @@
-import { IProjectDto, newProjectDto } from '@aogenai/domain';
+import { IDocumentDto, IProjectDto, newProjectDto } from '@aogenai/domain';
 import { useDeleteProject, useProject, useUpdateProject } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
 import { Loading } from '../common';
-import { ProjectItem } from './Item';
+import { IProjectItemProps, ProjectItem } from './Item';
 
-interface IEditProps {
+interface IEditProps extends Pick<IProjectItemProps, 'onUserStoryEditorCLick'> {
   id: number;
   onSaved?: (item: IProjectDto) => void;
   onDeleted?: (item: IProjectDto) => void;
+  onDocumentDonwloaded?: (document: IDocumentDto) => void;
 }
 export const ProjectEdit: FC<IEditProps> = memo(
-  ({ id, onSaved, onDeleted }) => {
+  ({
+    id,
+    onSaved,
+    onDeleted,
+    onDocumentDonwloaded,
+    onUserStoryEditorCLick,
+  }) => {
     const [initial, setInitial] = useState(newProjectDto);
 
     const { loading } = useProject({
@@ -58,6 +65,8 @@ export const ProjectEdit: FC<IEditProps> = memo(
         reset={reset}
         save={save}
         remove={remove}
+        onDocumentDonwloaded={onDocumentDonwloaded}
+        onUserStoryEditorCLick={onUserStoryEditorCLick}
       />
     );
   }

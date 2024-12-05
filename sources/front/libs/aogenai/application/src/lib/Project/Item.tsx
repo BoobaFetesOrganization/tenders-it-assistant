@@ -1,5 +1,5 @@
-import { IProjectDto } from '@aogenai/domain';
-import { TextField } from '@mui/material';
+import { IDocumentDto, IProjectDto } from '@aogenai/domain';
+import { Button, TextField } from '@mui/material';
 import { FC, memo, useCallback } from 'react';
 import {
   CustomAccordion,
@@ -8,12 +8,23 @@ import {
 } from '../common';
 import { DocumentCollection } from '../Document';
 import { onPropertyChange } from '../tools';
-import { UserGroupGenerator } from '../UserStoryGroup';
 
-type IProjectItemProps = IFormWithButtonsProps<IProjectDto>;
+export interface IProjectItemProps extends IFormWithButtonsProps<IProjectDto> {
+  onDocumentDonwloaded?: (document: IDocumentDto) => void;
+  onUserStoryEditorCLick?: (item: IProjectDto) => void;
+}
 
 export const ProjectItem: FC<IProjectItemProps> = memo(
-  ({ data, save, reset, remove, children, ...htmlAttributes }) => {
+  ({
+    data,
+    save,
+    reset,
+    remove,
+    children,
+    onDocumentDonwloaded,
+    onUserStoryEditorCLick,
+    ...htmlAttributes
+  }) => {
     const renderChildren = useCallback<
       NonNullable<IProjectItemProps['children']>
     >(
@@ -30,14 +41,20 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
             />
             {IsEdition && (
               <>
+                {onUserStoryEditorCLick && (
+                  <Button
+                    variant="text"
+                    color="primary"
+                    onClick={() => onUserStoryEditorCLick(item)}
+                  >
+                    User stories Editor
+                  </Button>
+                )}
                 <CustomAccordion title="Documents">
-                  <DocumentCollection projectId={item.id} />
-                </CustomAccordion>
-                <CustomAccordion title="User stories">
-                  <CustomAccordion title="Editor">
-                    <UserGroupGenerator projectId={item.id} />
-                  </CustomAccordion>
-                  {/* {item.stories&& <UserGroupEdit projectId={item.id} id={item.stories.id} reset={()=>item.stories!}/> */}
+                  <DocumentCollection
+                    projectId={item.id}
+                    onDownloaded={onDocumentDonwloaded}
+                  />
                 </CustomAccordion>
               </>
             )}
@@ -45,7 +62,7 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
           </>
         );
       },
-      [children, data?.id]
+      [children, onDocumentDonwloaded, onUserStoryEditorCLick]
     );
 
     return (

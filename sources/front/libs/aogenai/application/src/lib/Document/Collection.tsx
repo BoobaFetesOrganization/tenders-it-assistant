@@ -1,11 +1,18 @@
-import { IDocumentBaseDto, IProjectBaseDto, newPage } from '@aogenai/domain';
+import {
+  IDocumentBaseDto,
+  IDocumentDto,
+  IProjectBaseDto,
+  newPage,
+} from '@aogenai/domain';
 import {
   useCreateDocument,
   useDeleteDocument,
+  useDocument,
   useDocuments,
   useUpdateDocument,
 } from '@aogenai/infra';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 import {
   Grid2,
   IconButton,
@@ -20,7 +27,7 @@ import { DropZone } from './DropZone';
 
 interface IDocumentCollectionProps {
   projectId: IProjectBaseDto['id'];
-  onSelected?: (item: IDocumentBaseDto) => void;
+  onDownloaded?: (item: IDocumentDto) => void;
   onCreated?: (item: IDocumentBaseDto) => void;
   onUpdated?: (item: IDocumentBaseDto) => void;
   onDeleted?: (item: IDocumentBaseDto) => void;
@@ -28,7 +35,7 @@ interface IDocumentCollectionProps {
 
 const maxItemPerPage = 10;
 export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
-  ({ projectId, onCreated, onDeleted, onSelected, onUpdated }) => {
+  ({ projectId, onCreated, onDeleted, onDownloaded, onUpdated }) => {
     const [error, setError] = useState<Error | null>(null);
     const { data: { documents } = { documents: newPage() }, refetch } =
       useDocuments({
@@ -38,6 +45,13 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
           limit: maxItemPerPage,
         },
       });
+    const { refetch: download } = useDocument({
+      skip: true,
+      onCompleted({ document }) {
+        onDownloaded?.(document);
+      },
+    });
+
     const [createDocument, { loading: createLoading }] = useCreateDocument({
       onCompleted: ({ document }) => {
         onCreated?.(document);
@@ -71,6 +85,13 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
         deleteDocument({ variables: { projectId, id: document.id } });
       },
       [deleteDocument, projectId]
+    );
+
+    const onDownload = useCallback(
+      (document: IDocumentBaseDto) => () => {
+        download({ projectId, id: document.id });
+      },
+      [download, projectId]
     );
 
     const onPageChange = useCallback(
@@ -130,14 +151,26 @@ export const DocumentCollection: FC<IDocumentCollectionProps> = memo(
           <List>
             {documents.data.map((document: IDocumentBaseDto) => (
               <ListItem
+                key={document.id}
                 secondaryAction={
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={onDelete(document)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  <Grid2 container flex={0} spacing={2}>
+                    <IconButton
+                      color="error"
+                      aria-label="delete"
+                      onClick={onDelete(document)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                    {onDownloaded && (
+                      <IconButton
+                        color="primary"
+                        aria-label="download"
+                        onClick={onDownload(document)}
+                      >
+                        <DownloadIcon />
+                      </IconButton>
+                    )}
+                  </Grid2>
                 }
               >
                 <ListItemText primary={document.name} />
