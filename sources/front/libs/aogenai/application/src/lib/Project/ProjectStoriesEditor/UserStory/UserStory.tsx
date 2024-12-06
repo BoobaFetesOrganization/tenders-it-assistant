@@ -51,12 +51,7 @@ export const UserStory: FC<IUserStoryProps> = memo(({ storyIndex }) => {
             label="Cost"
             size="small"
             value={item.cost}
-            onChange={onPropertyChange({
-              item,
-              setItem,
-              property: 'cost',
-              getValue: parseFloat,
-            })}
+            slotProps={{ input: { readOnly: true } }}
             sx={{ width: 75 }}
           />
         </Grid2>

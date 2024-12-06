@@ -69,7 +69,7 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
         <StyledPagination>
           {onCreated && (
             <CreateButtonItem>
-              <IconButton onClick={onCreateProjectClick}>
+              <IconButton color="primary" onClick={onCreateProjectClick}>
                 <CreateIcon />
               </IconButton>
               <Popover

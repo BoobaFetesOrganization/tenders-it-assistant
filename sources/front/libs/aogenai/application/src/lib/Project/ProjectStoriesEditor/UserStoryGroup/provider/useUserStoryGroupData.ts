@@ -1,9 +1,11 @@
+import { IUserStoryGroupDto } from '@aogenai/domain';
 import { useMemo } from 'react';
 import {
   createStory,
   createTask,
   deleteStory,
   deleteTask,
+  initGroup,
   updateRequest,
   updateStory,
   updateTask,
@@ -11,11 +13,13 @@ import {
 import { useUserStoryGroupContext } from './UserStoryGroupProvider';
 
 export const useUserStoryGroupData = () => {
-  const { group, dispatch, onDeleted } = useUserStoryGroupContext();
+  const { initial, group, dispatch, onDeleted } = useUserStoryGroupContext();
 
   return useMemo(() => {
     return {
       onDeleted,
+      reset: (newInitial?: IUserStoryGroupDto) =>
+        initGroup(dispatch, newInitial ?? initial),
       group,
       request: {
         data: group.request,

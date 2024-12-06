@@ -1,7 +1,6 @@
 import { IDocumentDto, IProjectDto, newProjectDto } from '@aogenai/domain';
 import { useDeleteProject, useProject, useUpdateProject } from '@aogenai/infra';
 import { FC, memo, useCallback, useState } from 'react';
-import { Loading } from '../common';
 import { IProjectItemProps, ProjectItem } from './Item';
 
 interface IEditProps extends Pick<IProjectItemProps, 'onUserStoryEditorCLick'> {
@@ -18,12 +17,14 @@ export const ProjectEdit: FC<IEditProps> = memo(
     onDocumentDonwloaded,
     onUserStoryEditorCLick,
   }) => {
-    const [initial, setInitial] = useState(newProjectDto);
+    const [initial, setInitial] = useState(newProjectDto());
+    const [item, setItem] = useState(initial);
 
     const { loading } = useProject({
       variables: { id },
       onCompleted({ project }) {
         setInitial(project);
+        setItem(project);
       },
     });
 
@@ -40,31 +41,25 @@ export const ProjectEdit: FC<IEditProps> = memo(
       },
     });
 
-    const save = useCallback(
-      (data: IProjectDto) => {
-        call({ variables: { input: data } });
-      },
-      [call]
-    );
+    const onSave = useCallback(() => {
+      call({ variables: { input: item } });
+    }, [call, item]);
 
-    const remove = useCallback(
-      (data: IProjectDto) => {
-        deleteProject({ variables: { id: data.id } });
-      },
-      [deleteProject]
-    );
+    const onRemove = useCallback(() => {
+      deleteProject({ variables: { id: item.id } });
+    }, [deleteProject, item.id]);
 
-    const reset = useCallback(() => initial, [initial]);
+    const onReset = useCallback(() => setItem(initial), [initial]);
 
-    return loading ? (
-      <Loading />
-    ) : (
+    return (
       <ProjectItem
         className="edit-project"
-        data={initial}
-        reset={reset}
-        save={save}
-        remove={remove}
+        loading={loading}
+        item={item}
+        setItem={setItem}
+        onSave={onSave}
+        onReset={onReset}
+        onRemove={onRemove}
         onDocumentDonwloaded={onDocumentDonwloaded}
         onUserStoryEditorCLick={onUserStoryEditorCLick}
       />

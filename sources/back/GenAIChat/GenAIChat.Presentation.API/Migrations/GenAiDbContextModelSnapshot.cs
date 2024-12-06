@@ -221,12 +221,12 @@ namespace GenAIChat.Presentation.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("StoriesId")
+                    b.Property<int?>("SelectedGroupId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StoriesId");
+                    b.HasIndex("SelectedGroupId");
 
                     b.ToTable("Projects", (string)null);
                 });
@@ -296,11 +296,11 @@ namespace GenAIChat.Presentation.API.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.ProjectDomain", b =>
                 {
-                    b.HasOne("GenAIChat.Domain.Project.Group.UserStoryGroupDomain", "Stories")
+                    b.HasOne("GenAIChat.Domain.Project.Group.UserStoryGroupDomain", "SelectedGroup")
                         .WithMany()
-                        .HasForeignKey("StoriesId");
+                        .HasForeignKey("SelectedGroupId");
 
-                    b.Navigation("Stories");
+                    b.Navigation("SelectedGroup");
                 });
 
             modelBuilder.Entity("GenAIChat.Domain.Document.DocumentDomain", b =>

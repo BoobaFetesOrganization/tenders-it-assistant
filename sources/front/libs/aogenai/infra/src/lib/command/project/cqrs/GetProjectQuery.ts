@@ -7,7 +7,7 @@ export const GetProjectQuery = gql`
       id
       name
       documents
-      stories
+      selectedGroup
     }
   }
 `;

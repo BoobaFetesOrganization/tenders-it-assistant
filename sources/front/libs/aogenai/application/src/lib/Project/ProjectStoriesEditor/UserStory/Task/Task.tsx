@@ -55,7 +55,7 @@ export const Task: FC<ITaskProps> = memo(({ storyIndex, taskIndex }) => {
           <TextField
             size="small"
             label="Cost"
-            value={item.cost}
+            value={item.cost ?? 0}
             onChange={onPropertyChange({
               item,
               setItem,
@@ -73,8 +73,8 @@ export const Task: FC<ITaskProps> = memo(({ storyIndex, taskIndex }) => {
               className="Mui-focused"
               color="secondary"
               focused
-              contentEditable={false}
-              value={gemini.cost}
+              value={gemini.cost ?? 0}
+              slotProps={{ input: { readOnly: true } }}
               sx={{ width: 80 }}
             />
           </Grid2>

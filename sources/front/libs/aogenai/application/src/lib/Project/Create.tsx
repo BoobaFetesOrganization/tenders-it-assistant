@@ -7,7 +7,8 @@ interface IProjectCreateProps {
   onCreated: (item: IProjectDto) => void;
 }
 export const ProjectCreate: FC<IProjectCreateProps> = memo(({ onCreated }) => {
-  const [intial, setInitial] = useState(newProjectDto);
+  const [initial, setInitial] = useState(newProjectDto());
+  const [item, setItem] = useState(initial);
 
   const [call] = useCreateProject({
     onCompleted({ project }) {
@@ -16,19 +17,21 @@ export const ProjectCreate: FC<IProjectCreateProps> = memo(({ onCreated }) => {
     },
   });
 
-  const save = useCallback(
-    (data: IProjectDto) => {
-      call({ variables: { input: data } });
-    },
-    [call]
-  );
+  const onSave = useCallback(() => {
+    call({ variables: { input: item } });
+  }, [call, item]);
+
+  const onReset = useCallback(() => {
+    setItem(initial);
+  }, [initial]);
 
   return (
     <ProjectItem
       className="create-project"
-      data={intial}
-      reset={newProjectDto}
-      save={save}
+      item={item}
+      setItem={setItem}
+      onSave={onSave}
+      onReset={onReset}
     />
   );
 });

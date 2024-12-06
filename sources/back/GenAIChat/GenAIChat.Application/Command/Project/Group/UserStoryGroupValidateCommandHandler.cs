@@ -19,8 +19,7 @@ namespace GenAIChat.Application.Command.Project.Group
             var group = await unitOfWork.UserStoryGroup.GetByIdAsync(request.GroupId) 
                 ?? throw new Exception("Group not found");
 
-            project.Stories = group;
-            project.Generated.Clear();
+            project.SelectedGroup = group;
 
             return group;
         }

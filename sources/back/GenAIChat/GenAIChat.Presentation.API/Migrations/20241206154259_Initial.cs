@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GenAIChat.Presentation.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,7 +56,7 @@ namespace GenAIChat.Presentation.API.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    StoriesId = table.Column<int>(type: "INTEGER", nullable: true)
+                    SelectedGroupId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -180,9 +180,9 @@ namespace GenAIChat.Presentation.API.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_StoriesId",
+                name: "IX_Projects_SelectedGroupId",
                 table: "Projects",
-                column: "StoriesId");
+                column: "SelectedGroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TaskCosts_TaskId",
@@ -227,9 +227,9 @@ namespace GenAIChat.Presentation.API.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Projects_UserStoryGroups_StoriesId",
+                name: "FK_Projects_UserStoryGroups_SelectedGroupId",
                 table: "Projects",
-                column: "StoriesId",
+                column: "SelectedGroupId",
                 principalTable: "UserStoryGroups",
                 principalColumn: "Id");
         }

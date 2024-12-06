@@ -10,7 +10,7 @@ namespace GenAIChat.Infrastructure.Database.Repository
         protected override IQueryable<ProjectDomain> GetProperties(IQueryable<ProjectDomain> query) => query
             .Include(i => i.Documents)
                 .ThenInclude(d => d.Metadata)
-            .Include(i => i.Stories)
+            .Include(i => i.SelectedGroup)
                 .ThenInclude(g => g!.UserStories)
                     .ThenInclude(us => us.Tasks);
     }

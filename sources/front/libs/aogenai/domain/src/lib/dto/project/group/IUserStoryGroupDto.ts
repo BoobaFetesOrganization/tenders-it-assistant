@@ -1,11 +1,11 @@
-import { IEntityBaseDto, newEntityBaseDto } from '../../common';
+import { IEntityDomain, newEntityDomain } from '../../common';
 import {
   IUserStoryPromptDto,
   newUserStoryPromptDto,
 } from './IUserStoryPromptDto';
 import { IUserStoryDto } from './userstory';
 
-export interface IUserStoryGroupDto extends IEntityBaseDto {
+export interface IUserStoryGroupDto extends IEntityDomain {
   projectId: number;
   request: IUserStoryPromptDto;
   response?: string;
@@ -16,7 +16,7 @@ export function newUserStoryGroupDto(
   obj?: Partial<IUserStoryGroupDto>
 ): IUserStoryGroupDto {
   return {
-    ...newEntityBaseDto(obj),
+    ...newEntityDomain(obj),
     projectId: obj?.projectId || 0,
     request: newUserStoryPromptDto(obj?.request),
     response: undefined,

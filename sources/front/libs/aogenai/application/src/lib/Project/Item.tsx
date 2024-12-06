@@ -1,81 +1,76 @@
 import { IDocumentDto, IProjectDto } from '@aogenai/domain';
 import { Box, Button, TextField } from '@mui/material';
-import { FC, memo, useCallback } from 'react';
-import {
-  CustomAccordion,
-  FormWithButtons,
-  FormWithButtonsChildren,
-  IFormWithButtonsProps,
-} from '../common';
+import { FC, memo } from 'react';
+import { CustomAccordion, CustomForm, ICustomFormProps } from '../common';
 import { DocumentCollection } from '../Document';
 import { onPropertyChange } from '../tools';
+import { UserStoryGroup } from '../UserStoryGroup';
 
-export interface IProjectItemProps extends IFormWithButtonsProps<IProjectDto> {
+export interface IProjectItemProps extends ICustomFormProps {
+  item: IProjectDto;
+  setItem(value: IProjectDto): void;
   onDocumentDonwloaded?: (document: IDocumentDto) => void;
   onUserStoryEditorCLick?: (item: IProjectDto) => void;
 }
 
 export const ProjectItem: FC<IProjectItemProps> = memo(
   ({
-    data,
-    save,
-    reset,
-    remove,
+    loading,
+    item,
+    setItem,
+    onSave,
+    onReset,
+    onRemove,
     children,
     onDocumentDonwloaded,
     onUserStoryEditorCLick,
     ...htmlAttributes
   }) => {
-    const renderChildren = useCallback<FormWithButtonsChildren<IProjectDto>>(
-      (item, setItem) => {
-        const IsEdition = Boolean(item?.id);
-        return (
-          <>
-            <TextField
-              label="Name"
-              name="Name"
-              value={item.name}
-              onChange={onPropertyChange({ item, setItem, property: 'name' })}
-              variant="outlined"
-            />
-            {IsEdition && (
-              <>
-                <CustomAccordion title="Documents">
-                  <DocumentCollection
-                    projectId={item.id}
-                    onDownloaded={onDocumentDonwloaded}
-                  />
-                </CustomAccordion>
-                {onUserStoryEditorCLick && (
-                  <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => onUserStoryEditorCLick(item)}
-                    >
-                      User stories Editor
-                    </Button>
-                  </Box>
-                )}
-              </>
-            )}
-            {children?.(item, setItem)}
-          </>
-        );
-      },
-      [children, onDocumentDonwloaded, onUserStoryEditorCLick]
-    );
+    const IsEdition = Boolean(item?.id);
 
     return (
-      <FormWithButtons
-        data={data}
-        save={save}
-        reset={reset}
-        remove={remove}
+      <CustomForm
+        loading={loading}
+        onSave={onSave}
+        onReset={onReset}
+        onRemove={onRemove}
         {...htmlAttributes}
       >
-        {renderChildren}
-      </FormWithButtons>
+        <TextField
+          label="Name"
+          name="Name"
+          value={item.name}
+          onChange={onPropertyChange({ item, setItem, property: 'name' })}
+          variant="outlined"
+        />
+        {IsEdition && (
+          <>
+            <CustomAccordion title="Documents">
+              <DocumentCollection
+                projectId={item.id}
+                onDownloaded={onDocumentDonwloaded}
+              />
+            </CustomAccordion>
+            {onUserStoryEditorCLick && (
+              <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => onUserStoryEditorCLick(item)}
+                >
+                  User stories Editor
+                </Button>
+              </Box>
+            )}
+            {item.selectedGroup && (
+              <UserStoryGroup
+                projectId={item.id}
+                groupId={item.selectedGroup.id}
+              />
+            )}
+          </>
+        )}
+      </CustomForm>
     );
   }
 );

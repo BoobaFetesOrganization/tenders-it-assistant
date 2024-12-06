@@ -12,7 +12,7 @@ namespace GenAIChat.Domain.Project
 
         public ICollection<DocumentDomain> Documents { get; private set; } = [];
 
-        public UserStoryGroupDomain? Stories { get; set; } = null;
+        public UserStoryGroupDomain? SelectedGroup { get; set; } = null;
 
         public ICollection<UserStoryGroupDomain> Generated { get; private set; } = [];
 
@@ -31,7 +31,7 @@ namespace GenAIChat.Domain.Project
             Id = domain.Id;
             Name = domain.Name;
             Documents = domain.Documents;
-            Stories = domain.Stories;
+            SelectedGroup = domain.SelectedGroup;
             Generated = domain.Generated;
         }
     }

@@ -1,7 +1,8 @@
-import { newPage, newUserStoryGroupDto } from '@aogenai/domain';
+import { newPage, newProjectDto, newUserStoryGroupDto } from '@aogenai/domain';
 import {
   newPaginationParameter,
   useCreateUserStoryGroup,
+  useProject,
   useUserStoryGroups,
 } from '@aogenai/infra';
 import { Button, Grid2, Tab, Tabs } from '@mui/material';
@@ -14,6 +15,12 @@ interface IProjectStoriesEditorProps {
 export const ProjectStoriesEditor: FC<IProjectStoriesEditorProps> = memo(
   ({ projectId }) => {
     const [tab, setTab] = useState(0);
+
+    const {
+      data: { project: { selectedGroup } } = {
+        project: newProjectDto(),
+      },
+    } = useProject({ variables: { id: projectId } });
 
     const { data: { groups } = { groups: newPage() } } = useUserStoryGroups({
       variables: { ...newPaginationParameter(), projectId },
@@ -36,22 +43,42 @@ export const ProjectStoriesEditor: FC<IProjectStoriesEditorProps> = memo(
             Create
           </Button>
         </Grid2>
-        <Grid2 container>
-          <Tabs
-            value={tab}
-            onChange={onTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            aria-label="scrollable tabs for generated groups of user stories"
-          >
-            {groups.data.map((group, index) => (
-              <Tab label={`group ${index}`} key={group.id} />
-            ))}
-          </Tabs>
-        </Grid2>
-        <Grid2 container flex={1} sx={{ overflow: 'auto' }}>
-          <UserStoryGroup projectId={current.projectId} groupId={current.id} />
-        </Grid2>
+        {!!groups.data.length && (
+          <>
+            <Grid2 container>
+              <Tabs
+                value={tab}
+                onChange={onTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                aria-label="scrollable tabs for generated groups of user stories"
+              >
+                {groups.data.map((group, index) => (
+                  <Tab
+                    label={
+                      group.id === selectedGroup?.id
+                        ? 'validated'
+                        : `group ${index}`
+                    }
+                    key={group.id}
+                    sx={{
+                      color:
+                        group.id === selectedGroup?.id
+                          ? 'primary.main'
+                          : 'inherit',
+                    }}
+                  />
+                ))}
+              </Tabs>
+            </Grid2>
+            <Grid2 container flex={1} sx={{ overflow: 'auto' }}>
+              <UserStoryGroup
+                projectId={current.projectId}
+                groupId={current.id}
+              />
+            </Grid2>
+          </>
+        )}
       </Grid2>
     );
   }

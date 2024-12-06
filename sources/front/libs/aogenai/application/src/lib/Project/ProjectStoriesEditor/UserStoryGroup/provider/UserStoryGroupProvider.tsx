@@ -8,11 +8,12 @@ import {
   PropsWithChildren,
   useContext,
   useReducer,
+  useState,
 } from 'react';
-import { Loading } from '../../../../common';
 import { Action, initGroup, reducer } from './data';
 
 interface IUserStoryGroupContext {
+  initial: IUserStoryGroupDto;
   group: IUserStoryGroupDto;
   dispatch: Dispatch<Action>;
   onDeleted?: (group: IUserStoryGroupDto) => void;
@@ -32,19 +33,21 @@ export interface IUserStoryGroupProviderProps {
 export const UserStoryGroupProvider: FC<
   PropsWithChildren<IUserStoryGroupProviderProps>
 > = memo(({ projectId, groupId: id, onDeleted, children }) => {
-  const [group, dispatch] = useReducer(reducer, newUserStoryGroupDto());
+  const [initial, setInitial] = useState(newUserStoryGroupDto());
+  const [group, dispatch] = useReducer(reducer, initial);
 
-  const { loading, called } = useUserStoryGroup({
+  useUserStoryGroup({
     variables: { projectId, id },
     onCompleted: ({ group }) => {
+      setInitial(group);
       initGroup(dispatch, group);
     },
   });
 
-  return !called || loading ? (
-    <Loading />
-  ) : (
-    <UserStoryGroupContext.Provider value={{ group, dispatch, onDeleted }}>
+  return (
+    <UserStoryGroupContext.Provider
+      value={{ group, initial, dispatch, onDeleted }}
+    >
       {children}
     </UserStoryGroupContext.Provider>
   );

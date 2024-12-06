@@ -7,7 +7,7 @@ export const DeleteProjectMutation = gql`
       id
       name
       documents
-      stories
+      selectedGroup
     }
   }
 `;
