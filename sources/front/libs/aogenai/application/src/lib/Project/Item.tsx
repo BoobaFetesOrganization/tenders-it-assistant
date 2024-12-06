@@ -1,5 +1,5 @@
 import { IDocumentDto, IProjectDto } from '@aogenai/domain';
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Paper, TextField, Typography } from '@mui/material';
 import { FC, memo } from 'react';
 import { CustomAccordion, CustomForm, ICustomFormProps } from '../common';
 import { DocumentCollection } from '../Document';
@@ -63,10 +63,18 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
               </Box>
             )}
             {item.selectedGroup && (
-              <UserStoryGroup
-                projectId={item.id}
-                groupId={item.selectedGroup.id}
-              />
+              <Paper>
+                <Typography
+                  variant="h4"
+                  sx={{ padding: (theme) => theme.spacing(0, 3) }}
+                >
+                  User stories
+                </Typography>
+                <UserStoryGroup
+                  projectId={item.id}
+                  groupId={item.selectedGroup.id}
+                />
+              </Paper>
             )}
           </>
         )}

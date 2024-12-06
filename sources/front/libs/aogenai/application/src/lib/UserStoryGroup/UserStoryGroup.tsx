@@ -13,7 +13,7 @@ interface IUserStoryGroupProps extends ICustomFormProps {
 
 export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
   ({ projectId, groupId, showRequest = true, ...formProps }) => {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
     const { data: { group } = { group: newUserStoryGroupDto() } } =
       useUserStoryGroup({
