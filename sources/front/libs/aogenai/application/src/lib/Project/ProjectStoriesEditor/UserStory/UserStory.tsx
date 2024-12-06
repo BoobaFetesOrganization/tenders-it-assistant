@@ -1,37 +1,65 @@
+import { IUserStoryDto } from '@aogenai/domain';
 import AddIcon from '@mui/icons-material/Add';
-import { Grid2, IconButton, TextField } from '@mui/material';
-import { FC, memo } from 'react';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { Grid2, IconButton, Paper, TextField, Theme } from '@mui/material';
+import { FC, memo, useCallback, useMemo } from 'react';
 import { onPropertyChange } from '../../../tools';
+import { useUserStoryGroupData } from '../UserStoryGroup';
 import { Task } from './Task';
-import { useStory } from './useStory';
 
-export const UserStory: FC = memo(() => {
-  const { story, updateStory, createTask } = useStory();
+interface IUserStoryProps {
+  storyIndex: number;
+}
+export const UserStory: FC<IUserStoryProps> = memo(({ storyIndex }) => {
+  const { story, task } = useUserStoryGroupData();
+
+  const { item, setItem } = useMemo(
+    () => ({
+      item: story.get(storyIndex),
+      setItem: (entity: IUserStoryDto) => story.update({ storyIndex, entity }),
+    }),
+    [story, storyIndex]
+  );
+
+  const onRemoveStory = useCallback(() => {
+    story.delete({ storyIndex });
+  }, [story, storyIndex]);
+
+  const onAddTask = useCallback(() => {
+    task.create({ storyIndex });
+  }, [task, storyIndex]);
 
   return (
-    <Grid2 container direction="column" id="userstory-editor">
+    <Grid2 container direction="column" id="userstory-editor" {...rootProps}>
       <Grid2 container flex={1} spacing={2} flexWrap="nowrap">
-        <TextField
-          label="Name"
-          value={story.name}
-          onChange={onPropertyChange({
-            item: story,
-            setItem: updateStory,
-            property: 'name',
-          })}
-          fullWidth
-        />
-        <TextField
-          label="Cost"
-          value={story.cost}
-          onChange={onPropertyChange({
-            item: story,
-            setItem: updateStory,
-            property: 'cost',
-            getValue: parseFloat,
-          })}
-          sx={{ width: 75 }}
-        />
+        <Grid2>
+          <IconButton color="error" onClick={onRemoveStory}>
+            <RemoveIcon />
+          </IconButton>
+        </Grid2>
+        <Grid2 flex={1}>
+          <TextField
+            label="Name"
+            size="small"
+            value={item.name}
+            onChange={onPropertyChange({ item, setItem, property: 'name' })}
+            fullWidth
+          />
+        </Grid2>
+        <Grid2>
+          <TextField
+            label="Cost"
+            size="small"
+            value={item.cost}
+            onChange={onPropertyChange({
+              item,
+              setItem,
+              property: 'cost',
+              getValue: parseFloat,
+            })}
+            sx={{ width: 75 }}
+          />
+        </Grid2>
       </Grid2>
       <Grid2
         container
@@ -46,11 +74,15 @@ export const UserStory: FC = memo(() => {
           borderLeftColor: 'divider',
         }}
       >
-        {story.tasks.map((task, index) => (
-          <Task key={`${task.id}-${index}`} {...task} index={index} />
+        {task.list(storyIndex).map(({ id }, taskIndex) => (
+          <Task
+            key={`${storyIndex}-${taskIndex}-${id}-`}
+            storyIndex={storyIndex}
+            taskIndex={taskIndex}
+          />
         ))}
         <Grid2 container justifyContent="start">
-          <IconButton color="primary" onClick={createTask}>
+          <IconButton color="primary" onClick={onAddTask}>
             <AddIcon />
           </IconButton>
         </Grid2>
@@ -58,3 +90,8 @@ export const UserStory: FC = memo(() => {
     </Grid2>
   );
 });
+
+const rootProps = {
+  component: Paper,
+  sx: { padding: (theme: Theme) => theme.spacing(1) },
+};

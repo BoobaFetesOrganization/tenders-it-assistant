@@ -3,13 +3,13 @@ import {
   IUserStoryPromptDto,
   newUserStoryPromptDto,
 } from './IUserStoryPromptDto';
-import { IUserStoryBaseDto } from './userstory';
+import { IUserStoryDto } from './userstory';
 
 export interface IUserStoryGroupDto extends IEntityBaseDto {
   projectId: number;
   request: IUserStoryPromptDto;
   response?: string;
-  userStories: IUserStoryBaseDto[];
+  userStories: IUserStoryDto[];
 }
 
 export function newUserStoryGroupDto(

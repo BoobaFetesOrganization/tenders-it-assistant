@@ -17,8 +17,9 @@ interface Response {
 
 export const useCreateUserStory = (
   options?: MutationHookOptions<Response, Request>
-) =>
-  useMutation<Response, Request>(CreateUserStoryMutation, {
+) => {
+  return useMutation<Response, Request>(CreateUserStoryMutation, {
     ...options,
     refetchQueries: [GetUserStoriesQuery, GetUserStoryQuery],
   });
+};

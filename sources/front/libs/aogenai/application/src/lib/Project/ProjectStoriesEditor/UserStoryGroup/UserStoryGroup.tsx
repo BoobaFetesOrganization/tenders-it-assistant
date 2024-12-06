@@ -1,130 +1,118 @@
-import { IUserStoryGroupDto, newUserStoryGroupDto } from '@aogenai/domain';
+import { IUserStoryGroupDto } from '@aogenai/domain';
 import {
   useDeleteUserStoryGroup,
   useGenerateUserStoryGroup,
   useUpdateUserStoryGroup,
-  useUserStoryGroup,
   useValidateUserStoryGroup,
 } from '@aogenai/infra';
-import { Button, Grid2 } from '@mui/material';
+import { Button, Grid2, Typography } from '@mui/material';
 import { FC, memo, useCallback, useState } from 'react';
 import {
   CustomAccordion,
   FormWithButtons,
   FormWithButtonsChildren,
-  Loading,
 } from '../../../common';
-import { onValueChange } from '../../../tools';
 import { UserStory } from '../UserStory';
 import { UserGroupRequest } from './UserGroupRequest';
+import { useUserStoryGroupData } from './provider';
 
-interface IUserStoryGroupProps {
-  projectId: number;
-  groupId: number;
-  onSaved?: (item: IUserStoryGroupDto) => void;
-  onDeleted?: (item: IUserStoryGroupDto) => void;
-}
-export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
-  ({ projectId, groupId, onSaved, onDeleted }) => {
-    const { loading, data: { group } = { group: newUserStoryGroupDto() } } =
-      useUserStoryGroup({
-        variables: { projectId, id: groupId },
-      });
-    const [update] = useUpdateUserStoryGroup({
-      onCompleted({ group }) {
-        onSaved?.(group);
-      },
-    });
-    const [remove] = useDeleteUserStoryGroup({
-      variables: { projectId, id: groupId },
-      onCompleted({ group }) {
-        onDeleted?.(group);
-      },
-    });
+export const UserStoryGroup: FC = memo(() => {
+  const { group, story, onDeleted } = useUserStoryGroupData();
+  const [requestOpen, setRequestOpen] = useState(true);
 
-    const reset = useCallback(() => group, [group]);
+  const [update] = useUpdateUserStoryGroup();
+  const [remove] = useDeleteUserStoryGroup({
+    variables: { projectId: group.projectId, id: group.id },
+    onCompleted({ group }) {
+      onDeleted?.(group);
+    },
+  });
 
-    const [generate] = useGenerateUserStoryGroup();
+  const reset = useCallback(() => group, [group]);
 
-    const [validate] = useValidateUserStoryGroup();
+  const [generate] = useGenerateUserStoryGroup();
 
-    const [requestOpen, setRequestOpen] = useState(true);
+  const [validate] = useValidateUserStoryGroup();
 
-    const save = useCallback(
-      (input: IUserStoryGroupDto) => {
-        update({ variables: { projectId, input } });
-      },
-      [projectId, update]
-    );
+  const save = useCallback(
+    (input: IUserStoryGroupDto) => {
+      update({ variables: { projectId: group.projectId, input } });
+    },
+    [group.projectId, update]
+  );
 
-    const onGenerate = useCallback(() => {
-      generate({ variables: { projectId, id: group.id } });
-    }, [generate, projectId, group.id]);
+  const onGenerate = useCallback(() => {
+    generate({ variables: { projectId: group.projectId, id: group.id } });
+  }, [generate, group.projectId, group.id]);
 
-    const onValidate = useCallback(() => {
-      validate({ variables: { projectId, id: group.id } });
-    }, [validate, projectId, group.id]);
+  const onValidate = useCallback(() => {
+    validate({ variables: { projectId: group.projectId, id: group.id } });
+  }, [validate, group.projectId, group.id]);
 
-    const renderChildren = useCallback<
-      FormWithButtonsChildren<IUserStoryGroupDto>
-    >(
-      (item, setItem) => (
-        <Grid2 container flex={1} direction="column">
+  const renderChildren = useCallback<
+    FormWithButtonsChildren<IUserStoryGroupDto>
+  >(
+    (item, setItem) => {
+      return (
+        <>
           <CustomAccordion
             title="Request"
             open={requestOpen}
             onChange={setRequestOpen}
           >
-            <UserGroupRequest
-              request={item.request}
-              onChanged={onValueChange({
-                item,
-                setItem,
-                property: 'request',
-              })}
-            />
+            <UserGroupRequest />
           </CustomAccordion>
+
           <Grid2
             container
             direction="column"
             spacing={2}
             id="userstory-collection"
           >
-            {group.userStories.map((story) => (
+            <Typography variant="h4">User stories</Typography>
+          </Grid2>
+          <Grid2
+            container
+            direction="column"
+            spacing={2}
+            id="userstory-collection"
+          >
+            {group.userStories.map((story, storyIndex) => (
               <UserStory
-                key={story.id}
-                projectId={projectId}
-                groupId={groupId}
-                storyId={story.id}
+                key={`${storyIndex}-${story.id}`}
+                storyIndex={storyIndex}
               />
             ))}
           </Grid2>
-        </Grid2>
-      ),
-      [group.userStories, groupId, projectId, requestOpen]
-    );
+          <Grid2 container justifyContent="end" spacing={2}>
+            <Button variant="outlined" color="primary" onClick={story.create}>
+              Add User story
+            </Button>
+          </Grid2>
+        </>
+      );
+    },
+    [group.userStories, requestOpen, story.create]
+  );
 
-    return loading ? (
-      <Loading />
-    ) : (
-      <FormWithButtons
-        data={group}
-        save={save}
-        reset={reset}
-        remove={remove}
-        actions={
-          <>
-            <Button color="primary" onClick={onGenerate}>
-              Generate
-            </Button>
-            <Button color="primary" onClick={onValidate}>
-              Validate
-            </Button>
-          </>
-        }
-      >
-        {renderChildren}
-      </FormWithButtons>
-    );
-  }
-);
+  return (
+    <FormWithButtons
+      data={group}
+      save={save}
+      reset={reset}
+      remove={remove}
+      actions={
+        <>
+          <Button color="primary" onClick={onGenerate}>
+            Generate
+          </Button>
+          <Button color="primary" onClick={onValidate}>
+            Validate
+          </Button>
+        </>
+      }
+    >
+      {renderChildren}
+    </FormWithButtons>
+  );
+});

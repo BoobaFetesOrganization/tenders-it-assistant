@@ -6,7 +6,6 @@ import {
 } from '@aogenai/infra';
 import { Button, Grid2, Tab, Tabs } from '@mui/material';
 import { FC, memo, SyntheticEvent, useCallback, useState } from 'react';
-import { Loading } from '../../common';
 import { UserStoryGroup } from './UserStoryGroup';
 
 interface IProjectStoriesEditorProps {
@@ -16,10 +15,9 @@ export const ProjectStoriesEditor: FC<IProjectStoriesEditorProps> = memo(
   ({ projectId }) => {
     const [tab, setTab] = useState(0);
 
-    const { loading, data: { groups } = { groups: newPage() } } =
-      useUserStoryGroups({
-        variables: { ...newPaginationParameter(), projectId },
-      });
+    const { data: { groups } = { groups: newPage() } } = useUserStoryGroups({
+      variables: { ...newPaginationParameter(), projectId },
+    });
 
     const [create] = useCreateUserStoryGroup({ variables: { projectId } });
     const onCreate = useCallback(() => {
@@ -31,9 +29,7 @@ export const ProjectStoriesEditor: FC<IProjectStoriesEditorProps> = memo(
     }, []);
 
     const current = groups.data[tab] ?? newUserStoryGroupDto();
-    return loading ? (
-      <Loading />
-    ) : (
+    return (
       <Grid2 container flex={1} direction="column">
         <Grid2 container alignItems="end">
           <Button variant="outlined" color="secondary" onClick={onCreate}>

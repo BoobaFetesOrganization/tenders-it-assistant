@@ -7,10 +7,11 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { DataNotFound } from '../common';
+import { DataNotFound, Loading } from '../common';
 
 export interface IFormWithButtonsProps<T extends object>
   extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+  loading?: boolean;
   data: T;
   save?(data: T): void;
   reset?(): T;
@@ -24,6 +25,7 @@ export type FormWithButtonsChildren<T extends object> = NonNullable<
 >;
 
 const FormWithButtonsInternal = <T extends object>({
+  loading,
   data,
   save,
   reset,
@@ -50,9 +52,11 @@ const FormWithButtonsInternal = <T extends object>({
     remove?.(data);
   }, [data, remove]);
 
-  if (!data) return <DataNotFound />;
-
-  return (
+  return loading ? (
+    <Loading />
+  ) : !data ? (
+    <DataNotFound />
+  ) : (
     <Grid2
       container
       flex={1}
