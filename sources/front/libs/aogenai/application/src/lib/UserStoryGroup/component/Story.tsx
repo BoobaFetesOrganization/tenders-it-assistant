@@ -12,7 +12,7 @@ import { FC, memo, useCallback, useState } from 'react';
 import { Task } from './Task';
 
 export const Story: FC<IUserStoryDto> = memo(({ id, name, cost, tasks }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const toggleOpen = useCallback(() => setOpen(!open), [open]);
   return (
     <>
