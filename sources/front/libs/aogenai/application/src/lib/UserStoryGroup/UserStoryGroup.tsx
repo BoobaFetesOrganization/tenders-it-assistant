@@ -1,18 +1,19 @@
 import { newUserStoryGroupDto } from '@aogenai/domain';
 import { useUserStoryGroup } from '@aogenai/infra';
 import { Box, Grid2, List, TextField, Typography } from '@mui/material';
-import { FC, memo, useState } from 'react';
+import { FC, memo, ReactNode, useState } from 'react';
 import { CustomAccordion, useTotalCost } from '../common';
 import { Story } from './component/Story';
 
 interface IUserStoryGroupProps {
-  projectId: number;
-  groupId: number;
+  projectId?: number;
+  groupId?: number;
   showRequest?: boolean;
+  actions?: ReactNode;
 }
 
 export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
-  ({ projectId, groupId, showRequest }) => {
+  ({ projectId = 0, groupId = 0, showRequest, actions }) => {
     const [open, setOpen] = useState(false);
 
     const { data: { group } = { group: newUserStoryGroupDto() } } =
@@ -24,8 +25,13 @@ export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
 
     return (
       <Grid2 container flex={1} direction="column" gap={2}>
-        <Grid2 sx={{ height: 125 }}>
-          <Box
+        <Grid2 container>
+          <Grid2 container flex={1}>
+            <Box>{actions}</Box>
+          </Grid2>
+          <Grid2
+            container
+            flex={1}
             sx={{
               border: '1px solid',
               borderColor: 'grey.400',
@@ -36,6 +42,8 @@ export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
               marginLeft: 'auto',
               position: 'relative',
               backgroundColor: 'white',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <Box
@@ -70,7 +78,7 @@ export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
                 )}
               </Typography>
             </Box>
-          </Box>
+          </Grid2>
         </Grid2>
         {showRequest && (
           <Grid2>

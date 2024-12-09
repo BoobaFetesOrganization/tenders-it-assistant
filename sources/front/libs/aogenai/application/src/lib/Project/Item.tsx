@@ -50,25 +50,26 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
                 onDownloaded={onDocumentDonwloaded}
               />
             </CustomAccordion>
-            {onUserStoryEditorCLick && (
-              <Box sx={{ display: 'flex', justifyContent: 'end' }}>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => onUserStoryEditorCLick(item)}
-                >
-                  User stories Editor
-                </Button>
-              </Box>
-            )}
-            {item.selectedGroup && (
-              <CustomAccordion title="User stories">
-                <UserStoryGroup
-                  projectId={item.id}
-                  groupId={item.selectedGroup.id}
-                />
-              </CustomAccordion>
-            )}
+
+            <CustomAccordion title="User stories">
+              <UserStoryGroup
+                projectId={item.id}
+                groupId={item.selectedGroup?.id}
+                actions={
+                  onUserStoryEditorCLick && (
+                    <Box sx={{ display: 'flex', justifyContent: 'end' }}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => onUserStoryEditorCLick(item)}
+                      >
+                        Editor
+                      </Button>
+                    </Box>
+                  )
+                }
+              />
+            </CustomAccordion>
           </>
         )}
       </CustomForm>
