@@ -1,5 +1,5 @@
-import { DashBoard } from '@aogenai/application';
 import { RouteObject } from 'react-router';
+import { DashBoardWrapper } from './DashBoardWrapper';
 import { projectRoutes } from './project';
 
 export const routes: RouteObject[] = [
@@ -8,7 +8,7 @@ export const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <DashBoard />,
+        element: <DashBoardWrapper />,
       },
       ...projectRoutes,
     ],

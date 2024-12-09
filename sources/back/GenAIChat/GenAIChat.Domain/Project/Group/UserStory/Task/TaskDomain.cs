@@ -15,29 +15,10 @@ namespace GenAIChat.Domain.Project.Group.UserStory.Task
         #endregion
 
         public TaskDomain() { }
-        public TaskDomain(string name, double cost)
-        {
-            Name = name;
-            Cost = cost;
-        }
 
-        public TaskDomain(TaskDomain entity)
+        public void AddGeminiCost(double cost)
         {
-            Id = entity.Id;
-            UserStoryId = entity.UserStoryId;
-            Name = entity.Name;
-            Cost = entity.Cost;
-            WorkingCosts = entity.WorkingCosts;
-        }
-
-        public void AddCost(TaskCostDomain cost)
-        {
-            cost.TaskId = Id;
-            WorkingCosts.Add(cost);
-        }
-        public bool RemoveCost(TaskCostDomain cost)
-        {
-            return WorkingCosts.Remove(cost);
+            WorkingCosts.Add(new TaskCostDomain(cost, TaskCostKind.Gemini));
         }
     }
 }

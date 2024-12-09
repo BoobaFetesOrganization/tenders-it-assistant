@@ -22,7 +22,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<string> CallAsync(GeminiPromptData data)
+        public async Task<string> CallAsync(GeminiRequest data)
         {
             var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(Endpoint, content);

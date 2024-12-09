@@ -6,7 +6,12 @@ import {
 } from '@aogenai/infra';
 import { Button, Grid2, Typography } from '@mui/material';
 import { FC, memo, useCallback, useState } from 'react';
-import { CustomAccordion, CustomForm } from '../../../common';
+import {
+  CustomAccordion,
+  CustomForm,
+  Loading,
+  useTotalCost,
+} from '../../../common';
 import { UserStory } from '../UserStory';
 import { UserGroupRequest } from './UserGroupRequest';
 import { useUserStoryGroupData } from './provider';
@@ -14,6 +19,8 @@ import { useUserStoryGroupData } from './provider';
 export const UserStoryGroup: FC = memo(() => {
   const { group, story, onDeleted, reset } = useUserStoryGroupData();
   const [requestOpen, setRequestOpen] = useState(true);
+
+  const { totalCost, totalGeminiCost } = useTotalCost(group);
 
   const [update] = useUpdateUserStoryGroup({
     onCompleted({ group }) {
@@ -27,9 +34,9 @@ export const UserStoryGroup: FC = memo(() => {
     },
   });
 
-  const [generate] = useGenerateUserStoryGroup();
+  const [generate, { loading: generateLoading }] = useGenerateUserStoryGroup();
 
-  const [validate] = useValidateUserStoryGroup();
+  const [validate, { loading: validateLoading }] = useValidateUserStoryGroup();
 
   const onSave = useCallback(() => {
     update({ variables: { projectId: group.projectId, input: group } });
@@ -53,14 +60,34 @@ export const UserStoryGroup: FC = memo(() => {
       onReset={reset}
       onRemove={onRemove}
       actions={
-        <>
-          <Button color="primary" onClick={onGenerate}>
-            Generate
-          </Button>
-          <Button color="primary" onClick={onValidate}>
-            Validate
-          </Button>
-        </>
+        <Grid2 container>
+          <Grid2>
+            {generateLoading ? (
+              <Loading showImmediately />
+            ) : (
+              <Button
+                color="primary"
+                onClick={onGenerate}
+                disabled={validateLoading}
+              >
+                Generate
+              </Button>
+            )}
+          </Grid2>
+          <Grid2>
+            {validateLoading ? (
+              <Loading />
+            ) : (
+              <Button
+                color="primary"
+                onClick={onValidate}
+                disabled={generateLoading}
+              >
+                Validate
+              </Button>
+            )}
+          </Grid2>
+        </Grid2>
       }
     >
       <CustomAccordion
@@ -71,8 +98,18 @@ export const UserStoryGroup: FC = memo(() => {
         <UserGroupRequest />
       </CustomAccordion>
 
-      <Grid2 container direction="column" spacing={2} id="userstory-collection">
-        <Typography variant="h4">User stories</Typography>
+      <Grid2 container spacing={2} id="userstory-collection" direction="column">
+        <Grid2 flexGrow={1}>
+          <Typography variant="h4">User stories</Typography>
+        </Grid2>
+        <Grid2 container flexGrow={0}>
+          <Typography variant="body1">
+            {`Total Gemini : ${totalGeminiCost}`}
+          </Typography>
+          <Typography variant="body1">
+            {`Total Human : ${totalCost}`}
+          </Typography>
+        </Grid2>
       </Grid2>
       <Grid2 container direction="column" spacing={2} id="userstory-collection">
         {group.userStories.map((story, storyIndex) => (

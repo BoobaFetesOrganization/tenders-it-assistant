@@ -1,8 +1,5 @@
 ﻿using GenAIChat.Domain.Common;
-using GenAIChat.Domain.Gemini;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace GenAIChat.Domain.Prompt
 {

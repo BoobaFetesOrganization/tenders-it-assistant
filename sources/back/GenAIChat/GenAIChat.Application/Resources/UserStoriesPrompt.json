@@ -1,6 +1,6 @@
 ﻿{
-  "Context": "Je souhaites extraire toutes les user stories que tu pourra trouver dans les documents fournis et chiffrer en tâches ces user stories en fonction du fonctionnel mais également en fonction du back ou du front ou encore de l'environnement cloud si tu en détecte'",
+  "Context": "Je souhaites extraire toutes les user stories que tu pourra trouver dans les documents fournis et chiffrer en tâches ces user stories en fonction du fonctionnel mais également en fonction du back ou du front ou encore de l'environnement cloud si tu en détecte",
   "Personas": "- Product Owner\r\n- Développeur Fullstack",
   "Tasks": "- Extraire les user stories\r\n- Découper les user stories en tâches\r\n- Chiffrer chaque tâche\r\n- prefixer chaque chaque tâche dans des crochet '[]' par les tags BACK, FRONT, INFRA ou une combinaison de tag ",
-  "Results": "- un objet JSON contenant les user stories, les tâches et leur chiffrage\r\n- aucune autre information ne doit être présent dans la réponse fourni\r\n- ton retour devra être sérialisable directement en JSON selon le schema suivant : { \"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": { \"Id\": { \"type\": \"integer\" }, \"Name\": { \"type\": \"string\" }, \"Tasks\": { \"type\": \"array\", \"items\": { \"type\": \"object\", \"properties\": { \"Id\": { \"type\": \"integer\" }, \"Name\": { \"type\": \"string\" }, \"Cost\": { \"type\": \"number\" } }, \"required\": [\"Id\", \"Name\", \"Cost\"] } } }, \"required\": [\"Id\", \"Name\", \"Tasks\"] }"
+  "Results": "- un objet JSON contenant les user stories, les tâches et leur chiffrage\r\n- aucune autre information ne doit être présent dans la réponse fourni"
 }

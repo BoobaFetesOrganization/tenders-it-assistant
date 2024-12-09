@@ -9,5 +9,14 @@ namespace GenAIChat.Domain.Gemini.GeminiCommon
 
         [JsonPropertyName("parts")] 
         public List<GeminiContentPart> Parts { get; set; } = new List<GeminiContentPart>();
+
+        public void AddPart(GeminiContentPart part)
+        {
+            Parts.Add(part);
+        }
+        public void AddParts(IEnumerable<GeminiContentPart> parts)
+        {
+            Parts.AddRange(parts);
+        }
     }
 }

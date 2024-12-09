@@ -4,6 +4,7 @@ import {
   MutationTuple,
   useMutation,
 } from '@apollo/client';
+import { GetProjectQuery } from '../cqrs';
 import { GetUserStoryGroupQuery, ValidateUserStoryGroupMutation } from './cqrs';
 
 interface Request {
@@ -27,5 +28,9 @@ export const useValidateUserStoryGroup = (
       id: options?.variables?.id ?? 0,
       input: {},
     },
-    refetchQueries: [GetUserStoryGroupQuery, GetUserStoryGroupQuery],
+    refetchQueries: [
+      GetUserStoryGroupQuery,
+      GetUserStoryGroupQuery,
+      GetProjectQuery,
+    ],
   }) as unknown as MutationTuple<Response, Request>;

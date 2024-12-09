@@ -19,7 +19,8 @@ namespace GenAIChat.Application.Usecase
 
         public async Task<string> SendAsync(string prompt)
         {
-            return await _genAiAdapter.SendRequestAsync(prompt);
+            throw new Exception("Not implemented"); 
+            // return await _genAiAdapter.SendRequestAsync(prompt);
         }
     }
 }

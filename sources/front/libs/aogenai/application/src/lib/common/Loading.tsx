@@ -1,4 +1,4 @@
-import { Box, BoxProps, CircularProgress, Fade } from '@mui/material';
+import { Box, BoxProps, CircularProgress, Fade, useTheme } from '@mui/material';
 import { FC, memo } from 'react';
 
 const defaultProps: BoxProps['sx'] = {
@@ -6,13 +6,24 @@ const defaultProps: BoxProps['sx'] = {
   gap: 2,
 };
 
-export const Loading: FC = memo(() => {
+interface ILoadingProps {
+  showImmediately?: boolean;
+}
+export const Loading: FC<ILoadingProps> = memo(({ showImmediately }) => {
+  const theme = useTheme();
   return (
-    <Box sx={{ ...defaultProps, alignItems: 'start', flexGrow: 1 }}>
+    <Box
+      sx={{
+        ...defaultProps,
+        alignItems: 'start',
+        justifyItems: 'start',
+        flexGrow: 1,
+      }}
+    >
       <Fade
         in
         style={{
-          transitionDelay: '2s',
+          transitionDelay: showImmediately ? '0s' : '2s',
         }}
         unmountOnExit
       >
@@ -22,7 +33,7 @@ export const Loading: FC = memo(() => {
             alignItems: 'center',
           }}
         >
-          <CircularProgress />
+          <CircularProgress size={theme.spacing(2)} />
           Loading...
         </Box>
       </Fade>

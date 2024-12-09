@@ -3,3 +3,4 @@ export * from './CustomForm';
 export * from './DataNotFound';
 export * from './FormWithButtons';
 export * from './Loading';
+export * from './useTotalCost';

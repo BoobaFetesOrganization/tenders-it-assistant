@@ -8,23 +8,9 @@ namespace GenAIChat.Infrastructure.Api.Gemini
 {
     public class GenAiApiAdapter(GeminiGenerateContentService generateContentService, GeminiFileService fileService) : IGenAiApiAdapter
     {
-        public async Task<string> SendRequestAsync(string request, IEnumerable<DocumentDomain>? documents = null)
+        public async Task<string> SendRequestAsync(GeminiRequest request)
         {
-            GeminiPromptData data = new();
-            GeminiContent content = new();
-            data.Contents.Add(content);
-
-            content.Parts.Add(new(request));
-
-            if (documents is not null)
-                content.Parts.AddRange(
-                    documents.Select(document => new GeminiContentPart(document.Metadata.MimeType, document.Metadata.Uri)));
-
-            var promptResponse = await generateContentService.CallAsync(data);
-            // todo ? => PromptDomain result = new(promptResponse);
-            // todo ? => result.LoadTextAsGeminiResult();
-
-            return promptResponse;
+            return await generateContentService.CallAsync(request);
         }
 
 

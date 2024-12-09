@@ -1,9 +1,10 @@
 import { IProjectBaseDto, newPage } from '@aogenai/domain';
 import { useProjects } from '@aogenai/infra';
 import CreateIcon from '@mui/icons-material/Add';
-import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import {
+  Box,
   Button,
   Grid2,
   IconButton,
@@ -63,9 +64,6 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
       <Loading />
     ) : (
       <StyledRoot container className="collection-project">
-        <StyledTitle>
-          <Typography variant="h3">Projects</Typography>
-        </StyledTitle>
         <StyledPagination>
           {onCreated && (
             <CreateButtonItem>
@@ -141,20 +139,23 @@ export const ProjectCollection: FC<IProjectCollectionProps> = memo(
                     </StyledTableCell>
                     {(onSelect || onDelete) && (
                       <StyledTableCell>
-                        {onDelete && (
-                          <StyledItemButton
-                            id={`project-delete-${project.id}`}
-                            onClick={() => onDelete(project)}
-                            endIcon={<CloseIcon />}
-                          />
-                        )}
-                        {onSelect && (
-                          <StyledItemButton
-                            id={`project-navigate-${project.id}`}
-                            onClick={() => onSelect(project)}
-                            endIcon={<SendIcon />}
-                          />
-                        )}
+                        <Box display="flex" justifyContent="flex-end">
+                          {onDelete && (
+                            <StyledItemButton
+                              id={`project-delete-${project.id}`}
+                              onClick={() => onDelete(project)}
+                              color="error"
+                              endIcon={<DeleteIcon />}
+                            />
+                          )}
+                          {onSelect && (
+                            <StyledItemButton
+                              id={`project-navigate-${project.id}`}
+                              onClick={() => onSelect(project)}
+                              endIcon={<SendIcon />}
+                            />
+                          )}
+                        </Box>
                       </StyledTableCell>
                     )}
                   </TableRow>
@@ -172,12 +173,6 @@ const StyledRoot = styled(Grid2)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   flexGrow: 1,
   flexDirection: 'column',
-}));
-
-const StyledTitle = styled(Grid2)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  flexGrow: 0,
-  textDecoration: 'underline',
 }));
 
 const StyledPagination = styled(Grid2)(({ theme }) => ({

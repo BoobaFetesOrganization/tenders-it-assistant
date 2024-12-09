@@ -1,5 +1,5 @@
 import { IDocumentDto, IProjectDto } from '@aogenai/domain';
-import { Box, Button, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField } from '@mui/material';
 import { FC, memo } from 'react';
 import { CustomAccordion, CustomForm, ICustomFormProps } from '../common';
 import { DocumentCollection } from '../Document';
@@ -27,7 +27,6 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
     ...htmlAttributes
   }) => {
     const IsEdition = Boolean(item?.id);
-
     return (
       <CustomForm
         loading={loading}
@@ -63,18 +62,12 @@ export const ProjectItem: FC<IProjectItemProps> = memo(
               </Box>
             )}
             {item.selectedGroup && (
-              <Paper>
-                <Typography
-                  variant="h4"
-                  sx={{ padding: (theme) => theme.spacing(0, 3) }}
-                >
-                  User stories
-                </Typography>
+              <CustomAccordion title="User stories">
                 <UserStoryGroup
                   projectId={item.id}
                   groupId={item.selectedGroup.id}
                 />
-              </Paper>
+              </CustomAccordion>
             )}
           </>
         )}

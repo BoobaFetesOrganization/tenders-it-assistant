@@ -50,7 +50,7 @@ export const UserStory: FC<IUserStoryProps> = memo(({ storyIndex }) => {
           <TextField
             label="Cost"
             size="small"
-            value={item.cost}
+            value={!item.cost ? '' : item.cost}
             slotProps={{ input: { readOnly: true } }}
             sx={{ width: 75 }}
           />

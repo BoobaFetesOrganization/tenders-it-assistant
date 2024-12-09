@@ -27,7 +27,11 @@ namespace GenAIChat.Domain.Project.Group
         public string ToGenAIRequest()
         {
             StringBuilder sb = new();
-            void append(string key, string value) => sb.Append($"{key}: {value}{Environment.NewLine}");
+            void append(string key, string value)
+            {
+                sb.Append($"{key}:");
+                sb.Append($"{value}{Environment.NewLine}");
+            }
 
             append(nameof(Context), Context);
             append(nameof(Personas), Personas);

@@ -1,5 +1,6 @@
 ﻿using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project.Group.UserStory;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenAIChat.Domain.Project.Group
 {
@@ -10,6 +11,9 @@ namespace GenAIChat.Domain.Project.Group
 
         public UserStoryPromptDomain Request { get; set; } = new UserStoryPromptDomain();
         public string? Response { get; set; } = null;
+
+        [NotMapped]
+        public double Cost { get => UserStories.Sum(us => us.Cost); }
 
         public ICollection<UserStoryDomain> UserStories { get; set; } = [];
 
@@ -33,6 +37,14 @@ namespace GenAIChat.Domain.Project.Group
             Request = new UserStoryPromptDomain(prompt);
         }
 
+        public void ClearUserStories() => UserStories.Clear();
+
+        public void SetUserStory(IEnumerable<UserStoryDomain>? stories)
+        {
+            UserStories.Clear();
+            if (stories is null) return;
+            foreach (var story in stories) AddUserStory(story);
+        }
         public void AddUserStory(UserStoryDomain userStory)
         {
             userStory.GroupId = Id;

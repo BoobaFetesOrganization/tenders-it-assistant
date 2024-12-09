@@ -12,6 +12,7 @@ export const Task: FC<ITaskDto> = memo(({ id, name, cost, workingCosts }) => {
       <Box sx={{ display: 'flex', flex: 1, gap: 2 }}>
         <TextField
           label="Story Name"
+          size="small"
           value={name}
           slotProps={{ input: { readOnly: true } }}
           autoFocus
@@ -19,6 +20,7 @@ export const Task: FC<ITaskDto> = memo(({ id, name, cost, workingCosts }) => {
         />
         <TextField
           label="Cost"
+          size="small"
           value={cost}
           slotProps={{ input: { readOnly: true } }}
           autoFocus

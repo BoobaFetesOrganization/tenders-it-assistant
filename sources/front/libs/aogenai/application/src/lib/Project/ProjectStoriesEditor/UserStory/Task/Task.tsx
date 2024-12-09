@@ -51,20 +51,6 @@ export const Task: FC<ITaskProps> = memo(({ storyIndex, taskIndex }) => {
             fullWidth
           />
         </Grid2>
-        <Grid2>
-          <TextField
-            size="small"
-            label="Cost"
-            value={item.cost ?? 0}
-            onChange={onPropertyChange({
-              item,
-              setItem,
-              property: 'cost',
-              getValue: parseFloat,
-            })}
-            sx={{ width: 75 }}
-          />
-        </Grid2>
         {gemini && (
           <Grid2>
             <TextField
@@ -73,12 +59,28 @@ export const Task: FC<ITaskProps> = memo(({ storyIndex, taskIndex }) => {
               className="Mui-focused"
               color="secondary"
               focused
-              value={gemini.cost ?? 0}
+              value={!gemini.cost ? '' : gemini.cost}
               slotProps={{ input: { readOnly: true } }}
               sx={{ width: 80 }}
             />
           </Grid2>
         )}
+        <Grid2>
+          <TextField
+            size="small"
+            label="Cost"
+            value={!item.cost ? '' : item.cost}
+            onChange={onPropertyChange({
+              item,
+              setItem,
+              property: 'cost',
+              getValue: (v) => {
+                return !v || isNaN(+v) ? '' : parseFloat(v);
+              },
+            })}
+            sx={{ width: 75 }}
+          />
+        </Grid2>
       </Grid2>
     </Grid2>
   );

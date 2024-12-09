@@ -37,6 +37,7 @@ namespace GenAIChat.Presentation.API.Controllers
             try
             {
                 var result = await application.CreateAsync(projectId);
+                var map = mapper.Map<UserStoryGroupDto>(result);
                 return Created(string.Empty, mapper.Map<UserStoryGroupDto>(result));
             }
             catch (Exception ex)
