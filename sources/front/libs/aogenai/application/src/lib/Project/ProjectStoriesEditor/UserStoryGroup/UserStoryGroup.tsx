@@ -55,49 +55,56 @@ export const UserStoryGroup: FC = memo(() => {
   }, [validate, group.projectId, group.id]);
 
   return (
-    <CustomForm
-      onSave={onSave}
-      onReset={reset}
-      onRemove={onRemove}
-      actions={
-        <Grid2 container>
-          <Grid2>
-            {generateLoading ? (
-              <Loading showImmediately />
-            ) : (
-              <Button
-                color="primary"
-                onClick={onGenerate}
-                disabled={validateLoading}
-              >
-                Generate
-              </Button>
-            )}
-          </Grid2>
-          <Grid2>
-            {validateLoading ? (
-              <Loading />
-            ) : (
-              <Button
-                color="primary"
-                onClick={onValidate}
-                disabled={generateLoading}
-              >
-                Validate
-              </Button>
-            )}
-          </Grid2>
+    <Grid2 container flex={1} direction="column">
+      <Grid2 container alignItems="center" justifyContent="end" gap={2}>
+        <Grid2>
+          {generateLoading ? (
+            <Loading showImmediately />
+          ) : (
+            <Button
+              color="primary"
+              onClick={onGenerate}
+              disabled={validateLoading}
+            >
+              Generate
+            </Button>
+          )}
         </Grid2>
-      }
-    >
-      <CustomAccordion
-        title="Request"
-        open={requestOpen}
-        onChange={setRequestOpen}
-      >
-        <UserGroupRequest />
-      </CustomAccordion>
-
+        <Grid2>
+          {validateLoading ? (
+            <Loading />
+          ) : (
+            <Button
+              color="primary"
+              onClick={onValidate}
+              disabled={generateLoading}
+            >
+              Validate
+            </Button>
+          )}
+        </Grid2>
+        <Grid2>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={onRemove}
+            disabled={generateLoading || validateLoading}
+          >
+            Delete
+          </Button>
+        </Grid2>
+      </Grid2>
+      <Grid2>
+        <CustomForm onSave={onSave} onReset={reset}>
+          <CustomAccordion
+            title="Request"
+            open={requestOpen}
+            onChange={setRequestOpen}
+          >
+            <UserGroupRequest />
+          </CustomAccordion>
+        </CustomForm>
+      </Grid2>
       <Grid2 container spacing={2} id="userstory-collection" direction="column">
         <Grid2 flexGrow={1}>
           <Typography variant="h4">User stories</Typography>
@@ -124,6 +131,6 @@ export const UserStoryGroup: FC = memo(() => {
           Add User story
         </Button>
       </Grid2>
-    </CustomForm>
+    </Grid2>
   );
 });
