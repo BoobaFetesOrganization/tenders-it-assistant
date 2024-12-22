@@ -21,7 +21,7 @@ export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
         variables: { projectId, id: groupId },
       });
 
-    const { totalCost } = useTotalCost(group);
+    const total = useTotalCost(group);
 
     return (
       <Grid2 container flex={1} direction="column" gap={2}>
@@ -60,7 +60,7 @@ export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="subtitle1">Cost:</Typography>
               <Typography variant="subtitle1">
-                <b>{totalCost}</b>
+                <b>{total.cost}</b>
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

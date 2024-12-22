@@ -1,75 +1,28 @@
-import {
-  useDeleteUserStoryGroup,
-  useGenerateUserStoryGroup,
-  useUpdateUserStoryGroupRequest,
-  useUpdateUserStoryGroupUserStories,
-  useValidateUserStoryGroup,
-} from '@aogenai/infra';
 import { Button, Grid2, Typography } from '@mui/material';
-import { FC, memo, useCallback, useEffect, useState } from 'react';
-import {
-  CustomAccordion,
-  CustomForm,
-  Loading,
-  useTotalCost,
-} from '../../../common';
+import { FC, memo } from 'react';
+import { CustomAccordion, CustomForm, Loading } from '../../../common';
 import { UserStory } from '../UserStory';
 import { UserGroupRequest } from './UserGroupRequest';
-import { useUserStoryGroupData } from './provider';
+import { useUserStoryGroupBehavior } from './useUserStoryGroupBehavior';
 
 export const UserStoryGroup: FC = memo(() => {
-  const { group, story, onDeleted, reset } = useUserStoryGroupData();
-  const [requestOpen, setRequestOpen] = useState(false);
-  const [userstoryOpen, setUserstoryOpen] = useState(false);
-
-  useEffect(() => {
-    setRequestOpen(group.userStories.length === 0);
-    setUserstoryOpen(group.userStories.length > 0);
-  }, [group.userStories.length]);
-  const { totalCost, totalGeminiCost } = useTotalCost(group);
-
-  const [updateRequest] = useUpdateUserStoryGroupRequest({
-    onCompleted({ group }) {
-      reset(group);
-      generate({ variables: { projectId: group.projectId, id: group.id } });
-    },
-  });
-  const [updateUserStories] = useUpdateUserStoryGroupUserStories({
-    onCompleted({ group }) {
-      reset(group);
-    },
-  });
-  const [remove] = useDeleteUserStoryGroup({
-    variables: { projectId: group.projectId, id: group.id },
-    onCompleted({ group }) {
-      onDeleted?.(group);
-    },
-  });
-
-  const [generate, { loading: generateLoading }] = useGenerateUserStoryGroup();
-
-  const [validate, { loading: validateLoading }] = useValidateUserStoryGroup();
-
-  const onSaveRequest = useCallback(() => {
-    updateRequest({ variables: { projectId: group.projectId, input: group } });
-  }, [group, updateRequest]);
-  const onSaveUserStories = useCallback(() => {
-    updateUserStories({
-      variables: { projectId: group.projectId, input: group },
-    });
-  }, [group, updateUserStories]);
-
-  const onRemove = useCallback(() => {
-    remove({ variables: { projectId: group.projectId, id: group.id } });
-  }, [group.id, group.projectId, remove]);
-
-  const onGenerate = useCallback(() => {
-    generate({ variables: { projectId: group.projectId, id: group.id } });
-  }, [generate, group.projectId, group.id]);
-
-  const onValidate = useCallback(() => {
-    validate({ variables: { projectId: group.projectId, id: group.id } });
-  }, [validate, group.projectId, group.id]);
+  const {
+    group,
+    story,
+    reset,
+    total,
+    requestOpen,
+    setRequestOpen,
+    onSaveRequest,
+    userstoryOpen,
+    setUserstoryOpen,
+    onSaveUserStories,
+    generateLoading,
+    onGenerate,
+    validateLoading,
+    onValidate,
+    onRemove,
+  } = useUserStoryGroupBehavior();
 
   return (
     <Grid2 container flex={1} direction="column">
@@ -136,10 +89,10 @@ export const UserStoryGroup: FC = memo(() => {
           >
             <Grid2 container flexGrow={0} justifyContent="end">
               <Typography variant="body1">
-                {`Total Gemini : ${totalGeminiCost}`}
+                {`Total Gemini : ${total.geminiCost}`}
               </Typography>
               <Typography variant="body1">
-                {`Total Human : ${totalCost}`}
+                {`Total Human : ${total.cost}`}
               </Typography>
             </Grid2>
           </Grid2>
