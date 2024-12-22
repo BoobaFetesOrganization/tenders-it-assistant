@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client';
 
-export const ValidateUserStoryGroupMutation = gql`
-  mutation ValidateUserStoryGroup(
+export const UpdateUserStoryGroupUserStoriesMutation = gql`
+  mutation UpdateUserStoryGroupUserStories(
     $projectId: Int!
     $input: IUserStoryGroupDto!
   ) {
-    group(projectId: $projectId, id: $id, input: $input)
+    group(projectId: $projectId, input: $input)
       @rest(
         type: "IUserStoryGroupDto"
         method: "PUT"
-        path: "/project/{args.projectId}/group/{args.id}/validate"
+        path: "/project/{args.projectId}/group/{args.input.id}/story"
       ) {
       id
       projectId

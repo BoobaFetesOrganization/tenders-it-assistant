@@ -1,5 +1,4 @@
 ﻿using GenAIChat.Application.Adapter.Api;
-using GenAIChat.Domain.Prompt;
 
 namespace GenAIChat.Application.Usecase
 {
@@ -17,9 +16,9 @@ namespace GenAIChat.Application.Usecase
             _genAiAdapter = genAiAdapter;
         }
 
-        public async Task<string> SendAsync(string prompt)
+        public Task<string> SendAsync(string prompt)
         {
-            throw new Exception("Not implemented"); 
+            throw new Exception("Not implemented");
             // return await _genAiAdapter.SendRequestAsync(prompt);
         }
     }

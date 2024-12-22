@@ -2,7 +2,6 @@ export interface IUserStoryPromptDto {
   context: string;
   personas: string;
   tasks: string;
-  results: string;
 }
 
 export function newUserStoryPromptDto(
@@ -12,6 +11,5 @@ export function newUserStoryPromptDto(
     context: obj?.context || '',
     personas: obj?.personas || '',
     tasks: obj?.tasks || '',
-    results: obj?.results || '',
   };
 }

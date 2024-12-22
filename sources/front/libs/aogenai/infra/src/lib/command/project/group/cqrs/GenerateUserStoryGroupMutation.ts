@@ -4,7 +4,7 @@ export const GenerateUserStoryGroupMutation = gql`
   mutation GenerateUserStoryGroup(
     $projectId: Int!
     $id: Int!
-    $input: Object!
+    $input: IUserStoryGroupDto!
   ) {
     group(projectId: $projectId, id: $id, input: $input)
       @rest(

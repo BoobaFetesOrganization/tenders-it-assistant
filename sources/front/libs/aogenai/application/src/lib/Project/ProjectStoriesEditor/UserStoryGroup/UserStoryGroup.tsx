@@ -1,7 +1,8 @@
 import {
   useDeleteUserStoryGroup,
   useGenerateUserStoryGroup,
-  useUpdateUserStoryGroup,
+  useUpdateUserStoryGroupRequest,
+  useUpdateUserStoryGroupUserStories,
   useValidateUserStoryGroup,
 } from '@aogenai/infra';
 import { Button, Grid2, Typography } from '@mui/material';
@@ -22,7 +23,13 @@ export const UserStoryGroup: FC = memo(() => {
 
   const { totalCost, totalGeminiCost } = useTotalCost(group);
 
-  const [update] = useUpdateUserStoryGroup({
+  const [updateRequest] = useUpdateUserStoryGroupRequest({
+    onCompleted({ group }) {
+      reset(group);
+      generate({ variables: { projectId: group.projectId, id: group.id } });
+    },
+  });
+  const [updateUserStories] = useUpdateUserStoryGroupUserStories({
     onCompleted({ group }) {
       reset(group);
     },
@@ -38,9 +45,14 @@ export const UserStoryGroup: FC = memo(() => {
 
   const [validate, { loading: validateLoading }] = useValidateUserStoryGroup();
 
-  const onSave = useCallback(() => {
-    update({ variables: { projectId: group.projectId, input: group } });
-  }, [group, update]);
+  const onSaveRequest = useCallback(() => {
+    updateRequest({ variables: { projectId: group.projectId, input: group } });
+  }, [group, updateRequest]);
+  const onSaveUserStories = useCallback(() => {
+    updateUserStories({
+      variables: { projectId: group.projectId, input: group },
+    });
+  }, [group, updateUserStories]);
 
   const onRemove = useCallback(() => {
     remove({ variables: { projectId: group.projectId, id: group.id } });
@@ -95,7 +107,7 @@ export const UserStoryGroup: FC = memo(() => {
         </Grid2>
       </Grid2>
       <Grid2>
-        <CustomForm onSave={onSave} onReset={reset}>
+        <CustomForm onSave={onSaveRequest} onReset={reset}>
           <CustomAccordion
             title="Request"
             open={requestOpen}
@@ -118,19 +130,26 @@ export const UserStoryGroup: FC = memo(() => {
           </Typography>
         </Grid2>
       </Grid2>
-      <Grid2 container direction="column" spacing={2} id="userstory-collection">
-        {group.userStories.map((story, storyIndex) => (
-          <UserStory
-            key={`${storyIndex}-${story.id}`}
-            storyIndex={storyIndex}
-          />
-        ))}
-      </Grid2>
-      <Grid2 container justifyContent="end" spacing={2}>
-        <Button variant="outlined" color="primary" onClick={story.create}>
-          Add User story
-        </Button>
-      </Grid2>
+      <CustomForm onSave={onSaveUserStories} onReset={reset}>
+        <Grid2
+          container
+          direction="column"
+          spacing={2}
+          id="userstory-collection"
+        >
+          {group.userStories.map((story, storyIndex) => (
+            <UserStory
+              key={`${storyIndex}-${story.id}`}
+              storyIndex={storyIndex}
+            />
+          ))}
+        </Grid2>
+        <Grid2 container justifyContent="end" spacing={2}>
+          <Button variant="outlined" color="primary" onClick={story.create}>
+            Add User story
+          </Button>
+        </Grid2>
+      </CustomForm>
     </Grid2>
   );
 });

@@ -9,19 +9,17 @@ namespace GenAIChat.Domain.Project.Group
         public string Context { get; set; } = string.Empty;
         public string Personas { get; set; } = string.Empty;
         public string Tasks { get; set; } = string.Empty;
-        public string Results { get; set; } = string.Empty;
 
         #region  navigation properties
         public int GroupId { get; set; }
         #endregion
 
         public UserStoryPromptDomain() { }
-        public UserStoryPromptDomain(UserStoryPromptDomain domain, string? results = null)
+        public UserStoryPromptDomain(UserStoryPromptDomain domain)
         {
             Context = domain.Context;
             Personas = domain.Personas;
             Tasks = domain.Tasks;
-            Results = results ?? domain.Results;
         }
 
         public string ToGenAIRequest()
@@ -36,7 +34,6 @@ namespace GenAIChat.Domain.Project.Group
             append(nameof(Context), Context);
             append(nameof(Personas), Personas);
             append(nameof(Tasks), Tasks);
-            append(nameof(Results), Results);
 
             return sb.ToString();
         }

@@ -5,6 +5,7 @@ using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase.Common;
 using GenAIChat.Domain.Project;
 using GenAIChat.Domain.Project.Group;
+using GenAIChat.Domain.Project.Group.UserStory;
 using MediatR;
 
 namespace GenAIChat.Application.Usecase
@@ -52,25 +53,30 @@ namespace GenAIChat.Application.Usecase
             return result;
         }
 
-        public override Task<UserStoryGroupDomain?> UpdateAsync(UserStoryGroupDomain entity)
+        public async Task<UserStoryGroupDomain?> UpdateRequestAsync(int id, UserStoryPromptDomain request)
         {
-            UserStoryGroupDomain group = new(entity);
+            UserStoryGroupDomain group = await GetByIdAsync(id) ?? throw new Exception("UserStoryGroup not found");
 
-            // doesn't allow to change the result, because it format the result of the result of the GenAI
-            group.Request = new(group.Request, _resource.UserStoryPrompt.Results);
+            group.Request = request;
             group.Response = null;
             group.ClearUserStories();
 
-            return base.UpdateAsync(group);
+            return await base.UpdateAsync(group);
+        }
+
+        public async Task<UserStoryGroupDomain?> UpdateUserStoriesAsync(int id, ICollection<UserStoryDomain> userStories)
+        {
+            UserStoryGroupDomain group = await GetByIdAsync(id) ?? throw new Exception("UserStoryGroup not found");
+
+            group.UserStories = userStories;
+
+            return await base.UpdateAsync(group);
         }
 
         public async Task<UserStoryGroupDomain?> GenerateAsync(int projectId, int id)
         {
             var group = await GetByIdAsync(id);
             if (group is null || group.ProjectId != projectId) return null;
-
-            // doesn't allow to change the result, because it format the result of the result of the GenAI
-            group.Request = new(group.Request, _resource.UserStoryPrompt.Results);
 
             var item = await _mediator.Send(new UserStoryGroupGenerateCommand { Entity = group });
             if (item is not null)

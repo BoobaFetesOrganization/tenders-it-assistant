@@ -65,6 +65,48 @@ namespace GenAIChat.Presentation.API.Controllers
             }
         }
 
+        [HttpPut("{id}/request")]
+        public async Task<IActionResult> UpdateRequest(int projectId, int id, [FromBody] UserStoryGroupDto request)
+        {
+            try
+            {
+                var domain = mapper.Map<UserStoryGroupDomain>(request);
+                if (domain.Id != id) return BadRequest();
+
+                domain.ProjectId = projectId;
+                var result = await application.UpdateRequestAsync(domain.Id, domain.Request);
+
+                if (result is null) return NotFound();
+
+                return Ok(mapper.Map<UserStoryGroupDto>(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorDto(ex));
+            }
+        }
+
+        [HttpPut("{id}/story")]
+        public async Task<IActionResult> UpdateUserStories(int projectId, int id, [FromBody] UserStoryGroupDto request)
+        {
+            try
+            {
+                var domain = mapper.Map<UserStoryGroupDomain>(request);
+                if (domain.Id != id) return BadRequest(); 
+                
+                domain.ProjectId = projectId;
+                var result = await application.UpdateUserStoriesAsync(domain.Id, domain.UserStories);
+
+                if (result is null) return NotFound();
+
+                return Ok(mapper.Map<UserStoryGroupDto>(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorDto(ex));
+            }
+        }
+
         [HttpPut("{id}/generate")]
         public async Task<IActionResult> Generate(int projectId, int id)
         {
