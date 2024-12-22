@@ -1,10 +1,10 @@
-import { Button, Grid2 } from '@mui/material';
-import { HTMLAttributes, memo, ReactNode } from 'react';
+import { Button, Grid2, Grid2Props } from '@mui/material';
+import { memo, ReactNode } from 'react';
 import { data } from 'react-router';
 import { DataNotFound } from './DataNotFound';
 import { Loading } from './Loading';
 
-export interface ICustomFormProps extends HTMLAttributes<HTMLDivElement> {
+export interface ICustomFormProps extends Grid2Props {
   loading?: boolean;
   onSave?(): void;
   onReset?(): void;

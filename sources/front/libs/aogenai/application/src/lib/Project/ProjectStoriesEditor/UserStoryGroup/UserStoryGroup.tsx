@@ -106,16 +106,16 @@ export const UserStoryGroup: FC = memo(() => {
           </Button>
         </Grid2>
       </Grid2>
-      <Grid2>
-        <CustomForm onSave={onSaveRequest} onReset={reset}>
-          <CustomAccordion
-            title="Request"
-            open={requestOpen}
-            onChange={setRequestOpen}
-          >
+      <Grid2 container direction="column" gap={2} margin={2}>
+        <CustomAccordion
+          title="Request"
+          open={requestOpen}
+          onChange={setRequestOpen}
+        >
+          <CustomForm onSave={onSaveRequest} onReset={reset} gap={0}>
             <UserGroupRequest />
-          </CustomAccordion>
-        </CustomForm>
+          </CustomForm>
+        </CustomAccordion>
       </Grid2>
       <Grid2 container spacing={2} id="userstory-collection" direction="column">
         <Grid2 flexGrow={1}>
