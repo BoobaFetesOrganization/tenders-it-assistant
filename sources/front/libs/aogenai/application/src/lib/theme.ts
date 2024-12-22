@@ -2,6 +2,15 @@ import { createTheme } from '@mui/material';
 
 export const theme = createTheme({
   components: {
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderWidth: 1,
+          borderStyle: 'solid',
+          borderColor: 'lightgrey',
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: (theme) => ({
         body: {

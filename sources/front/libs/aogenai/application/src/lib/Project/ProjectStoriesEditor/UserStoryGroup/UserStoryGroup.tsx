@@ -6,7 +6,7 @@ import {
   useValidateUserStoryGroup,
 } from '@aogenai/infra';
 import { Button, Grid2, Typography } from '@mui/material';
-import { FC, memo, useCallback, useState } from 'react';
+import { FC, memo, useCallback, useEffect, useState } from 'react';
 import {
   CustomAccordion,
   CustomForm,
@@ -19,8 +19,13 @@ import { useUserStoryGroupData } from './provider';
 
 export const UserStoryGroup: FC = memo(() => {
   const { group, story, onDeleted, reset } = useUserStoryGroupData();
-  const [requestOpen, setRequestOpen] = useState(true);
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [userstoryOpen, setUserstoryOpen] = useState(false);
 
+  useEffect(() => {
+    setRequestOpen(group.userStories.length === 0);
+    setUserstoryOpen(group.userStories.length > 0);
+  }, [group.userStories.length]);
   const { totalCost, totalGeminiCost } = useTotalCost(group);
 
   const [updateRequest] = useUpdateUserStoryGroupRequest({
@@ -117,39 +122,49 @@ export const UserStoryGroup: FC = memo(() => {
           </CustomForm>
         </CustomAccordion>
       </Grid2>
-      <Grid2 container spacing={2} id="userstory-collection" direction="column">
-        <Grid2 flexGrow={1}>
-          <Typography variant="h4">User stories</Typography>
-        </Grid2>
-        <Grid2 container flexGrow={0}>
-          <Typography variant="body1">
-            {`Total Gemini : ${totalGeminiCost}`}
-          </Typography>
-          <Typography variant="body1">
-            {`Total Human : ${totalCost}`}
-          </Typography>
-        </Grid2>
-      </Grid2>
-      <CustomForm onSave={onSaveUserStories} onReset={reset}>
-        <Grid2
-          container
-          direction="column"
-          spacing={2}
-          id="userstory-collection"
+      <Grid2 container direction="column" gap={2} margin={2}>
+        <CustomAccordion
+          title="User stories"
+          open={userstoryOpen}
+          onChange={setUserstoryOpen}
         >
-          {group.userStories.map((story, storyIndex) => (
-            <UserStory
-              key={`${storyIndex}-${story.id}`}
-              storyIndex={storyIndex}
-            />
-          ))}
-        </Grid2>
-        <Grid2 container justifyContent="end" spacing={2}>
-          <Button variant="outlined" color="primary" onClick={story.create}>
-            Add User story
-          </Button>
-        </Grid2>
-      </CustomForm>
+          <Grid2
+            container
+            spacing={2}
+            id="userstory-collection"
+            direction="column"
+          >
+            <Grid2 container flexGrow={0} justifyContent="end">
+              <Typography variant="body1">
+                {`Total Gemini : ${totalGeminiCost}`}
+              </Typography>
+              <Typography variant="body1">
+                {`Total Human : ${totalCost}`}
+              </Typography>
+            </Grid2>
+          </Grid2>
+          <CustomForm onSave={onSaveUserStories} onReset={reset}>
+            <Grid2
+              container
+              direction="column"
+              spacing={2}
+              id="userstory-collection"
+            >
+              {group.userStories.map((story, storyIndex) => (
+                <UserStory
+                  key={`${storyIndex}-${story.id}`}
+                  storyIndex={storyIndex}
+                />
+              ))}
+            </Grid2>
+            <Grid2 container justifyContent="end" spacing={2}>
+              <Button variant="outlined" color="primary" onClick={story.create}>
+                Add User story
+              </Button>
+            </Grid2>
+          </CustomForm>
+        </CustomAccordion>
+      </Grid2>
     </Grid2>
   );
 });
