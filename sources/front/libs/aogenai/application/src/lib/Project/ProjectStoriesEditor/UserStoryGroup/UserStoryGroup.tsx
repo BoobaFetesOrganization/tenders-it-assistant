@@ -70,7 +70,12 @@ export const UserStoryGroup: FC = memo(() => {
           open={requestOpen}
           onChange={setRequestOpen}
         >
-          <CustomForm onSave={onSaveRequest} onReset={reset} gap={0}>
+          <CustomForm
+            onSave={onSaveRequest}
+            onReset={reset}
+            gap={0}
+            text={{ save: 'Save & Generate' }}
+          >
             <UserGroupRequest />
           </CustomForm>
         </CustomAccordion>

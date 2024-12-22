@@ -1,4 +1,5 @@
 import { Button, Grid2, Grid2Props } from '@mui/material';
+import clsx from 'clsx';
 import { memo, ReactNode } from 'react';
 import { data } from 'react-router';
 import { DataNotFound } from './DataNotFound';
@@ -6,14 +7,18 @@ import { Loading } from './Loading';
 
 export interface ICustomFormProps extends Grid2Props {
   loading?: boolean;
+  contentSpacing?: boolean;
   onSave?(): void;
   onReset?(): void;
   onRemove?(): void;
   actions?: ReactNode;
+  text?: { save?: string; reset?: string; delete?: string };
 }
 
 export const CustomForm = memo(
   ({
+    text,
+    contentSpacing,
     loading,
     actions,
     onSave,
@@ -33,6 +38,7 @@ export const CustomForm = memo(
         direction="column"
         gap={2}
         {...htmlAttributes}
+        className={clsx('custom-form', htmlAttributes.className)}
         sx={(theme) => ({
           margin: theme.spacing(1),
         })}
@@ -41,7 +47,7 @@ export const CustomForm = memo(
           {actions}
           {onRemove && (
             <Button variant="contained" color="error" onClick={onRemove}>
-              Delete
+              {text?.delete ?? 'Delete'}
             </Button>
           )}
         </Grid2>
@@ -50,7 +56,7 @@ export const CustomForm = memo(
           flex={1}
           direction="column"
           gap={2}
-          sx={(theme) => ({ margin: theme.spacing(2) })}
+          sx={(theme) => ({ margin: theme.spacing(2, contentSpacing ? 2 : 0) })}
         >
           {children}
         </Grid2>
@@ -62,10 +68,10 @@ export const CustomForm = memo(
           gap={2}
         >
           <Button variant="outlined" color="secondary" onClick={onReset}>
-            Reset
+            {text?.reset ?? 'Reset'}
           </Button>
           <Button variant="contained" color="primary" onClick={onSave}>
-            Save
+            {text?.save ?? 'Save'}
           </Button>
         </Grid2>
       </Grid2>
