@@ -1,7 +1,9 @@
 ﻿using GenAIChat.Application.Adapter.Database;
+using GenAIChat.Application.Command.Common;
 using GenAIChat.Application.Command.Project.Group;
 using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase.Common;
+using GenAIChat.Domain.Project;
 using GenAIChat.Domain.Project.Group;
 using MediatR;
 
@@ -10,13 +12,15 @@ namespace GenAIChat.Application.Usecase
     public class UserStoryGroupApplication : ApplicationBase<UserStoryGroupDomain>
     {
         private readonly IMediator _mediator;
+        private readonly ProjectApplication _projectApplication;
         private readonly IGenAiUnitOfWorkAdapter _unitOfWork;
         private readonly EmbeddedResource _resource;
 
-        public UserStoryGroupApplication(IMediator mediator, IGenAiUnitOfWorkAdapter unitOfWork, EmbeddedResource resource) : base(mediator, unitOfWork)
+        public UserStoryGroupApplication(IMediator mediator, IGenAiUnitOfWorkAdapter unitOfWork, ProjectApplication projectApplication, EmbeddedResource resource) : base(mediator, unitOfWork)
         {
             _mediator = mediator;
             _unitOfWork = unitOfWork;
+            _projectApplication = projectApplication;
             _resource = resource;
         }
 
@@ -54,6 +58,8 @@ namespace GenAIChat.Application.Usecase
 
             // doesn't allow to change the result, because it format the result of the result of the GenAI
             group.Request = new(group.Request, _resource.UserStoryPrompt.Results);
+            group.Response = null;
+            group.ClearUserStories();
 
             return base.UpdateAsync(group);
         }
@@ -67,6 +73,14 @@ namespace GenAIChat.Application.Usecase
             group.Request = new(group.Request, _resource.UserStoryPrompt.Results);
 
             var item = await _mediator.Send(new UserStoryGroupGenerateCommand { Entity = group });
+            if (item is not null)
+            {
+                var project = await _projectApplication.GetByIdAsync(projectId)
+                    ?? throw new Exception("Le projet avec l'ID spécifié n'a pas été trouvé.");
+
+                project.SelectedGroup = null;
+                var result = await _mediator.Send(new UpdateCommand<ProjectDomain> { Entity = project });
+            }
             await _unitOfWork.SaveChangesAsync();
             return item;
         }
