@@ -1,5 +1,4 @@
-import { IProjectBaseDto } from '@aogenai/domain';
-import { useAllProjects } from '@aogenai/infra';
+import { IProjectBaseDto, IProjectDto } from '@aogenai/domain';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
@@ -14,16 +13,25 @@ import { DefaultizedPieValueType, PieItemIdentifier } from '@mui/x-charts';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { FC, memo, MouseEvent, useCallback, useState } from 'react';
 import { ProjectCollection } from '../Project';
+import { ProjectsToEstimate } from './ProjectToEstimate';
+import { useEstimatedProjects } from './useEstimatedProjects';
 
 interface IDashBoardProps {
   onProjectSelected?(id: number): void;
   onProjectCreated?: (item: IProjectBaseDto) => void;
   onProjectDeleted?: (item: IProjectBaseDto) => void;
+  onProjectEstimate?: (item: IProjectDto) => void;
 }
 export const DashBoard: FC<IDashBoardProps> = memo(
-  ({ onProjectSelected, onProjectCreated, onProjectDeleted }) => {
-    const projects = useAllProjects();
+  ({
+    onProjectSelected,
+    onProjectCreated,
+    onProjectDeleted,
+    onProjectEstimate,
+  }) => {
     const [projectName, setProjectName] = useState('');
+
+    const { estimation, pieData } = useEstimatedProjects();
 
     const onProjectNameChange = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +85,27 @@ export const DashBoard: FC<IDashBoardProps> = memo(
               </Box>
             </CustomPaper>
           </Grid2>
+          {!!estimation.remaining.length && (
+            <Grid2
+              container
+              flex={1}
+              spacing={2}
+              size={{ xs: 12, sm: 12, md: 12, lg: 6 }}
+            >
+              <CustomPaper>
+                <Box display="flex" flexDirection="column" flexGrow={1}>
+                  <Typography variant="h5">
+                    <u>{'Projects to estimate'.toUpperCase()}</u>
+                  </Typography>
+                  <ProjectsToEstimate
+                    data={estimation.remaining}
+                    onSelect={onProjectSelected}
+                    onEstimate={onProjectEstimate}
+                  />
+                </Box>
+              </CustomPaper>
+            </Grid2>
+          )}
           <Grid2
             container
             flex={1}
@@ -101,26 +130,7 @@ export const DashBoard: FC<IDashBoardProps> = memo(
                 />
                 <PieChart
                   onItemClick={onPieChartProjectClick}
-                  series={[
-                    {
-                      data: projects
-                        .filter((i) => {
-                          return i.name.toLowerCase().includes(projectName);
-                        })
-                        .slice(0, 18)
-                        .map((i) => ({
-                          id: i.id,
-                          value: 1,
-                          label: i.name,
-                        })),
-                      innerRadius: 30,
-                      outerRadius: 100,
-                      paddingAngle: 0,
-                      cornerRadius: 5,
-                      cx: 150,
-                      cy: 150,
-                    },
-                  ]}
+                  series={[pieData]}
                   width={550}
                   height={300}
                 />
