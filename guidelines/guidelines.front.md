@@ -1,22 +1,23 @@
-ecrit moi un fichier guidelines.md pour tous les intervenants d'un projet react avec nx qui possède les couches suivante :
-
-je veux un rappel des bonne pratique de developpements, de testing pour une application react avec es exemple concret utilisant des hook react
-
-tu décrira aussi brievement comment fonctionne apoolo/client pour une developpeur qui ne connaitrait pas
-
-tu donnera des exemples de code Typescript , react et appolo/client
-
-Concernant la partie "Bonne pratiques de developpement"
-pour la modularité : je veux que tu donne une exemple avec les hooks reacts
-pour les principes solid: je veux que tu donne une exemple avec un function component react, pareil pour la documentation
-
-je veux pouvoir copier/coller l'ensemble de ta réponse dans un fichier MD
-
-fichier généré avec *ChatGpt-4o*
-
 # Guidelines pour les intervenants d'un projet React avec Nx
 
-## Clean Architecture de Martin Fowler
+## Sommaire
+
+1. [Clean Architecture de Martin Fowler](#1-clean-architecture-de-martin-fowler)
+2. [Couches du projet](#2-couches-du-projet)
+    1. [Couche @scope/react-infrastructure](#21-couche-scope-react-infrastructure)
+3. [Utilisation de NX](#3-utilisation-de-nx)
+4. [Bonnes pratiques de développement](#4-bonnes-pratiques-de-développement)
+    1. [Performance](#41-performance)
+    2. [Modularité](#42-modularité)
+    3. [Principes SOLID](#43-principes-solid)
+    4. [Documentation](#44-documentation)
+    5. [Bonnes pratiques de testing](#45-bonnes-pratiques-de-testing)
+        1. [Tests unitaires](#451-tests-unitaires)
+5. [Fonctionnement d'Apollo Client](#5-fonctionnement-dapollo-client)
+
+---
+
+## 1. Clean Architecture de Martin Fowler
 
 La Clean Architecture de Martin Fowler est une approche de conception logicielle qui vise à séparer les préoccupations et à créer des systèmes modulaires et maintenables. Elle est composée de plusieurs couches, chacune ayant une responsabilité distincte :
 
@@ -27,22 +28,26 @@ La Clean Architecture de Martin Fowler est une approche de conception logicielle
 
 Chaque couche dépend uniquement des couches inférieures, ce qui permet de maintenir une séparation claire des préoccupations et de faciliter les tests et la maintenance.
 
-## Couches du projet
+---
+
+## 2. Couches du projet
 
 1. **@scope/application** : Contient la logique de l'application et les composants React.
 2. **@scope/domain** : Contient les entités métier et les règles de domaine. *(contient donc les objets de retour du back !!!)*
 3. **@scope/infrastructure** : Gère les interactions avec les services externes et les API.
 4. **@scope/react-infrastructure** : Encapsule les dépendances liées à l'infrastructure, évitant ainsi l'import de package n'ayant pas trait à la logique de l'application.
 
-### Couche @scope/react-infrastructure
+### 2.1 Couche @scope/react-infrastructure
 
 Cette couche permet de maintenir une séparation claire des préoccupations entre l'application et l'infrastructure et de faciliter les tests.
 
-En claire, elle encapsule les packages pour communiquer ou pour intergir avec l'environnement pour éviter que la couche application ne dépende de package technique.
+En claire, elle encapsule les packages pour communiquer ou pour interagir avec l'environnement pour éviter que la couche application ne dépende de package technique.
 
 ex: encapsule les requêtes et commandes Apollo Client, de ce fait @scope/application ne connait pas appollo/client et donc permet de changer sans danger la connectivité (ex on change pour redux-saga)
 
-## Utilisation de NX
+---
+
+## 3. Utilisation de NX
 
 je vous prie de trouver la documentation officielle : <https://nx.dev/getting-started/intro>
 
@@ -64,9 +69,11 @@ normalement un navigateur se lance avec la bonne url.
 
 **Vous pourrez debugger votre application en ajoutant des breakpoints, ce que je vous recommande vivement**
 
-## Bonnes pratiques de développement
+---
 
-### Performance
+## 4. Bonnes pratiques de développement
+
+### 4.1 Performance
 
 Utiliser les hook et les HOC permettant de mémoizer vos composant ou vos callback afin de permettre au moteur de React d'améliorer les performance
 
@@ -102,7 +109,7 @@ export const MyComponent: React.FC<MyComponentProps> = memo(({ count }) => {
 });
 ```
 
-### Modularité
+### 4.2 Modularité
 
 Utilisez des hooks React pour modulariser votre code.
 
@@ -175,7 +182,7 @@ export function useUserQuery({ id }: IUserUserQueryProps) {
 }
 ```
 
-### Principes SOLID
+### 4.3 Principes SOLID
 
 Respectez les principes SOLID avec des composants fonctionnels React.
 
@@ -204,7 +211,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId }) => {
 export default UserProfile;
 ```
 
-### Documentation
+### 4.4 Documentation
 
 Commentez votre code pour maintenir une documentation à jour.
 
@@ -219,9 +226,9 @@ export function useUser(userId: string) {
 }
 ```
 
-### Bonnes pratiques de testing
+### 4.5 Bonnes pratiques de testing
 
-#### Tests unitaires
+#### 4.5.1 Tests unitaires
 
 Écrivez des tests unitaires pour chaque hook et composant
 
@@ -239,7 +246,9 @@ test('should fetch user data', async () => {
 });
 ```
 
-## Fonctionnement d'Apollo Client
+---
+
+## 5. Fonctionnement d'Apollo Client
 
 Apollo Client est une bibliothèque de gestion de l'état pour JavaScript qui permet de gérer les requêtes GraphQL (et REST). Il fournit des outils pour interagir avec une API GraphQL (ou des APIs REST) et gérer les données dans votre application.
 

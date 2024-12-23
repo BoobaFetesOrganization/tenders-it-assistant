@@ -1,22 +1,38 @@
-fichier généré avec *ChatGpt-4o*
-
 # Guidelines pour les intervenants d'un projet WebAPI en C #
 
-## Bonnes pratiques des API
+## Sommaire
+
+- [1. Bonnes pratiques des API](#1-bonnes-pratiques-des-api)
+  - [1.1 APIs RestFull](#11-apis-restfull)
+  - [1.2 Endpoints](#12-endpoints)
+  - [1.3 Code de retour](#13-code-de-retour)
+  - [1.4 Code de retour par Verbe HTTP](#14-code-de-retour-par-verbe-http)
+- [2. Bonnes pratiques de développement](#2-bonnes-pratiques-de-développement)
+- [3. Bonnes pratiques de testing](#3-bonnes-pratiques-de-testing)
+- [4. Clean Architecture de Martin Fowler](#4-clean-architecture-de-martin-fowler)
+  - [4.1 Couche de Présentation (Presentation Layer)](#41-couche-de-présentation-presentation-layer)
+  - [4.2 Couche d'Application (Application Layer)](#42-couche-dapplication-application-layer)
+  - [4.3 Couche de Domaine (Domain Layer)](#43-couche-de-domaine-domain-layer)
+  - [4.4 Couche d'Infrastructure (Infrastructure Layer)](#44-couche-dinfrastructure-infrastructure-layer)
+
+---
+
+## 1. Bonnes pratiques des API
 
 Tout non respect de règles ci-dessous fera l'objet d'un refus catégorique de PR.
 
-### APIs RestFull
+### 1.1 APIs RestFull
 
 [article expliquant ce que sont les API RestFULL](https://www.redhat.com/fr/topics/api/what-is-a-rest-api?form=MG0AV3)
 
 [article vers les verbes HTTP à utiliser pour les API](https://developer.mozilla.org/fr/docs/Web/HTTP/Methods?form=MG0AV3)
 
 De plus, toutes les APIs doivent :
-- retourner l'objet du domain sur lequel il a travaillé (incluant les DELETE et les POST) 
+
+- retourner l'objet du domain sur lequel il a travaillé (incluant les DELETE et les POST)
 - être implementé sur le contoller représentant ce domain
 
-### Endpoints
+### 1.2 Endpoints
 
 Les endpoints ou point de terminaisons doivent toujours refleter le domaine.
 
@@ -41,7 +57,7 @@ voici quelques exemples :
 |/project/:projectId/userstory/:id/task| fourni les détails d'une tache d'une userstory d'un projet|
 |/project/:projectId/userstory/:userstoryId/task/:id| fourni les détails d'une tache d'une userstory d'un projet|
 
-### Code de retour
+### 1.3 Code de retour
 
 | Code | Description |
 |------|-------------|
@@ -55,7 +71,7 @@ voici quelques exemples :
 | 409 Conflict | Le contenu de la requête est en conflit avec l'état actuel du serveur. |
 | 500 Internal Server Error | Une erreur interne du serveur s'est produite. |
 
-### Code de retour par Verbe HTTP
+### 1.4 Code de retour par Verbe HTTP
 
 | Méthode | Réussite                       | Échec                                     |
 |---------|--------------------------------|-------------------------------------------|
@@ -82,7 +98,9 @@ voici quelques exemples :
 |         |                                | 404 Not Found                             |
 |         |                                | 500 Internal Server Error                 |
 
-## Bonnes pratiques de développement
+---
+
+## 2. Bonnes pratiques de développement
 
 1. **Respecter les conventions de nommage** : Utilisez des noms de variables, de méthodes et de classes clairs et significatifs.
 
@@ -203,7 +221,9 @@ voici quelques exemples :
     }
     ```
 
-## Bonnes pratiques de testing
+---
+
+## 3. Bonnes pratiques de testing
 
 1. **Tests unitaires** : Écrivez des tests unitaires pour chaque méthode publique.
 
@@ -285,11 +305,13 @@ voici quelques exemples :
     }
     ```
 
-## Clean Architecture de Martin Fowler
+---
+
+## 4. Clean Architecture de Martin Fowler
 
 La Clean Architecture se compose de plusieurs couches, chacune ayant un rôle spécifique. Voici une description de chaque couche et ce qu'un développeur peut y trouver :
 
-### 1. Couche de Présentation (Presentation Layer)
+### 4.1 Couche de Présentation (Presentation Layer)
 
 Cette couche contient tout ce qui concerne l'interface utilisateur.
 
@@ -318,7 +340,7 @@ Cette couche contient tout ce qui concerne l'interface utilisateur.
     }
     ```
 
-### 2. Couche d'Application (Application Layer)
+### 4.2 Couche d'Application (Application Layer)
 
 Cette couche contient la logique métier spécifique à l'application.
 
@@ -359,7 +381,7 @@ Cette couche contient la logique métier spécifique à l'application.
     }
     ```
 
-### 3. Couche de Domaine (Domain Layer)
+### 4.3 Couche de Domaine (Domain Layer)
 
 Cette couche contient les entités métier et les règles de domaine.
 
@@ -394,7 +416,7 @@ Cette couche contient les entités métier et les règles de domaine.
     }
     ```
 
-### 4. Couche d'Infrastructure (Infrastructure Layer)
+### 4.4 Couche d'Infrastructure (Infrastructure Layer)
 
 Cette couche contient les implémentations concrètes des interfaces et les services externes.
 
