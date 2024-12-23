@@ -195,10 +195,6 @@ namespace GenAIChat.Presentation.API.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Results")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Tasks")
                         .IsRequired()
                         .HasColumnType("TEXT");

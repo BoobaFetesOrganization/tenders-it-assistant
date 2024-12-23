@@ -112,7 +112,6 @@ namespace GenAIChat.Presentation.API.Migrations
                     Context = table.Column<string>(type: "TEXT", nullable: false),
                     Personas = table.Column<string>(type: "TEXT", nullable: false),
                     Tasks = table.Column<string>(type: "TEXT", nullable: false),
-                    Results = table.Column<string>(type: "TEXT", nullable: false),
                     GroupId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
