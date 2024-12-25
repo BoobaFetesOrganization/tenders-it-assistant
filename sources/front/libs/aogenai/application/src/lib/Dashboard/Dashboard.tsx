@@ -1,4 +1,8 @@
-import { IProjectBaseDto, IProjectDto } from '@aogenai/domain';
+import {
+  IProjectBaseDto,
+  IProjectDto,
+  newProjectBaseDto,
+} from '@aogenai/domain';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
@@ -17,7 +21,7 @@ import { ProjectsToEstimate } from './ProjectToEstimate';
 import { useEstimatedProjects } from './useEstimatedProjects';
 
 interface IDashBoardProps {
-  onProjectSelected?(id: number): void;
+  onProjectSelected?(item: IProjectBaseDto): void;
   onProjectCreated?: (item: IProjectBaseDto) => void;
   onProjectDeleted?: (item: IProjectBaseDto) => void;
   onProjectEstimate?: (item: IProjectDto) => void;
@@ -45,7 +49,7 @@ export const DashBoard: FC<IDashBoardProps> = memo(
 
     const onProjectClick = useCallback(
       (item: IProjectBaseDto) => {
-        onProjectSelected?.(item.id);
+        onProjectSelected?.(item);
       },
       [onProjectSelected]
     );
@@ -55,7 +59,7 @@ export const DashBoard: FC<IDashBoardProps> = memo(
         pieItemIdentifier: PieItemIdentifier,
         item: DefaultizedPieValueType
       ) => {
-        onProjectSelected?.(+item.id);
+        onProjectSelected?.(newProjectBaseDto({ id: +item.id }));
       },
       [onProjectSelected]
     );

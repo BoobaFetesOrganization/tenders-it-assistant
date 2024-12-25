@@ -18,7 +18,7 @@ export const DashBoardWrapper: FC = memo(() => {
   );
 
   const onProjectSelected = useCallback(
-    (id: number) => {
+    ({ id }: IProjectDto) => {
       const route = routeMapping.url({ id });
       navigate(route.to, route);
     },

@@ -1,104 +1,56 @@
 import { IProjectDto } from '@aogenai/domain';
 import SendIcon from '@mui/icons-material/Send';
-import {
-  Box,
-  Button,
-  Grid2,
-  Paper,
-  styled,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import { FC, memo } from 'react';
+import { Box, Button, styled } from '@mui/material';
+import { FC, memo, useCallback } from 'react';
+import { DataColumn, DataTable } from '../common';
 
 interface IProjectsToEstimateProps {
   data: IProjectDto[];
-  onSelect?(id: number): void;
+  onSelect?(item: IProjectDto): void;
   onEstimate?(item: IProjectDto): void;
 }
+
 export const ProjectsToEstimate: FC<IProjectsToEstimateProps> = memo(
   ({ data, onSelect, onEstimate }) => {
+    const Actions: FC<IProjectDto> = useCallback(
+      (project) =>
+        !!onEstimate && <ProjectActions {...project} onEstimate={onEstimate} />,
+      [onEstimate]
+    );
     return (
-      <StyledContent>
-        <TableContainer
-          component={Paper}
-          sx={{ overflow: 'auto', height: '100%' }}
+      <DataTable<IProjectDto> data={data} actions={Actions}>
+        <DataColumn<IProjectDto> title="ID" source="id" />
+        <DataColumn<IProjectDto>
+          title="Name"
+          source="name"
+          fill
+          onSelect={onSelect}
         >
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <Typography fontWeight="bold">ID</Typography>
-                </TableCell>
-                <TableCell sx={{ width: '100%' }}>
-                  <Typography fontWeight="bold">Name</Typography>
-                </TableCell>
-                {onEstimate && (
-                  <TableCell>
-                    <Typography fontWeight="bold">Actions</Typography>
-                  </TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((project) => (
-                <TableRow key={project.id}>
-                  <StyledTableCell>{project.id}</StyledTableCell>
-                  <StyledTableCell
-                    sx={{
-                      width: '100%',
-                      '&:hover': {
-                        textDecoration: onSelect && 'underline',
-                      },
-                    }}
-                    onClick={() => onSelect?.(project.id)}
-                  >
-                    <Box display="flex" flexDirection="row" gap={1}>
-                      <Typography fontWeight="bold">{project.name}</Typography>
-                      {!project.documents.length && (
-                        <Typography color="error">
-                          (at least one document is required)
-                        </Typography>
-                      )}
-                    </Box>
-                  </StyledTableCell>
-                  {onEstimate && (
-                    <StyledTableCell>
-                      <Box display="flex" justifyContent="flex-end">
-                        <StyledItemButton
-                          id={`project-estimate-${project.id}`}
-                          onClick={() => onEstimate(project)}
-                          endIcon={<SendIcon />}
-                          disabled={!project.documents.length}
-                        />
-                      </Box>
-                    </StyledTableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </StyledContent>
+          {/* {!project.documents.length && (
+              <Typography color="error">
+                (at least one document is required)
+              </Typography>
+            )} */}
+        </DataColumn>
+      </DataTable>
     );
   }
 );
 
-const StyledContent = styled(Grid2)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  flexGrow: 1,
-  overflow: 'hidden',
-  '& table > tbody> tr > td': { cursor: 'context-menu' },
-}));
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  padding: theme.spacing(1),
-}));
+const ProjectActions: FC<
+  IProjectDto & {
+    onEstimate(item: IProjectDto): void;
+  }
+> = memo(({ onEstimate, ...project }) => (
+  <Box display="flex" justifyContent="flex-end">
+    <StyledItemButton
+      id={`project-estimate-${project.id}`}
+      onClick={() => onEstimate(project)}
+      endIcon={<SendIcon />}
+      disabled={!project.documents.length}
+    />
+  </Box>
+));
 
 const StyledItemButton = styled(Button)(({ theme }) => ({
   padding: theme.spacing(0, 2),
