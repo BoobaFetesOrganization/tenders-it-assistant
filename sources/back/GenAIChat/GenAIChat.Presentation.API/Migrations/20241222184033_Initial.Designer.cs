@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenAIChat.Presentation.API.Migrations
 {
     [DbContext(typeof(GenAiDbContext))]
-    [Migration("20241206154259_Initial")]
+    [Migration("20241222184033_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -195,10 +195,6 @@ namespace GenAIChat.Presentation.API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Personas")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Results")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

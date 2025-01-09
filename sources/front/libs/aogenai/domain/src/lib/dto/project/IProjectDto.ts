@@ -1,10 +1,10 @@
 import { IDocumentBaseDto } from '../document';
-import { IUserStoryGroupBaseDto } from './group';
+import { IUserStoryGroupDto } from './group';
 import { IProjectBaseDto, newProjectBaseDto } from './IProjectBaseDto';
 
 export interface IProjectDto extends IProjectBaseDto {
   documents: IDocumentBaseDto[];
-  selectedGroup?: IUserStoryGroupBaseDto;
+  selectedGroup?: IUserStoryGroupDto;
 }
 
 export function newProjectDto(obj?: Partial<IProjectDto>): IProjectDto {
