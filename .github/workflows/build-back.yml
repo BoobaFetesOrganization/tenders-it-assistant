@@ -29,6 +29,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+          cache: true
+          cache-dependency-path: subdir/packages.lock.json
 
       - name: Set up dotnet dependency caching for faster builds
         uses: actions/cache@v3
@@ -39,7 +41,7 @@ jobs:
             ${{ runner.os }}-nuget-${{ env.DOTNET_VERSION }}
 
       - name: install nugget packages
-        run: dotnet restaure
+        run: dotnet restore
         working-directory: ${{ env.SOURCE }}
 
       - name: build
