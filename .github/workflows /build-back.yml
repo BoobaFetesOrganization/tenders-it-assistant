@@ -16,10 +16,8 @@ permissions:
   contents: read
   
 env:
-  # azure-webapps-dotnet-core template :
-  AZURE_WEBAPP_NAME: gemini-chat-web-app    # set this to the name of your Azure Web App
-  AZURE_WEBAPP_PACKAGE_PATH: '.'            # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '9.x.x'                   # set this to the .NET Core version to use
+  OUTPUT: 'back'
 
 jobs:
   build:
@@ -50,7 +48,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal 
     
     - name: dotnet - publish
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/back
+      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/${{ env.OUTPUT }}
     
     - name: dotnet - upload artifact for deployment job
       uses: actions/upload-artifact@v4
