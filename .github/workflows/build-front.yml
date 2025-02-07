@@ -37,11 +37,11 @@ jobs:
         working-directory: ${{ env.SOURCE }}
 
       # aucun tests pour le moment => - name: test
-      # aucun tests pour le moment =>   run: yarn test
+      # aucun tests pour le moment =>   run: yarn nx run client:test
       # aucun tests pour le moment =>   working-directory: ${{ env.SOURCE }}
 
       - name: build
-        run: yarn build
+        run: yarn nx run client:build:production
         working-directory: ${{ env.SOURCE }}
 
       - name: upload artifact for deployment job
