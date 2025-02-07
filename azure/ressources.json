@@ -1,0 +1,38 @@
+{
+  "subscription": "subscription-pay-as-you-go",
+  "location": "francecentral",
+  "tags": [
+    {
+      "name": "project",
+      "value": "gemini-chat"
+    },
+    {
+      "name": "for",
+      "value": "devoteam"
+    }
+  ],
+  "ressources": [
+    {
+      "kind": "ressource group",
+      "name": "gemini-chat-rg"
+    },
+    {
+      "kind": "appservice plan",
+      "name": "gemini-chat-app-service-plan",
+      "ressourceGroup": "gemini-chat-rg",
+      "sku": "F1"
+    },
+    {
+      "kind": "webapp",
+      "name": "gemini-chat-web-app",
+      "plan": "gemini-chat-app-service-plan",
+      "ressourceGroup": "gemini-chat-rg",
+      "runtime": "dotnet:9",
+      "deployment": {
+        "source": "github",
+        "branch": "main",
+        "repoUrl": "https://github.com/BoobaFetes/gemini-chat"
+      }
+    }
+  ]
+}
