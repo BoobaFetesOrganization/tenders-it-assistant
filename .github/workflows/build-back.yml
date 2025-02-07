@@ -16,7 +16,8 @@ permissions:
 
 env:
   DOTNET_VERSION: "9.x.x"
-  OUTPUT: "back"
+  SOURCE: "src/front"
+  TARGET: "artefacts/front"
 
 jobs:
   build:
@@ -35,22 +36,26 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-
+            ${{ runner.os }}-nuget-${{ env.DOTNET_VERSION }}
 
       - name: install nugget packages
         run: dotnet restaure
+        working-directory: ${{ env.SOURCE }}
 
       - name: build
         run: dotnet build --no-restore
+        working-directory: ${{ env.SOURCE }}
 
       - name: test
         run: dotnet test --no-build --verbosity normal
+        working-directory: ${{ env.SOURCE }}
 
       - name: publish
         run: dotnet publish -c Release -o artifacts/${{ env.OUTPUT }}
+        working-directory: ${{ env.SOURCE }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: back-app
-          path: artifacts/${{ env.OUTPUT }}
+          path: ${{ env.TARGET }}
