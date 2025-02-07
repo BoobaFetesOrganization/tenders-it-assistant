@@ -16,7 +16,8 @@ permissions:
 
 env:
   NODE_VERSION: "latest"
-  OUTPUT: "front"
+  SOURCE: "src/front"
+  TARGET: "artefacts/front"
 
 jobs:
   build:
@@ -31,7 +32,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # cache: "yarn" => magré le set location => Error: Dependencies lock file is not found in /home/runner/work/gemini-chat/gemini-chat. Supported file patterns: yarn.lock
+          cache: "yarn"
+          working-directory: ${{ env.SOURCE }}
 
       - name: install npm packages
         run: yarn
@@ -46,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: front-app
-          path: artifacts/${{ env.OUTPUT }}
+          path: ${{ env.TARGET }}
