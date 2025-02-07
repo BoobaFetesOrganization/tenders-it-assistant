@@ -19,38 +19,38 @@ env:
   OUTPUT: "back"
 
 jobs:
-  #build:
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #    - uses: actions/checkout@v4
-  #
-  #    - name: Set up dotnet environement
-  #      uses: actions/setup-dotnet@v4
-  #      with:
-  #        dotnet-version: ${{ env.DOTNET_VERSION }}
-  #
-  #    - name: Set up dotnet dependency caching for faster builds
-  #      uses: actions/cache@v3
-  #      with:
-  #        path: ~/.nuget/packages
-  #        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-  #        restore-keys: |
-  #          ${{ runner.os }}-nuget-
-  #
-  #    - name: install nugget packages
-  #      run: dotnet restaure
-  #
-  #    - name: build
-  #      run: dotnet build --no-restore
-  #
-  #    - name: test
-  #      run: dotnet test --no-build --verbosity normal
-  #
-  #    - name: publish
-  #      run: dotnet publish -c Release -o artifacts/${{ env.OUTPUT }}
-  #
-  #    - name: upload artifact for deployment job
-  #      uses: actions/upload-artifact@v4
-  #      with:
-  #        name: back-app
-  #        path: artifacts/${{ env.OUTPUT }}
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up dotnet environement
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set up dotnet dependency caching for faster builds
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: install nugget packages
+        run: dotnet restaure
+
+      - name: build
+        run: dotnet build --no-restore
+
+      - name: test
+        run: dotnet test --no-build --verbosity normal
+
+      - name: publish
+        run: dotnet publish -c Release -o artifacts/${{ env.OUTPUT }}
+
+      - name: upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: back-app
+          path: artifacts/${{ env.OUTPUT }}
