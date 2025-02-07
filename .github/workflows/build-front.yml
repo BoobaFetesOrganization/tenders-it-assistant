@@ -36,9 +36,9 @@ jobs:
         run: yarn
         working-directory: ${{ env.SOURCE }}
 
-      - name: test
-        run: yarn test
-        working-directory: ${{ env.SOURCE }}
+      # aucun tests pour le moment => - name: test
+      # aucun tests pour le moment =>   run: yarn test
+      # aucun tests pour le moment =>   working-directory: ${{ env.SOURCE }}
 
       - name: build
         run: yarn build
