@@ -25,10 +25,10 @@ name: deploy-back
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+#  push:
+#    branches: ["main"]
+#  pull_request:
+#    branches: ["main"]
 
 permissions:
   contents: read
