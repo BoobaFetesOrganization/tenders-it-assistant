@@ -22,18 +22,17 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.SOURCE }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: set location to "src/front"
-        run: cd src/front
 
       - name: Set up node environement and use yarn as cache for faster builds
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "yarn"
-          working-directory: ${{ env.SOURCE }}
 
       - name: install npm packages
         run: yarn
