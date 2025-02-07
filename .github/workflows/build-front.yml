@@ -29,8 +29,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-          cache-dependency-path: ${{ env.SOURCE }}
+          # cache: "yarn"
+          # cache-dependency-path: ${{ env.SOURCE }}
 
       - name: install npm packages
         run: yarn
