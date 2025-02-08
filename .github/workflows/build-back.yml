@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 env:
-  DOTNET_VERSION: "9.x.x"
+  DOTNET_VERSION: "8.0"
   SOURCE: "src/back/GenAIChat"
   TARGET: "artefacts/front"
 
