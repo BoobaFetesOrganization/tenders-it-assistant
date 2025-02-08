@@ -16,7 +16,7 @@ permissions:
 
 env:
   DOTNET_VERSION: "9.x.x"
-  SOURCE: "src/front"
+  SOURCE: "src/back/GenAIChat"
   TARGET: "artefacts/front"
 
 jobs:
@@ -54,8 +54,7 @@ jobs:
         working-directory: ${{ env.SOURCE }}
 
       - name: publish
-        run: dotnet publish -c Release -o artifacts/${{ env.OUTPUT }}
-        working-directory: ${{ env.SOURCE }}
+        run: dotnet publish -c Release -o ${{ env.TARGET }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
