@@ -30,8 +30,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          # cache: true
-          # cache-dependency-path: ${{ env.SOURCE }}/packages.lock.json
+          cache: true
+          cache-dependency-path: ${{ env.SOURCE }}/packages.lock.json
 
       - name: Set up dotnet dependency caching for faster builds
         uses: actions/cache@v3
