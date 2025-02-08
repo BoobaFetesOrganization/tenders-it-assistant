@@ -54,7 +54,7 @@ jobs:
         working-directory: ${{ env.SOURCE }}
 
       - name: publish
-        run: dotnet publish -c Release -o ${{ env.TARGET }}
+        run: dotnet publish -c Release -o ${{ env.SOURCE }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
