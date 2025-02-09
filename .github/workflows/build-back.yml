@@ -15,12 +15,15 @@ permissions:
   contents: read
 
 env:
-  DOTNET_VERSION: "9.x.x"
-  OUTPUT: "back"
+  DOTNET_VERSION: "9.0.x"
+  SOURCE: "src/back/GenAIChat"
+  TARGET: "artefacts/back"
+  EXPORT: back-app
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
 
@@ -35,22 +38,26 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-
+            ${{ runner.os }}-nuget-${{ env.DOTNET_VERSION }}
 
       - name: install nugget packages
-        run: dotnet restaure
+        run: dotnet restore
+        working-directory: ${{ env.SOURCE }}
 
       - name: build
         run: dotnet build --no-restore
+        working-directory: ${{ env.SOURCE }}
 
       - name: test
         run: dotnet test --no-build --verbosity normal
+        working-directory: ${{ env.SOURCE }}
 
       - name: publish
-        run: dotnet publish -c Release -o artifacts/${{ env.OUTPUT }}
+        run: dotnet publish -c Release -o ../../../${{ env.TARGET }}
+        working-directory: ${{ env.SOURCE }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: back-app
-          path: artifacts/${{ env.OUTPUT }}
+          name: ${{ env.EXPORT }}
+          path: ${{ env.TARGET }}
