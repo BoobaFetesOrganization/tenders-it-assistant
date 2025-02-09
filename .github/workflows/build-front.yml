@@ -44,7 +44,10 @@ jobs:
         working-directory: ${{ env.SOURCE }}
 
       - name: move dest to artefacts folder
-        run: mv ${{ env.SOURCE }}/dist/apps/client ../../../${{ env.TARGET }}
+        working-directory: ${{ env.SOURCE }}
+        run: |
+          mkdir ../../../${{ env.TARGET }}
+          mv ${{ env.SOURCE }}/dist/apps/client ../../../${{ env.TARGET }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
