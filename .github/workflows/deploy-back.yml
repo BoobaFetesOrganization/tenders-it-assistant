@@ -25,16 +25,16 @@ name: deploy-back
 
 on:
   workflow_dispatch:
-#  push:
-#    branches: ["main"]
-#  pull_request:
-#    branches: ["main"]
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 permissions:
   contents: read
 
 env:
-  OUTPUT: "back"
+  IMPORT: "back-app"
   AZURE_WEBAPP_NAME: "gemini-chat-web-app" # set this to the name of your Azure Web App
   AZURE_WEBAPP_PACKAGE_PATH: "." # set this to the path to your web app project, defaults to the repository root
 
@@ -51,7 +51,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: back-app
+          name: ${{ env.IMPORT }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp

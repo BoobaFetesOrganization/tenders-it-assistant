@@ -17,7 +17,8 @@ permissions:
 env:
   DOTNET_VERSION: "9.0.x"
   SOURCE: "src/back/GenAIChat"
-  TARGET: "artefacts/front"
+  TARGET: "artefacts/back"
+  EXPORT: back-app
 
 jobs:
   build:
@@ -58,5 +59,5 @@ jobs:
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: back-app
+          name: ${{ env.EXPORT }}
           path: ${{ env.TARGET }}
