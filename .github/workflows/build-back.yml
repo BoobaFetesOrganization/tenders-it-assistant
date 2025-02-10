@@ -5,6 +5,10 @@
 name: build-back
 
 on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
   workflow_call:
     inputs:
       artifact-name:
