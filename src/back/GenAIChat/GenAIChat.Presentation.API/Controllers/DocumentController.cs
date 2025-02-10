@@ -23,7 +23,7 @@ namespace GenAIChat.Presentation.API.Controllers
 
             // read file content
             byte[] buffer = new byte[file.Length];
-            await file.OpenReadStream().ReadAsync(buffer);
+            await file.OpenReadStream().ReadExactlyAsync(buffer);
             return buffer;
         }
 
