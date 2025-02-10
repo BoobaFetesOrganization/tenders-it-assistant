@@ -24,8 +24,10 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Call build-back workflow
-        uses: .github/workflows/base/build-back.yml
+        uses: ./.github/workflows/base/build-back.yml
         with:
           artifact-name: ${{ env.artifact-name }}
           artifact-path: ${{ env.artifact-path }}
