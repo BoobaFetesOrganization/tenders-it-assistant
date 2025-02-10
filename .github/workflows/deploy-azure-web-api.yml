@@ -15,28 +15,37 @@
 # 2. Create a secret in your repository named AZURE_WEBAPP_PUBLISH_PROFILE, paste the publish profile contents as the value of the secret.
 #    For instructions on obtaining the publish profile see: https://docs.microsoft.com/azure/app-service/deploy-github-actions#configure-the-github-secret
 #
-# 3. Change the value for the AZURE_WEBAPP_NAME. Optionally, change the AZURE_WEBAPP_PACKAGE_PATH and DOTNET_VERSION environment variables below.
+# 3. Change the value for the azure-webapp-name. Optionally, change the azure-webapp-package-path and DOTNET_VERSION environment variables below.
 #
 # For more information on GitHub Actions for Azure: https://github.com/Azure/Actions
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
-name: deploy-back
+name: deploy-back-on-azure-web-api
 
 on:
-  workflow_dispatch:
-  # disabled push:
-  # disabled   branches: ["main"]
-  # disabled pull_request:
-  # disabled   branches: ["main"]
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: "The name of the artefact to deploy"
+        type: string
+        required: true
+      azure-webapp-name:
+        description: "The name of the Azure Web App"
+        type: string
+        required: true
+      azure-webapp-package-path:
+        description: "The path to the web app project"
+        type: string
+        default: "."
+    secrets:
+      AZURE_WEBAPP_PUBLISH_PROFILE:
+        required: true
+      AZURE_CREDENTIALS:
+        required: true
 
 permissions:
   contents: read
-
-env:
-  IMPORT: "back-app"
-  AZURE_WEBAPP_NAME: "gemini-chat-web-app" # set this to the name of your Azure Web App
-  AZURE_WEBAPP_PACKAGE_PATH: "." # set this to the path to your web app project, defaults to the repository root
 
 jobs:
   deploy:
@@ -44,19 +53,24 @@ jobs:
       contents: none
     runs-on: ubuntu-latest
     environment:
-      name: "Development"
+      name: "production"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.IMPORT }}
+          name: ${{ inputs.artifact-name }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: ${{ inputs.azure-webapp-name }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          package: ${{ inputs.azure-webapp-package-path }}

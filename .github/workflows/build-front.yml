@@ -5,19 +5,30 @@
 name: build-front
 
 on:
-  workflow_dispatch:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: "The name of the artefact to deploy"
+        type: string
+        required: true
+      artifact-path:
+        description: "The path to the artefact"
+        type: string
+        required: true
+      artifact-publish-folder:
+        description: "The path to the artefact from the working directory, it allow to navigate throught the folders to find the root of the project"
+        type: string
+      version:
+        description: "The version of dotnet to use"
+        type: string
+        required: true
+      working-directory:
+        description: "The path to the working directory"
+        type: string
+        required: true
 
 permissions:
   contents: read
-
-env:
-  NODE_VERSION: "latest"
-  SOURCE: "src/front"
-  TARGET: "artefacts/front"
 
 jobs:
   build:
@@ -29,29 +40,29 @@ jobs:
       - name: Set up node environement and use yarn as cache for faster builds
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: ${{ inputs.version }}
 
       - name: install npm packages
         run: yarn
-        working-directory: ${{ env.SOURCE }}
+        working-directory: ${{ inputs.working-directory }}
 
       # aucun tests pour le moment => - name: test
       # aucun tests pour le moment =>   run: yarn nx run client:test
-      # aucun tests pour le moment =>   working-directory: ${{ env.SOURCE }}
+      # aucun tests pour le moment =>   working-directory: ${{ inputs.working-directory }}
 
       - name: build
         run: yarn nx run client:build
-        working-directory: ${{ env.SOURCE }}
+        working-directory: ${{ inputs.working-directory }}
 
       - name: Create artefacts directory
-        run: mkdir -p ${{ env.TARGET }}
+        run: mkdir -p ${{ inputs.artifact-path }}
 
       - name: move dest to artefacts folder
-        working-directory: ${{ env.SOURCE }}
-        run: mv dist/apps/client/* ../../${{ env.TARGET }}
+        working-directory: ${{ inputs.working-directory }}
+        run: mv dist/apps/client/* ${{ inputs.artifact-publish-folder }}/${{ inputs.artifact-path }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: front-app
-          path: ${{ env.TARGET }}
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}

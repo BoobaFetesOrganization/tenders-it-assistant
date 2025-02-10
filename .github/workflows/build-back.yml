@@ -5,32 +5,44 @@
 name: build-back
 
 on:
-  workflow_dispatch:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: "The name of the artefact to deploy"
+        type: string
+        required: true
+      artifact-path:
+        description: "The path to the artefact"
+        type: string
+        required: true
+      artifact-publish-folder:
+        description: "The path to the artefact from the working directory, it allow to navigate throught the folders to find the root of the project"
+        type: string
+      version:
+        description: "The version of dotnet to use"
+        type: string
+        required: true
+      working-directory:
+        description: "The path to the working directory"
+        type: string
+        required: true
 
 permissions:
   contents: read
 
-env:
-  DOTNET_VERSION: "9.0.x"
-  SOURCE: "src/back/GenAIChat"
-  TARGET: "artefacts/back"
-  EXPORT: back-app
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: production
+    environment: Production
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       - name: Set up dotnet environement
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ inputs.version }}
 
       - name: Set up dotnet dependency caching for faster builds
         uses: actions/cache@v3
@@ -38,26 +50,26 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-${{ env.DOTNET_VERSION }}
+            ${{ runner.os }}-nuget-${{ inputs.version }}
 
       - name: install nugget packages
         run: dotnet restore
-        working-directory: ${{ env.SOURCE }}
+        working-directory: ${{ inputs.working-directory }}
 
       - name: build
         run: dotnet build --no-restore
-        working-directory: ${{ env.SOURCE }}
+        working-directory: ${{ inputs.working-directory }}
 
       - name: test
         run: dotnet test --no-build --verbosity normal
-        working-directory: ${{ env.SOURCE }}
+        working-directory: ${{ inputs.working-directory }}
 
       - name: publish
-        run: dotnet publish -c Release -o ../../../${{ env.TARGET }}
-        working-directory: ${{ env.SOURCE }}
+        run: dotnet publish -c Release -o ${{ inputs.artifact-publish-folder }}/${{ inputs.artifact-path }}
+        working-directory: ${{ inputs.working-directory }}
 
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.EXPORT }}
-          path: ${{ env.TARGET }}
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}

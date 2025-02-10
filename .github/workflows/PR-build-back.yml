@@ -1,0 +1,64 @@
+# This workflow will build a .NET and a webpack projects and is made from "Deploy a .NET Core app to an Azure Web App" template
+# see templates here: https://github.com/BoobaFetes/gemini-chat/actions/new
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: PR-build-back
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["*"]
+
+env:
+  artifact-name: "PR-web-api"
+  artifact-path: "artefacts/PR-web-api"
+  artifact-publish-folder: "../../.."
+  dotnet-version: "9.0"
+  working-directory: "src/back/GenAIChat"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Development
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up dotnet environement
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.dotnet-version }}
+
+      - name: Set up dotnet dependency caching for faster builds
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-${{ env.dotnet-version }}
+
+      - name: install nugget packages
+        run: dotnet restore
+        working-directory: ${{ env.working-directory }}
+
+      - name: build
+        run: dotnet build --no-restore
+        working-directory: ${{ env.working-directory }}
+
+      - name: test
+        run: dotnet test --no-build --verbosity normal
+        working-directory: ${{ env.working-directory }}
+
+      - name: publish
+        run: dotnet publish -c Release -o ${{ env.artifact-publish-folder }}/${{ env.artifact-path }}
+        working-directory: ${{ env.working-directory }}
+
+      - name: upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.artifact-name }}
+          path: ${{ env.artifact-path }}
