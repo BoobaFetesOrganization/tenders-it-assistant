@@ -38,10 +38,10 @@ on:
         description: "The path to the web app project"
         type: string
         default: "."
+      AZURE_CREDENTIALS:
+        type: string
     secrets:
       AZURE_WEBAPP_PUBLISH_PROFILE:
-        required: true
-      AZURE_CREDENTIALS:
         required: true
 
 jobs:
@@ -55,9 +55,9 @@ jobs:
 
     steps:
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v2.2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ env.AZURE_CREDENTIALS }}
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
