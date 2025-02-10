@@ -1,0 +1,29 @@
+name: api-build-deploy
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+    #paths:
+    #  - "src/back/**"
+
+jobs:
+  build-back:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get current branch name
+        id: get_branch
+        run: echo "branch_name=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+      - name: Build and deploy
+        uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@${{ env.branch_name }}
+        with:
+          artifact-name: web-api
+          artifact-path: "artefacts/web-api"
+          artifact-publish-folder: "../../.."
+          version: "9.0.x"
+          working-directory: "src/back/GenAIChat"
