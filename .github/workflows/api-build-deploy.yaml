@@ -12,7 +12,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  build-back:
     uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
     with:
       artifact-name: web-api
@@ -20,8 +20,8 @@ jobs:
       artifact-publish-folder: "../../.."
       version: "9.0.x"
       working-directory: "src/back/GenAIChat"
-  deploy:
-    needs: build
+  deploy-back:
+    needs: build-back
     uses: BoobaFetes/gemini-chat/.github/workflows/deploy-azure-web-api.yml@feat-set-workflow-template
     with:
       artifact-name: web-api
@@ -29,3 +29,4 @@ jobs:
       azure-webapp-package-path: "."
     secrets:
       AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
