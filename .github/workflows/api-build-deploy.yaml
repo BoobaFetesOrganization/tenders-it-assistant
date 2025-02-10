@@ -12,7 +12,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build-back:
+  build:
     uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
     with:
       artifact-name: web-api
@@ -20,16 +20,12 @@ jobs:
       artifact-publish-folder: "../../.."
       version: "9.0.x"
       working-directory: "src/back/GenAIChat"
-
-  #deploy:
-  #  needs: build
-  #  runs-on: ubuntu-latest
-  #  environment: production
-  #  steps:
-  #    - name: Call deploy-back workflow
-  #      uses: ./.github/workflows/base/deploy-back.yml
-  #      with:
-  #        ARTIFACT: ${{ env.build_artifact }}
-  #        DOTNET_VERSION: ${{ env.build_version }}
-  #        SOURCE: ${{ env.build_source }}
-  #        TARGET: ${{ env.build_target }}
+  deploy:
+    needs: build
+    uses: BoobaFetes/gemini-chat/.github/workflows/deploy-back-on-azure-web-api.yml@feat-set-workflow-template
+    with:
+      artifact-name: web-api
+      azure-webapp-name: "gemini-chat-web-app"
+      azure-webapp-package-path: "."
+    secrets:
+      AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
