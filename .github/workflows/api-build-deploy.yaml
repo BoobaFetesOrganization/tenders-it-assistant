@@ -22,5 +22,4 @@ jobs:
       artifact-name: web-api
       azure-webapp-name: "gemini-chat-web-app"
       azure-webapp-package-path: "."
-    secrets:
-      secrets: inherit
+    secrets: inherit
