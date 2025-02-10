@@ -12,28 +12,21 @@ on:
     branches: ["main"]
 
 env:
-  artifact-name: web-api
-  artifact-path: "artefacts/web-api"
-  artifact-publish-folder: "../../.."
-  version: "9.0.x"
-  working-directory: "src/back/GenAIChat"
+  artifact-name:
+  artifact-path:
+  artifact-publish-folder:
+  version:
+  working-directory:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: Call build-back workflow
-        uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
-        with:
-          artifact-name: ${{ env.artifact-name }}
-          artifact-path: ${{ env.artifact-path }}
-          artifact-publish-folder: ${{ env.artifact-publish-folder }}
-          version: ${{ env.version }}
-          working-directory: ${{ env.working-directory }}
+  build-back:
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
+    with:
+      artifact-name: web-api
+      artifact-path: "artefacts/web-api"
+      artifact-publish-folder: "../../.."
+      version: "9.0.x"
+      working-directory: "src/back/GenAIChat"
 
   #deploy:
   #  needs: build
