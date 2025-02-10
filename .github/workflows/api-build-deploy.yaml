@@ -27,7 +27,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
       - name: Call build-back workflow
-        uses: ./.github/workflows/build-back.yml
+        uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
         with:
           artifact-name: ${{ env.artifact-name }}
           artifact-path: ${{ env.artifact-path }}
