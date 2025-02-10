@@ -56,24 +56,5 @@ namespace GenAIChat.Presentation.API
                 });
             });
         }
-
-        public static void UseGenAiChatPresentationServices(this WebApplication app, IConfiguration configuration)
-        {
-            var corsConfig = configuration.GetSection("Cors:SpaCors").Get<CorsConfiguration>()
-                ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": {\r\n    \"SpaCors\": {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"http://localhost:3000\", \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\", \"OPTIONS\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  }\r\n}");
-
-            app.UseRouting();
-            app.UseCors(SpaCors);
-            app.UseAuthorization();
-            app.MapControllers();
-            
-            // Serve the SPA for the root URL
-            app.MapFallbackToFile("/index.html");
-
-            // Configurer le middleware pour servir la SPA
-            app.UseDefaultFiles();
-            app.UseStaticFiles();
-
-        }
     }
 }

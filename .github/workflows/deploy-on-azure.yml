@@ -21,13 +21,17 @@
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
-name: deploy-back-on-azure-web-api
+name: deploy-on-azure
 
 on:
   workflow_call:
     inputs:
-      artifact-name:
-        description: "The name of the artefact to deploy"
+      artifact-back-name:
+        description: "The name of the artefact of the backend to deploy"
+        type: string
+        required: true
+      artifact-front-name:
+        description: "The name of the artefact of the frontend to deploy"
         type: string
         required: true
       azure-webapp-name:
@@ -62,10 +66,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Download artifact from build job
+      - name: Download back artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.artifact-name }}
+          name: ${{ inputs.artifact-back-name }}
+
+      - name: Download front artifact to wwwRoot
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact-front-name }}
+          path: ./wwwroot
+
+      - name: upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-package
+          path: .
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp

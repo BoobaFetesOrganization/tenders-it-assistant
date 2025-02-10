@@ -11,13 +11,6 @@ on:
         description: "The name of the artefact to deploy"
         type: string
         required: true
-      artifact-path:
-        description: "The path to the artefact"
-        type: string
-        required: true
-      artifact-publish-folder:
-        description: "The path to the artefact from the working directory, it allow to navigate throught the folders to find the root of the project"
-        type: string
       version:
         description: "The version of dotnet to use"
         type: string
@@ -36,6 +29,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       - name: Set up node environement and use yarn as cache for faster builds
         uses: actions/setup-node@v4
@@ -54,15 +49,8 @@ jobs:
         run: yarn nx run client:build
         working-directory: ${{ inputs.working-directory }}
 
-      - name: Create artefacts directory
-        run: mkdir -p ${{ inputs.artifact-path }}
-
-      - name: move dest to artefacts folder
-        working-directory: ${{ inputs.working-directory }}
-        run: mv dist/apps/client/* ${{ inputs.artifact-publish-folder }}/${{ inputs.artifact-path }}
-
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
-          path: ${{ inputs.artifact-path }}
+          path: ${{ inputs.working-directory }}/dist/apps/client

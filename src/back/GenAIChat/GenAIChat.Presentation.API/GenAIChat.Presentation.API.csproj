@@ -30,4 +30,10 @@
     <ProjectReference Include="..\GenAIChat.Infrastructure\GenAIChat.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\.gitkeep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
