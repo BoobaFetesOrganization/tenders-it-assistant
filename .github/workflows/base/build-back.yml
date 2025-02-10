@@ -1,0 +1,74 @@
+# This workflow will build a .NET and a webpack projects and is made from "Deploy a .NET Core app to an Azure Web App" template
+# see templates here: https://github.com/BoobaFetes/gemini-chat/actions/new
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: build-back
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: "The name of the artefact to deploy"
+        type: string
+        required: true
+      artifact-path:
+        description: "The path to the artefact"
+        type: string
+        required: true
+      artifact-publish-folder:
+        description: "The path to the artefact from the working directory, it allow to navigate throught the folders to find the root of the project"
+        type: string
+        default: "."
+      version:
+        description: "The version of dotnet to use"
+        type: string
+        required: true
+      working-directory:
+        description: "The path to the working directory"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up dotnet environement
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.version }}
+
+      - name: Set up dotnet dependency caching for faster builds
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-${{ inputs.version }}
+
+      - name: install nugget packages
+        run: dotnet restore
+        working-directory: ${{ inputs.working-directory }}
+
+      - name: build
+        run: dotnet build --no-restore
+        working-directory: ${{ inputs.working-directory }}
+
+      - name: test
+        run: dotnet test --no-build --verbosity normal
+        working-directory: ${{ inputs.working-directory }}
+
+      - name: publish
+        run: dotnet publish -c Release -o ${{ inputs.artifact-publish-folder }}/${{ inputs.artifact-name }}
+        working-directory: ${{ inputs.working-directory }}
+
+      - name: upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}

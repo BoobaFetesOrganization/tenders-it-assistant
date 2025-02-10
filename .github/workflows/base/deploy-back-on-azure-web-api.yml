@@ -21,10 +21,29 @@
 # For more information on the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples
 
-name: deploy-back
+name: deploy-back-on-azure-web-api
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ARTIFACT:
+        description: "The name of the artefact to deploy"
+        type: string
+        required: true
+      AZURE_WEBAPP_NAME:
+        description: "The name of the Azure Web App"
+        type: string
+        required: true
+      AZURE_WEBAPP_PACKAGE_PATH:
+        description: "The path to the web app project"
+        type: string
+        required: true
+        default: "."
+    secrets:
+      - AZURE_WEBAPP_PUBLISH_PROFILE: 
+        required: true
+        type: string
+        ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
   # disabled push:
   # disabled   branches: ["main"]
   # disabled pull_request:
@@ -51,12 +70,12 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.IMPORT }}
+          name: ${{ github.event.inputs.ARTIFACT }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: ${{ inputs.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          package: ${{ inputs.AZURE_WEBAPP_PACKAGE_PATH }}
