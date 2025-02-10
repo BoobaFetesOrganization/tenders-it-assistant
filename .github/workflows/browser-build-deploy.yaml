@@ -11,13 +11,6 @@ on:
   pull_request:
     branches: ["main"]
 
-env:
-  artifact-name:
-  artifact-path:
-  artifact-publish-folder:
-  version:
-  working-directory:
-
 jobs:
   build-front:
     uses: BoobaFetes/gemini-chat/.github/workflows/build-front.yml@feat-set-workflow-template

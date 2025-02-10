@@ -31,11 +31,6 @@ on:
 permissions:
   contents: read
 
-env:
-  NODE_VERSION: "latest"
-  SOURCE: "src/front"
-  TARGET: "artefacts/front"
-
 jobs:
   build:
     runs-on: ubuntu-latest
