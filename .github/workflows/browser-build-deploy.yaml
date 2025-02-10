@@ -1,0 +1,42 @@
+# This workflow will build a .NET and a webpack projects and is made from "Deploy a .NET Core app to an Azure Web App" template
+# see templates here: https://github.com/BoobaFetes/gemini-chat/actions/new
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: browser-build-deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  artifact-name:
+  artifact-path:
+  artifact-publish-folder:
+  version:
+  working-directory:
+
+jobs:
+  build-front:
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-front.yml@feat-set-workflow-template
+    with:
+      artifact-name: browser-app
+      artifact-path: "artefacts/browser-app"
+      artifact-publish-folder: "../.."
+      version: "latest"
+      working-directory: "src/front"
+
+  #deploy:
+  #  needs: build
+  #  runs-on: ubuntu-latest
+  #  environment: production
+  #  steps:
+  #    - name: Call deploy-back workflow
+  #      uses: ./.github/workflows/base/deploy-back.yml
+  #      with:
+  #        ARTIFACT: ${{ env.build_artifact }}
+  #        DOTNET_VERSION: ${{ env.build_version }}
+  #        SOURCE: ${{ env.build_source }}
+  #        TARGET: ${{ env.build_target }}
