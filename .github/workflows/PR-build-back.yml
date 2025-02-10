@@ -39,7 +39,7 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-nuget-${{ env.version }}
+            ${{ runner.os }}-nuget-${{ env.dotnet-version }}
 
       - name: install nugget packages
         run: dotnet restore
@@ -54,7 +54,7 @@ jobs:
         working-directory: ${{ env.working-directory }}
 
       - name: publish
-        run: dotnet publish -c Release -o ${{ env.artifact-publish-folder }}/${{ inputs.artifact-path }}
+        run: dotnet publish -c Release -o ${{ env.artifact-publish-folder }}/${{ env.artifact-path }}
         working-directory: ${{ env.working-directory }}
 
       - name: upload artifact for deployment job
