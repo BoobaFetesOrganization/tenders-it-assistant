@@ -2,67 +2,27 @@ name: api-build-deploy
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: ["main"]
-  # pull_request:
-  #   branches: ["main"]
-
-env:
-  artifact-name: web-api
-  azure-webapp-name: "gemini-chat-web-app"
-  azure-webapp-package-path: "."
+  push:
+    branches: ["main"]
 
 jobs:
-  #build-back:
-  #  uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
-  #  with:
-  #    artifact-name: web-api
-  #    artifact-path: "artefacts/web-api"
-  #    artifact-publish-folder: "../../.."
-  #    version: "9.0.x"
-  #    working-directory: "src/back/GenAIChat"
+  build-back:
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@main
+    with:
+      artifact-name: web-api
+      artifact-path: "artefacts/web-api"
+      artifact-publish-folder: "../../.."
+      version: "9.0.x"
+      working-directory: "src/back/GenAIChat"
+    secrets:
+      secrets: inherit
 
-  deploy:
-    permissions:
-      contents: none
-    runs-on: ubuntu-latest
-    environment:
-      name: "Development"
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: echo
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        run: |
-          echo ${#AZURE_CREDENTIALS}
-          echo ${#AZURE_WEBAPP_PUBLISH_PROFILE}
-      - name: Azure Login
-        uses: azure/login@v2
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.artifact-name }}
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ env.azure-webapp-name }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.azure-webapp-package-path }}
-  # deploy-back:
-  # needs: build-back
-  # uses: BoobaFetes/gemini-chat/.github/workflows/deploy-azure-web-api.yml@feat-set-workflow-template
-  # with:
-  # artifact-name: web-api
-  # azure-webapp-name: "gemini-chat-web-app"
-  # azure-webapp-package-path: "."
-  # AZURE_CREDENTIALS: ${{ vars.AZURE_CREDENTIALS_VAR }}
-  # secrets:
-  # AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+  deploy-back:
+    needs: build-back
+    uses: BoobaFetes/gemini-chat/.github/workflows/deploy-azure-web-api.yml@main
+    with:
+      artifact-name: web-api
+      azure-webapp-name: "gemini-chat-web-app"
+      azure-webapp-package-path: "."
+    secrets:
+      secrets: inherit
