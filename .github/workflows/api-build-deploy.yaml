@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Call build-back workflow
-        uses: ./.github/workflows/base/build-back.yml
+        uses: .github/workflows/base/build-back.yml@${{ github.ref }}
         with:
           artifact-name: ${{ env.artifact-name }}
           artifact-path: ${{ env.artifact-path }}
