@@ -1,5 +1,5 @@
 ﻿using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Application.Common;
+using GenAIChat.Application.Command.Common;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project.Group.UserStory;
 using MediatR;
