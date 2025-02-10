@@ -37,6 +37,8 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       - name: Set up dotnet environement
         uses: actions/setup-dotnet@v4
