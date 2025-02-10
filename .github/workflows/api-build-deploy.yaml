@@ -32,9 +32,14 @@ jobs:
 
     steps:
       - name: echo
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-          echo ${{ secrets.AZURE_CREDENTIALS }}
-          echo ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          echo "$GITHUB_CONTEXT"
+          echo ${#AZURE_CREDENTIALS}
+          echo ${#AZURE_WEBAPP_PUBLISH_PROFILE}
       - name: Azure Login
         uses: azure/login@v2
         with:
