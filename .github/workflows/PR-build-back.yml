@@ -13,7 +13,7 @@ env:
   artifact-name: "PR-web-api"
   artifact-path: "artefacts/PR-web-api"
   artifact-publish-folder: "../../.."
-  version: "9.0.x"
+  dotnet-version: "9.0"
   working-directory: "src/back/GenAIChat"
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
       - name: Set up dotnet environement
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.version }}
+          dotnet-version: ${{ env.dotnet-version }}
 
       - name: Set up dotnet dependency caching for faster builds
         uses: actions/cache@v3
