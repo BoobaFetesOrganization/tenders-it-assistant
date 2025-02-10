@@ -15,22 +15,26 @@ on:
         description: "The name of the artefact to deploy"
         type: string
         required: true
+        default: "PR-browser-app"
       artifact-path:
         description: "The path to the artefact"
         type: string
         required: true
+        default: "artefacts/PR-browser-app"
       artifact-publish-folder:
         description: "The path to the artefact from the working directory, it allow to navigate throught the folders to find the root of the project"
         type: string
-        default: "."
+        default: "../.."
       version:
         description: "The version of dotnet to use"
         type: string
         required: true
+        default: "latest"
       working-directory:
         description: "The path to the working directory"
         type: string
         required: true
+        default: "src/front"
 
 permissions:
   contents: read
