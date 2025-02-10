@@ -41,7 +41,6 @@ on:
     secrets:
       AZURE_WEBAPP_PUBLISH_PROFILE:
         required: true
-        type: string
 
 jobs:
   deploy:

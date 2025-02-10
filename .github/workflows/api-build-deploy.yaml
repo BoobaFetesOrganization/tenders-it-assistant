@@ -22,7 +22,7 @@ jobs:
       working-directory: "src/back/GenAIChat"
   deploy:
     needs: build
-    uses: BoobaFetes/gemini-chat/.github/workflows/deploy-back-on-azure-web-api.yml@feat-set-workflow-template
+    uses: BoobaFetes/gemini-chat/.github/workflows/deploy-azure-web-api.yml@feat-set-workflow-template
     with:
       artifact-name: web-api
       azure-webapp-name: "gemini-chat-web-app"
