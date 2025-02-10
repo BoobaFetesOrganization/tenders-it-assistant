@@ -20,7 +20,7 @@ env:
 
 jobs:
   build-back:
-    uses: BoobaFetes/gemini-chat/.github/workflows/base/build-back.yml@feat-set-workflow-template
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-set-workflow-template
     with:
       artifact-name: web-api
       artifact-path: "artefacts/web-api"
