@@ -3,7 +3,7 @@ using GenAIChat.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace GenAIChat.Infrastructure.Database.Repository.Generic
+namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
 {
     public abstract class GenericRepository<TEntity>(GenAiDbContext dbContext) : IRepositoryAdapter<TEntity> where TEntity : class, IEntityDomain
     {
@@ -22,9 +22,9 @@ namespace GenAIChat.Infrastructure.Database.Repository.Generic
         public async Task<IEnumerable<TEntity>> GetAllAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
         {
             IQueryable<TEntity> query = GetPropertiesForCollection(_dbSet);
-            
+
             if (filter is not null) query = query.Where(filter);
-           
+
             query = query.Skip(options.Offset);
             if (options.Limit.HasValue) query = query.Take(options.Limit.Value);
 

@@ -6,7 +6,7 @@ namespace GenAIChat.Infrastructure
 {
     public static class ConfigureService
     {
-        public static void AddGenAiChatInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+        public static void AddGenAiChatInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // services registration
             services.AddScoped<IFileSystemAdapter, FileSystemAdapter>();

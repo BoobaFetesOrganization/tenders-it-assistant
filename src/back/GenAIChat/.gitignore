@@ -18,6 +18,7 @@ packages/
 *.db
 *.db-*
 *.sqlite
+!*Infrastructure.Database.Sqlite
 
 # Dossiers de logs
 *.log

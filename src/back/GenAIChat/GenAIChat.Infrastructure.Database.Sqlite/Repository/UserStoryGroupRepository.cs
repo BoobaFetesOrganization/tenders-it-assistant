@@ -1,9 +1,9 @@
 ﻿using GenAIChat.Application.Adapter.Database.Repository;
 using GenAIChat.Domain.Project.Group;
-using GenAIChat.Infrastructure.Database.Repository.Generic;
+using GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace GenAIChat.Infrastructure.Database.Repository
+namespace GenAIChat.Infrastructure.Database.Sqlite.Repository
 {
     public class UserStoryGroupRepository(GenAiDbContext dbContext) : GenericRepository<UserStoryGroupDomain>(dbContext), IUserStoryGroupRepositoryAdapter
     {

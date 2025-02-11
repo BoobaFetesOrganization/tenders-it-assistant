@@ -1,8 +1,8 @@
 ﻿using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Application.Adapter.Database.Repository;
-using GenAIChat.Infrastructure.Database.Repository;
+using GenAIChat.Infrastructure.Database.Sqlite.Repository;
 
-namespace GenAIChat.Infrastructure.Database.UnitOfWork
+namespace GenAIChat.Infrastructure.Database.Sqlite.UnitOfWork
 {
     public class UnitOfWork(GenAiDbContext dbContext) : IGenAiUnitOfWorkAdapter
     {
