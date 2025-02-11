@@ -6,7 +6,7 @@ using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using Microsoft.EntityFrameworkCore;
 
-namespace GenAIChat.Infrastructure.Database
+namespace GenAIChat.Infrastructure.Database.Sqlite
 {
     public class GenAiDbContext(DbContextOptions<GenAiDbContext> options) : DbContext(options)
     {

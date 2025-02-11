@@ -1,10 +1,25 @@
+using GenAIChat.Application;
+using GenAIChat.Infrastructure;
+using GenAIChat.Infrastructure.Api.Gemini;
+using GenAIChat.Infrastructure.Api.Gemini.Service;
+using GenAIChat.Infrastructure.Database.Sqlite;
 using GenAIChat.Presentation.API;
 using GenAIChat.Presentation.API.Configuation;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddGenAiChatServices(builder.Configuration);
+builder.Services.AddGenAiChatPresentationApi(builder.Configuration);
+builder.Services.AddGenAiChatApplication();
+builder.Services.AddGenAiChatInfrastructure(builder.Configuration);
+builder.Services.AddGenAiChatInfrastructureDatabaseSqlLite(builder.Configuration);
+builder.Services.AddGenAiChatInfrastructureApiGemini(builder.Configuration, addHttpClientCb: () =>
+{
+    // services configuration
+    builder.Services.AddHttpClient<GeminiGenerateContentService>();
+    builder.Services.AddHttpClient<GeminiFileService>();
+});
 
 // Add services to the container
 builder.Services.AddControllers();
@@ -44,7 +59,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseCors(ConfigureService.SpaCors);
+app.UseGenAiChatPresentationApi();
 app.UseAuthorization();
 app.MapControllers();
 
