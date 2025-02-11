@@ -18,7 +18,7 @@ export const getAppSettings = () => {
 interface ISettings {
   app: IAppSettings;
   libs: {
-    '@aogenai/infra': IInfraSettings;
+    infra: IInfraSettings;
   };
 }
 
@@ -31,7 +31,7 @@ export async function loadSettings() {
     const data: ISettings = await response.json();
 
     setAppSettings(data.app);
-    setInfraSettings(data.libs['@aogenai/infra']);
+    setInfraSettings(data.libs['infra']);
   } catch (error) {
     console.error('Failed to load app settings:', error);
     throw error;

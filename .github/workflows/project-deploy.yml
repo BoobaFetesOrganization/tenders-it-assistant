@@ -18,7 +18,7 @@ jobs:
     with:
       artifact-name: web-api
       version: "9.0.x"
-      working-directory: "src/back/GenAIChat"
+      working-directory: "src/back/GenAIChat/GenAIChat.Presentation.API"
 
   azure:
     needs: [front, back]

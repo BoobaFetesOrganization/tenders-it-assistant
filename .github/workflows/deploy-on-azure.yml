@@ -61,10 +61,8 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: setup tools
+        run: sudo apt-get update && sudo apt-get install -y jq && sudo apt-get install -y moreutils
 
       - name: Download back artifact
         uses: actions/download-artifact@v4
@@ -77,11 +75,21 @@ jobs:
           name: ${{ inputs.artifact-front-name }}
           path: ./wwwroot
 
+      - name: update api endpoint for the front
+        run: |
+          jq '.libs.infra.api.url = "https://${{ inputs.azure-webapp-name }}.azurewebsites.net/api"' \
+          ./wwwroot/assets/appsettings.json | sponge ./wwwroot/assets/appsettings.json
+
       - name: upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: azure-package
           path: .
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
