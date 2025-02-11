@@ -6,7 +6,7 @@ namespace GenAIChat.Application
 {
     public static class ConfigureService
     {
-        public static void AddGenAiChatApplicationServices(this IServiceCollection services)
+        public static void AddGenAiChatApplication(this IServiceCollection services)
         {
             // resource registration
             services.AddSingleton<EmbeddedResource>();

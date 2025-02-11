@@ -8,7 +8,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini
 {
     public static class ConfigureService
     {
-        public static void AddGenAiChatApiServices(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb)
+        public static void AddGenAiChatInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb)
         {
             // app settings configuration 
             Console.WriteLine("Infrastructure.Api.Gemini : Configuration : 'AI:Gemini' :");
@@ -23,9 +23,6 @@ namespace GenAIChat.Infrastructure.Api.Gemini
             // services registration
             services.AddScoped<IGenAiApiAdapter, GenAiApiAdapter>();
             addHttpClientCb();
-            //// ne pas oublier de rajouter les services des API dans la configuration du pressenter....
-            // services.AddHttpClient<GeminiGenerateContentService>();
-            // services.AddHttpClient<GeminiFileService>();
         }
     }
 }
