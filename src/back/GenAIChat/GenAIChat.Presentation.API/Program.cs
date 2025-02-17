@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGenAiChatPresentationApi(builder.Configuration);
 builder.Services.AddGenAiChatApplication();
 builder.Services.AddGenAiChatInfrastructure(builder.Configuration);
-builder.Services.AddGenAiChatInfrastructureDatabaseSqlLite(builder.Configuration);
+builder.Services.AddGenAiChatInfrastructureDatabase(builder.Configuration);
 builder.Services.AddGenAiChatInfrastructureApiGemini(builder.Configuration, addHttpClientCb: () =>
 {
     // services configuration

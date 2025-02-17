@@ -2,9 +2,8 @@
 
 namespace GenAIChat.Presentation.API.Controllers.Common
 {
-    public class EntityBaseDto : IEntityDomain
+    public class EntityBaseDto : EntityDomain
     {
-        public int Id { get; set; }
     }
 
 }

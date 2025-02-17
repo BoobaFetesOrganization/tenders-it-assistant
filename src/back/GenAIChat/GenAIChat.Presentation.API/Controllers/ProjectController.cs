@@ -24,7 +24,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(string id)
         {
             var result = await application.GetByIdAsync(id);
             if (result is null) return NotFound();
@@ -63,7 +63,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             var result = await application.DeleteAsync(id);
             if (result is null) return NotFound();
