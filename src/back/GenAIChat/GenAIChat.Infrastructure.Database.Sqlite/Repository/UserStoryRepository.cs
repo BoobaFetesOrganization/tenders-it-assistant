@@ -1,11 +1,10 @@
-﻿using GenAIChat.Application.Adapter.Database.Repository;
-using GenAIChat.Domain.Project.Group.UserStory;
+﻿using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace GenAIChat.Infrastructure.Database.Sqlite.Repository
 {
-    public class UserStoryRepository(GenAiDbContext dbContext) : GenericRepository<UserStoryDomain>(dbContext), IUserStoryRepositoryAdapter
+    public class UserStoryRepository(GenAiDbContext dbContext) : GenericRepository<UserStoryDomain>(dbContext)
     {
         protected override IQueryable<UserStoryDomain> GetPropertiesForCollection(IQueryable<UserStoryDomain> query) => query.Include(i => i.Tasks);
         protected override IQueryable<UserStoryDomain> GetProperties(IQueryable<UserStoryDomain> query) => query

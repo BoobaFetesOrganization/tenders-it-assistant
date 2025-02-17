@@ -1,5 +1,10 @@
 ﻿using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Application.Adapter.Database.Repository;
+using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Project;
+using GenAIChat.Domain.Project.Group;
+using GenAIChat.Domain.Project.Group.UserStory;
+using GenAIChat.Domain.Project.Group.UserStory.Task;
+using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using GenAIChat.Infrastructure.Database.Sqlite.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,22 +15,22 @@ namespace GenAIChat.Infrastructure.Database.Sqlite
     public static class ConfigureService
     {
         private const string AssemblyNameInCharggeOfMigration = "GenAIChat.Infrastructure.Database.Sqlite.Migrations";
-        
-            public static void AddGenAiChatInfrastructureDatabaseSqlLite(this IServiceCollection services, IConfiguration configuration)
+
+        public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             // database configuration
+            var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");
             services.AddDbContext<GenAiDbContext>(options => options.UseSqlite(
-                configuration.GetConnectionString("DefaultConnection"),
+                configuration.GetConnectionString(databaseProvider),
                 b => b.MigrationsAssembly(AssemblyNameInCharggeOfMigration)
                 ));
-            services.AddScoped<IGenAiUnitOfWorkAdapter, UnitOfWork.UnitOfWork>();
-            services.AddScoped<IProjectRepositoryAdapter, ProjectRepository>();
-            services.AddScoped<IDocumentRepositoryAdapter, DocumentRepository>();
-            services.AddScoped<IDocumentMetadataRepositoryAdapter, DocumentMetadataRepository>();
-            services.AddScoped<IUserStoryGroupRepositoryAdapter, UserStoryGroupRepository>();
-            services.AddScoped<IUserStoryRepositoryAdapter, UserStoryRepository>();
-            services.AddScoped<ITaskRepositoryAdapter, TaskRepository>();
-            services.AddScoped<ITaskCostRepositoryAdapter, TaskCostRepository>();
+            services.AddScoped<IRepositoryAdapter<ProjectDomain>, ProjectRepository>();
+            services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
+            services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryGroupDomain>, UserStoryGroupRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryDomain>, UserStoryRepository>();
+            services.AddScoped<IRepositoryAdapter<TaskDomain>, TaskRepository>();
+            services.AddScoped<IRepositoryAdapter<TaskCostDomain>, TaskCostRepository>();
         }
     }
 }
