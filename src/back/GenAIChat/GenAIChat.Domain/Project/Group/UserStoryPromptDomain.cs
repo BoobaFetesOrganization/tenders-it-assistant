@@ -3,19 +3,18 @@ using System.Text;
 
 namespace GenAIChat.Domain.Project.Group
 {
-    public class UserStoryPromptDomain : IEntityDomain
+    public class UserStoryPromptDomain : EntityDomain
     {
-        public int Id { get; set; }
         public string Context { get; set; } = string.Empty;
         public string Personas { get; set; } = string.Empty;
         public string Tasks { get; set; } = string.Empty;
 
         #region  navigation properties
-        public int GroupId { get; set; }
+        public string GroupId { get; set; } = string.Empty;
         #endregion
 
         public UserStoryPromptDomain() { }
-        public UserStoryPromptDomain(UserStoryPromptDomain domain)
+        public UserStoryPromptDomain(UserStoryPromptDomain domain) : base(domain)
         {
             Context = domain.Context;
             Personas = domain.Personas;

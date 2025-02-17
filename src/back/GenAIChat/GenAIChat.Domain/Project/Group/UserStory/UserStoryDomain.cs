@@ -3,29 +3,20 @@ using GenAIChat.Domain.Project.Group.UserStory.Task;
 
 namespace GenAIChat.Domain.Project.Group.UserStory
 {
-    public class UserStoryDomain : IEntityDomain
+    public class UserStoryDomain : EntityDomain
     {
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public ICollection<TaskDomain> Tasks { get; set; } = [];
         public double Cost { get => Tasks.Sum(t => t.Cost); }
 
         #region  navigation properties
-        public int GroupId { get; set; }
+        public string GroupId { get; set; } = string.Empty;
         #endregion
 
         public UserStoryDomain() { }
 
-        public UserStoryDomain(string name, int groupId, ICollection<TaskDomain>? tasks = null, int id = 0)
+        public UserStoryDomain(UserStoryDomain entity) : base(entity)
         {
-            Id = id;
-            Name = name;
-            GroupId = groupId;
-            Tasks = tasks ?? [];
-        }
-        public UserStoryDomain(UserStoryDomain entity)
-        {
-            Id = entity.Id;
             Name = entity.Name;
             GroupId = entity.GroupId;
             Tasks = entity.Tasks;

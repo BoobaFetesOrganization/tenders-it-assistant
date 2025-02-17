@@ -4,8 +4,8 @@ using namespace System.Collections;
 
 # arrange
 $var = @{
-    debug    = "$PSScriptRoot/azurite.log";
-    location = "$PSScriptRoot/azurite";
+    debug    = "$PSScriptRoot/../azure/localhost/azurite.log";
+    location = "$PSScriptRoot/../azure/localhost/azurite";
     # valeur par defaut => blobHost  = "127.0.0.1";
     # valeur par defaut => blobPort  = 10000;
     # valeur par defaut => queueHost = "127.0.0.1"
@@ -21,6 +21,10 @@ $azurite = @{
 
 # act
 try {
+    
+    if (-not (Test-Path $var.location)) {
+        New-Item -ItemType Directory -Path $var.location
+    }
     
     [FileInfo]$executable = Join-Path -Path $azurite.Path -ChildPath $azurite.File
     if (-not $executable.Exists) {

@@ -28,7 +28,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(int projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(string projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
             var result = await application.GetAllAsync(options, i => i.ProjectId == projectId);
@@ -36,7 +36,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(string id)
         {
             var result = await application.GetByIdAsync(id);
             if (result is null) return NotFound();
@@ -44,7 +44,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(int projectId, [FromForm] DocumentRequest request)
+        public async Task<IActionResult> Create(string projectId, [FromForm] DocumentRequest request)
         {
             try
             {
@@ -52,8 +52,13 @@ namespace GenAIChat.Presentation.API.Controllers
                 if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
                 var result = await application.CreateAsync(
-                    new DocumentDomain(request.File.FileName, request.File.ContentType, request.File.Length, content, projectId)
-                    );
+                    new DocumentDomain()
+                    {
+                        Name = request.File.FileName,
+                        Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
+                        Content = content,
+                        ProjectId = projectId
+                    });
                 return Created(string.Empty, mapper.Map<DocumentBaseDto>(result));
             }
             catch (Exception ex)
@@ -63,7 +68,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int projectId, int id, [FromForm] DocumentRequest request)
+        public async Task<IActionResult> Update(string projectId, string id, [FromForm] DocumentRequest request)
         {
             try
             {
@@ -71,8 +76,14 @@ namespace GenAIChat.Presentation.API.Controllers
                 if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
                 var result = await application.UpdateAsync(
-                    new DocumentDomain(request.File.FileName, request.File.ContentType, request.File.Length, content, projectId, id)
-                    );
+                     new DocumentDomain()
+                     {
+                         Id = id,
+                         Name = request.File.FileName,
+                         Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
+                         Content = content,
+                         ProjectId = projectId
+                     });
 
                 if (result is null) return NotFound();
 
@@ -85,7 +96,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             var result = await application.DeleteAsync(id);
             if (result is null) return NotFound();

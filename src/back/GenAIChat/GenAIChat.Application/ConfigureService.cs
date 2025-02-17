@@ -1,5 +1,6 @@
 ﻿using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase;
+using GenAIChat.Domain.Project;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GenAIChat.Application

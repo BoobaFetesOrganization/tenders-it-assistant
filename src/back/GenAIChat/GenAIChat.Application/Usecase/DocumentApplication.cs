@@ -5,7 +5,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Usecase
 {
-    public class DocumentApplication(IMediator mediator, IGenAiUnitOfWorkAdapter unitOfWork) : ApplicationBase<DocumentDomain>(mediator, unitOfWork)
+    public class DocumentApplication(IMediator mediator, IRepositoryAdapter<DocumentDomain> repository) : ApplicationBase<DocumentDomain>(mediator, repository)
     {
     }
 }

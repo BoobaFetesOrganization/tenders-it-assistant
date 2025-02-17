@@ -11,7 +11,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations
             var builder = Host.CreateDefaultBuilder(args)
                .ConfigureServices((hostContext, services) =>
                {
-                   services.AddGenAiChatInfrastructureDatabaseSqlLite(hostContext.Configuration);
+                   services.AddGenAiChatInfrastructureDatabase(hostContext.Configuration);
                });
             
             builder.Build();

@@ -16,7 +16,7 @@ namespace GenAIChat.Presentation.API.Controllers
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(int projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(string projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
             var result = await application.GetAllAsync(options, group => group.ProjectId == projectId);
@@ -24,7 +24,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int projectId, int id)
+        public async Task<IActionResult> GetByIdAsync(string projectId, string id)
         {
             var result = await application.GetByIdAsync(id);
             if (result is null || result.ProjectId != projectId) return NotFound();
@@ -32,7 +32,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(int projectId)
+        public async Task<IActionResult> Create(string projectId)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int projectId, [FromBody] UserStoryGroupDto request)
+        public async Task<IActionResult> Update(string projectId, [FromBody] UserStoryGroupDto request)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}/request")]
-        public async Task<IActionResult> UpdateRequest(int projectId, int id, [FromBody] UserStoryGroupDto request)
+        public async Task<IActionResult> UpdateRequest(string projectId, string id, [FromBody] UserStoryGroupDto request)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}/story")]
-        public async Task<IActionResult> UpdateUserStories(int projectId, int id, [FromBody] UserStoryGroupDto request)
+        public async Task<IActionResult> UpdateUserStories(string projectId, string id, [FromBody] UserStoryGroupDto request)
         {
             try
             {
@@ -108,7 +108,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}/generate")]
-        public async Task<IActionResult> Generate(int projectId, int id)
+        public async Task<IActionResult> Generate(string projectId, string id)
         {
             try
             {
@@ -125,7 +125,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}/validate")]
-        public async Task<IActionResult> Validate(int projectId, int id)
+        public async Task<IActionResult> Validate(string projectId, string id)
         {
             try
             {
@@ -139,7 +139,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             var result = await application.DeleteAsync(id);
             if (result is null) return NotFound();

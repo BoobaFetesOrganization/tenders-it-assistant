@@ -16,7 +16,7 @@ namespace GenAIChat.Presentation.API.Controllers
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(int groupId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(string groupId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
             var result = await application.GetAllAsync(options, us => us.GroupId == groupId);
@@ -24,7 +24,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int groupId, int id)
+        public async Task<IActionResult> GetByIdAsync(string groupId, string id)
         {
             var result = await application.GetByIdAsync(id);
             if (result is null || result.GroupId != groupId) return NotFound();
@@ -32,7 +32,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(int groupId, [FromBody] UserStoryDto request)
+        public async Task<IActionResult> Create(string groupId, [FromBody] UserStoryDto request)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int groupId, [FromBody] UserStoryDto request)
+        public async Task<IActionResult> Update(string groupId, [FromBody] UserStoryDto request)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             var result = await application.DeleteAsync(id);
             if (result is null) return NotFound();

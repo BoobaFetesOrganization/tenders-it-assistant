@@ -1,29 +1,29 @@
-﻿using GenAIChat.Application.Adapter.Database;
+﻿using Azure.Data.Tables;
+using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
-using GenAIChat.Infrastructure.Database.Sqlite.Repository;
-using Microsoft.EntityFrameworkCore;
+using GenAIChat.Infrastructure.Database.TableStorage.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GenAIChat.Infrastructure.Database.Sqlite
+namespace GenAIChat.Infrastructure.Database.TableStorage
 {
     public static class ConfigureService
     {
-        private const string AssemblyNameInCharggeOfMigration = "GenAIChat.Infrastructure.Database.Sqlite.Migrations";
-
         public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             // database configuration
             var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");
-            services.AddDbContext<GenAiDbContext>(options => options.UseSqlite(
-                configuration.GetConnectionString(databaseProvider),
-                b => b.MigrationsAssembly(AssemblyNameInCharggeOfMigration)
-                ));
+            var connectionString = configuration.GetConnectionString(databaseProvider) ?? throw new InvalidOperationException("The DatabaseProvider property's value is not found in the ConnectionStrings section");
+            if (string.IsNullOrEmpty(connectionString)) throw new InvalidOperationException("The connection string cannot be null or empty.");
+
+            var service = new TableServiceClient(connectionString);
+            services.AddSingleton(service);
+
             services.AddScoped<IRepositoryAdapter<ProjectDomain>, ProjectRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();

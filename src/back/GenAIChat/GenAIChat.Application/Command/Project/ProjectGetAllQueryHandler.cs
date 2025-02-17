@@ -5,9 +5,9 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project
 {
-    public class ProjectGetAllQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetAllQuery<ProjectDomain>, IEnumerable<ProjectDomain>>
+    public class ProjectGetAllQueryHandler(IRepositoryAdapter<ProjectDomain> projectRepository) : IRequestHandler<GetAllQuery<ProjectDomain>, IEnumerable<ProjectDomain>>
     {
         public async Task<IEnumerable<ProjectDomain>> Handle(GetAllQuery<ProjectDomain> request, CancellationToken cancellationToken)
-            => await unitOfWork.Project.GetAllAsync(request.Options, request.Filter);
+            => await projectRepository.GetAllAsync(request.Options, request.Filter);
     }
 }

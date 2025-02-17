@@ -72,9 +72,6 @@ try {
                 Write-Host "storage account $($ressource.name) settings" -ForegroundColor Green
                 $ressource | Get-Storage-Account `
                 | Set-Content -Path "$($scriptRoot)\ressources\$($ressource.name).json"
-
-                (az storage account show-connection-string -n $ressource.name) `
-                | Set-Content -Path "$($scriptRoot)\ressources\$($ressource.name)-connectionstring.json"
             }        
             "storage table" { 
                 Write-Host "table storage $($ressource.name) settings" -ForegroundColor Green

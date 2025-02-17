@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenAIChat.Domain.Document
 {
-    public class DocumentMetadataDomain : IEntityDomain
+    public class DocumentMetadataDomain : EntityDomain
     {
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string MimeType { get; set; } = string.Empty;
@@ -19,7 +18,7 @@ namespace GenAIChat.Domain.Document
         public string State { get; set; } = string.Empty;
 
         #region  navigation properties
-        public int DocumentId { get; set; }
+        public string DocumentId { get; set; } = string.Empty;
         #endregion
 
         //used to deserialize the response from the API

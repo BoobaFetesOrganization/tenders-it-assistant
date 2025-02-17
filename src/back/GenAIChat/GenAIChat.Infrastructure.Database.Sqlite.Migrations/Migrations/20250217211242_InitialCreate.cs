@@ -15,8 +15,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "DocumentMetadatas",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     DisplayName = table.Column<string>(type: "TEXT", nullable: false),
                     MimeType = table.Column<string>(type: "TEXT", nullable: false),
@@ -27,7 +26,8 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                     Sha256Hash = table.Column<string>(type: "TEXT", nullable: false),
                     Uri = table.Column<string>(type: "TEXT", nullable: false),
                     State = table.Column<string>(type: "TEXT", nullable: false),
-                    DocumentId = table.Column<int>(type: "INTEGER", nullable: false)
+                    DocumentId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -38,11 +38,11 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "Documents",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Content = table.Column<byte[]>(type: "BLOB", nullable: false),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ProjectId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -53,10 +53,10 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "Projects",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    SelectedGroupId = table.Column<int>(type: "INTEGER", nullable: true)
+                    SelectedGroupId = table.Column<string>(type: "TEXT", nullable: true),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,10 +67,10 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "UserStoryGroups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Response = table.Column<string>(type: "TEXT", nullable: true),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ProjectId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -87,10 +87,10 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "UserStories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    GroupId = table.Column<int>(type: "INTEGER", nullable: false)
+                    GroupId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -107,12 +107,12 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "UserStoryPrompts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Context = table.Column<string>(type: "TEXT", nullable: false),
                     Personas = table.Column<string>(type: "TEXT", nullable: false),
                     Tasks = table.Column<string>(type: "TEXT", nullable: false),
-                    GroupId = table.Column<int>(type: "INTEGER", nullable: false)
+                    GroupId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -129,11 +129,11 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "Tasks",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Cost = table.Column<double>(type: "REAL", nullable: false),
-                    UserStoryId = table.Column<int>(type: "INTEGER", nullable: false)
+                    UserStoryId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -150,11 +150,11 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "TaskCosts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
                     Kind = table.Column<int>(type: "INTEGER", nullable: false),
                     Cost = table.Column<double>(type: "REAL", nullable: false),
-                    TaskId = table.Column<int>(type: "INTEGER", nullable: false)
+                    TaskId = table.Column<string>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 {
     [DbContext(typeof(GenAiDbContext))]
-    [Migration("20250211150825_InitialCreate")]
+    [Migration("20250217211242_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -22,9 +22,8 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Document.DocumentDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<byte[]>("Content")
                         .IsRequired()
@@ -34,8 +33,12 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ProjectId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("Timestamp")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -46,9 +49,8 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Document.DocumentMetadataDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("TEXT");
@@ -57,8 +59,9 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("DocumentId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("DocumentId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ExpirationTime")
                         .HasColumnType("TEXT");
@@ -82,6 +85,9 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset?>("Timestamp")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("TEXT");
 
@@ -99,9 +105,8 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStory.Task.Cost.TaskCostDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<double>("Cost")
                         .HasColumnType("REAL");
@@ -109,8 +114,12 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                     b.Property<int>("Kind")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TaskId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("TaskId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("Timestamp")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -121,9 +130,8 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStory.Task.TaskDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<double>("Cost")
                         .HasColumnType("REAL");
@@ -132,8 +140,12 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserStoryId")
-                        .HasColumnType("INTEGER");
+                    b.Property<DateTimeOffset?>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserStoryId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -144,15 +156,18 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStory.UserStoryDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("GroupId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -164,14 +179,17 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryGroupDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ProjectId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Response")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -183,16 +201,16 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryPromptDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Context")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("GroupId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Personas")
                         .IsRequired()
@@ -200,6 +218,9 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
                     b.Property<string>("Tasks")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -212,16 +233,18 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 
             modelBuilder.Entity("GenAIChat.Domain.Project.ProjectDomain", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("SelectedGroupId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("SelectedGroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("Timestamp")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

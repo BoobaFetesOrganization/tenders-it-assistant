@@ -5,9 +5,9 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project.Group.UserStory
 {
-    public class UserStoryCountQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CountQuery<UserStoryDomain>, int>
+    public class UserStoryCountQueryHandler(IRepositoryAdapter<UserStoryDomain> userStoryRepository) : IRequestHandler<CountQuery<UserStoryDomain>, int>
     {
         public async Task<int> Handle(CountQuery<UserStoryDomain> request, CancellationToken cancellationToken)
-            => await unitOfWork.UserStory.CountAsync(request.Filter);
+            => await userStoryRepository.CountAsync(request.Filter);
     }
 }
