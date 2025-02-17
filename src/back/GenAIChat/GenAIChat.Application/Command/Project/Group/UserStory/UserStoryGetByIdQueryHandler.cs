@@ -5,9 +5,9 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project.Group.UserStory
 {
-    public class UserStoryGetByIdQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<GetByIdQuery<UserStoryDomain>, UserStoryDomain?>
+    public class UserStoryGetByIdQueryHandler(IRepositoryAdapter<UserStoryDomain> userStoryRepository) : IRequestHandler<GetByIdQuery<UserStoryDomain>, UserStoryDomain?>
     {
         public async Task<UserStoryDomain?> Handle(GetByIdQuery<UserStoryDomain> request, CancellationToken cancellationToken)
-            => await unitOfWork.UserStory.GetByIdAsync(request.Id);
+            => await userStoryRepository.GetByIdAsync(request.Id);
     }
 }

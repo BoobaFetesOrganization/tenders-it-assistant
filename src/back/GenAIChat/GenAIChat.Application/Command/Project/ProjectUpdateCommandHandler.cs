@@ -6,16 +6,16 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project
 {
-    public class ProjectUpdateCommandHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<UpdateCommand<ProjectDomain>, ProjectDomain?>
+    public class ProjectUpdateCommandHandler(IRepositoryAdapter<ProjectDomain> projectRepository) : IRequestHandler<UpdateCommand<ProjectDomain>, ProjectDomain?>
     {
         public async Task<ProjectDomain?> Handle(UpdateCommand<ProjectDomain> request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.Entity.Name)) throw new Exception("Name is required");
 
-            var item = await unitOfWork.Project.GetByIdAsync(request.Entity.Id);
+            var item = await projectRepository.GetByIdAsync(request.Entity.Id);
             if (item is null) return null;
 
-            var otherProjectsWithSameName = await unitOfWork.Project.GetAllAsync(
+            var otherProjectsWithSameName = await projectRepository.GetAllAsync(
                 PaginationOptions.All,
                 p => p.Id != item.Id && p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
             var isExisting = otherProjectsWithSameName.Any();
@@ -23,7 +23,7 @@ namespace GenAIChat.Application.Command.Project
 
             item.Name = request.Entity.Name;
 
-            await unitOfWork.Project.UpdateAsync(item);
+            await projectRepository.UpdateAsync(item);
 
             return item;
         }

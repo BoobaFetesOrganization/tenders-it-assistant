@@ -5,9 +5,9 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project
 {
-    public class ProjectCountQueryHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CountQuery<ProjectDomain>, int>
+    public class ProjectCountQueryHandler(IRepositoryAdapter<ProjectDomain> projectRepository) : IRequestHandler<CountQuery<ProjectDomain>, int>
     {
         public async Task<int> Handle(CountQuery<ProjectDomain> request, CancellationToken cancellationToken)
-            => await unitOfWork.Project.CountAsync(request.Filter);
+            => await projectRepository.CountAsync(request.Filter);
     }
 }

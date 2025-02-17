@@ -1,17 +1,18 @@
 ﻿using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Application.Command.Common;
+using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project.Group;
 using MediatR;
 
 namespace GenAIChat.Application.Command.Project.Group
 {
-    public class UserStoryGroupCreateCommandHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<CreateCommand<UserStoryGroupDomain>, UserStoryGroupDomain>
+    public class UserStoryGroupCreateCommandHandler(IRepositoryAdapter<UserStoryGroupDomain> userStoryGroupRepository) : IRequestHandler<CreateCommand<UserStoryGroupDomain>, UserStoryGroupDomain>
     {
         public async Task<UserStoryGroupDomain> Handle(CreateCommand<UserStoryGroupDomain> request, CancellationToken cancellationToken)
         {
-            UserStoryGroupDomain item = new(request.Entity) { Id = 0 };
+            UserStoryGroupDomain item = new(request.Entity) { Id = EntityDomain.NewId() };
 
-            await unitOfWork.UserStoryGroup.AddAsync(item);
+            await userStoryGroupRepository.AddAsync(item);
 
             return item;
         }

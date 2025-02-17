@@ -5,13 +5,13 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Project.Group
 {
-    public class UserStoryGroupDeleteCommandHandler(IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<DeleteCommand<UserStoryGroupDomain>, UserStoryGroupDomain?>
+    public class UserStoryGroupDeleteCommandHandler(IRepositoryAdapter<UserStoryGroupDomain> userStoryGroupRepository) : IRequestHandler<DeleteCommand<UserStoryGroupDomain>, UserStoryGroupDomain?>
     {
         public async Task<UserStoryGroupDomain?> Handle(DeleteCommand<UserStoryGroupDomain> request, CancellationToken cancellationToken)
         {
-            var item = await unitOfWork.UserStoryGroup.GetByIdAsync(request.Id);
+            var item = await userStoryGroupRepository.GetByIdAsync(request.Id);
 
-            if (item is not null) await unitOfWork.UserStoryGroup.DeleteAsync(item);
+            if (item is not null) await userStoryGroupRepository.DeleteAsync(item);
 
             return item;
         }

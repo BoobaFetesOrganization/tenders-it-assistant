@@ -16,9 +16,9 @@ namespace GenAIChat.Application.Command.Project.Group
         public required UserStoryGroupDomain Entity { get; init; }
     }
 
-    public class UserStoryGroupGenerateCommandHandler(IGenAiApiAdapter genAiAdapter, IGenAiUnitOfWorkAdapter unitOfWork) : IRequestHandler<UserStoryGroupGenerateCommand, UserStoryGroupDomain>
+    public class UserStoryGroupGenerateCommandHandler(IGenAiApiAdapter genAiAdapter, IRepositoryAdapter<DocumentDomain> documentRepository) : IRequestHandler<UserStoryGroupGenerateCommand, UserStoryGroupDomain>
     {
-        public static string ResultSchema = @"{
+        public const string ResultSchema = @"{
             ""type"":""array"",
             ""items"":{
                 ""type"": ""object"",
@@ -45,16 +45,16 @@ namespace GenAIChat.Application.Command.Project.Group
         public async Task<UserStoryGroupDomain> Handle(UserStoryGroupGenerateCommand request, CancellationToken cancellationToken)
         {
             // upload files to the GenAI and store new Metadata
-            IEnumerable<DocumentDomain> documents = await unitOfWork.Document.GetAllAsync(PaginationOptions.All, document => document.ProjectId == request.Entity.ProjectId);
-            if (documents.Count() < 1) throw new Exception("To generate user stories, at least one document is required");
+            IEnumerable<DocumentDomain> documents = await documentRepository.GetAllAsync(PaginationOptions.All, document => document.ProjectId == request.Entity.ProjectId);
+            if (!documents.Any()) throw new Exception("To generate user stories, at least one document is required");
 
             var expiredDocuments = documents.Where(d => d.Metadata.ExpirationTime < DateTime.Now);
             await genAiAdapter.SendFilesAsync(
                 expiredDocuments,
-                async doc => await unitOfWork.Document.UpdateAsync(doc)
+                async doc => await documentRepository.UpdateAsync(doc)
                 );
 
-            var updateActions = expiredDocuments.Select(doc => unitOfWork.Document.UpdateAsync(doc));
+            var updateActions = expiredDocuments.Select(doc => documentRepository.UpdateAsync(doc));
             await Task.WhenAll(updateActions);
 
             // send prompt to the GenAI
@@ -82,10 +82,10 @@ namespace GenAIChat.Application.Command.Project.Group
             var stories = JsonSerializer.Deserialize<ICollection<UserStoryDomain>>(text);
             foreach (var story in stories ?? [])
             {
-                story.Id = 0;
+                story.Id = EntityDomain.NewId();
                 foreach (var task in story.Tasks)
                 {
-                    task.Id = task.UserStoryId = 0;
+                    task.Id = task.UserStoryId = EntityDomain.NewId();
                     task.AddGeminiCost(task.Cost);
                     task.Cost = 0;
                 }
