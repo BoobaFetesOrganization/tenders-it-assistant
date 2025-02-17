@@ -5,10 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace GenAIChat.Domain.Project.Group
 {
 
-    public class UserStoryGroupDomain : IEntityDomain
+    public class UserStoryGroupDomain : EntityDomain
     {
-        public int Id { get; set; }
-
         public UserStoryPromptDomain Request { get; set; } = new UserStoryPromptDomain();
         public string? Response { get; set; } = null;
 
@@ -18,18 +16,17 @@ namespace GenAIChat.Domain.Project.Group
         public ICollection<UserStoryDomain> UserStories { get; set; } = [];
 
         #region  navigation properties
-        public int ProjectId { get; set; }
+        public string ProjectId { get; set; } = string.Empty;
         #endregion
 
         public UserStoryGroupDomain() { }
 
-        public UserStoryGroupDomain(UserStoryGroupDomain group)
+        public UserStoryGroupDomain(UserStoryGroupDomain domain) : base(domain)
         {
-            Id = group.Id;
-            Request = new UserStoryPromptDomain(group.Request);
-            Response = group.Response;
-            UserStories = [.. group.UserStories];
-            ProjectId = group.ProjectId;
+            Request = new UserStoryPromptDomain(domain.Request);
+            Response = domain.Response;
+            UserStories = [.. domain.UserStories];
+            ProjectId = domain.ProjectId;
         }
 
         public UserStoryGroupDomain(UserStoryPromptDomain prompt)
