@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client';
 
 export const DeleteUserStoryMutation = gql`
-  mutation DeleteUserStory($projectId: Int!, $groupId: Int!, $id: Int!) {
+  mutation DeleteUserStory(
+    $projectId: String!
+    $groupId: String!
+    $id: String!
+  ) {
     userstory(projectId: $projectId, groupId: $groupId, id: $id)
       @rest(
         type: "IUserStoryDto"

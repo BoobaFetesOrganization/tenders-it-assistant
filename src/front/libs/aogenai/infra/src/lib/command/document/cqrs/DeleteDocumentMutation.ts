@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const DeleteDocumentMutation = gql`
-  mutation DeleteDocument($projectId: Int!, $id: Int!) {
+  mutation DeleteDocument($projectId: String!, $id: String!) {
     document(projectId: $projectId, id: $id)
       @rest(
         type: "IDocumentDto"

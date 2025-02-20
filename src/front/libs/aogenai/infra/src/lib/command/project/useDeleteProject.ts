@@ -3,7 +3,7 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { DeleteProjectMutation, GetProjectsQuery } from './cqrs';
 
 interface DeleteProjectRequest {
-  id: number;
+  id: string;
 }
 interface DeleteProjectResponse {
   project: IProjectDto;

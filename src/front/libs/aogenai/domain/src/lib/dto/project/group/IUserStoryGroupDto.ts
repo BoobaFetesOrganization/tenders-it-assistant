@@ -6,7 +6,7 @@ import {
 import { IUserStoryDto } from './userstory';
 
 export interface IUserStoryGroupDto extends IEntityDomain {
-  projectId: number;
+  projectId: string;
   request: IUserStoryPromptDto;
   response?: string;
   userStories: IUserStoryDto[];
@@ -17,7 +17,7 @@ export function newUserStoryGroupDto(
 ): IUserStoryGroupDto {
   return {
     ...newEntityDomain(obj),
-    projectId: obj?.projectId || 0,
+    projectId: obj?.projectId || '',
     request: newUserStoryPromptDto(obj?.request),
     response: undefined,
     userStories: obj?.userStories || [],

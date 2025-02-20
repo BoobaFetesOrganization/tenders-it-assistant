@@ -3,5 +3,5 @@ import { IProjectParams } from './IProjectParams';
 
 export function useProjectParams(): IProjectParams {
   const { projectId } = useParams<{ projectId: string }>();
-  return { id: projectId ? +projectId : 0 };
+  return { id: projectId ? projectId : '' };
 }

@@ -1,8 +1,8 @@
 import { IDocumentDto } from '@aogenai/domain';
 
 export interface UpdateDocumentRequest {
-  projectId: number;
-  id: number;
+  projectId: string;
+  id: string;
   file: File;
 }
 

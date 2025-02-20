@@ -7,8 +7,8 @@ import {
 } from './cqrs';
 
 interface Request {
-  projectId: number;
-  groupId: number;
+  projectId: string;
+  groupId: string;
   input: IUserStoryDto;
 }
 interface Response {

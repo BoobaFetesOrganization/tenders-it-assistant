@@ -4,8 +4,8 @@ import { newPaginationParameter, PaginationParameter } from '../../../common';
 import { GetUserStoriesQuery } from './cqrs';
 
 interface GetUserStoryRequest extends PaginationParameter {
-  projectId: number;
-  groupId: number;
+  projectId: string;
+  groupId: string;
 }
 export interface GetUserStoryResponse {
   stories: IPaged<IUserStoryBaseDto>;
@@ -14,8 +14,8 @@ export interface GetUserStoryResponse {
 export const useUserStories = (
   options?: QueryHookOptions<GetUserStoryResponse, GetUserStoryRequest>
 ) => {
-  const projectId = options?.variables?.projectId ?? 0;
-  const groupId = options?.variables?.groupId ?? 0;
+  const projectId = options?.variables?.projectId ?? '';
+  const groupId = options?.variables?.groupId ?? '';
 
   return useQuery<GetUserStoryResponse, GetUserStoryRequest>(
     GetUserStoriesQuery,

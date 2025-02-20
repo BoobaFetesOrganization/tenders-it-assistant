@@ -59,7 +59,7 @@ export const DashBoard: FC<IDashBoardProps> = memo(
         pieItemIdentifier: PieItemIdentifier,
         item: DefaultizedPieValueType
       ) => {
-        onProjectSelected?.(newProjectBaseDto({ id: +item.id }));
+        onProjectSelected?.(newProjectBaseDto({ id: `${item.id}` }));
       },
       [onProjectSelected]
     );

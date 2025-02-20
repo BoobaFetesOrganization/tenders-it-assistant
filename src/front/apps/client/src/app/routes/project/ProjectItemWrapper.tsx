@@ -35,7 +35,7 @@ export const ProjectItemWrapper: FC = memo(() => {
     saveAs(converter.toBlob(document), `${id}-${name}`);
   }, []);
 
-  return id === 0 ? (
+  return id === '' ? (
     <ProjectCreate onCreated={navigateToEdit} />
   ) : (
     <ProjectEdit

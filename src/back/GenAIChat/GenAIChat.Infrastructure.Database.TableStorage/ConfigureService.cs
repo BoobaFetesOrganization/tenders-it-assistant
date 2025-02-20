@@ -6,7 +6,6 @@ using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
-using GenAIChat.Infrastructure.Database.Sqlite.Repository;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

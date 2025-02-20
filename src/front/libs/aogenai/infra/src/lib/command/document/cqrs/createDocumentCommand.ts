@@ -1,7 +1,7 @@
 import { getInfraSettings } from '../../../settings';
 import { newDocumentRequestInit } from './tools';
 
-export async function createDocumentCommand(projectId: number, file: File) {
+export async function createDocumentCommand(projectId: string, file: File) {
   const serverUri = getInfraSettings().api.url;
   const options = await newDocumentRequestInit(file, { method: 'POST' });
   const response = await fetch(

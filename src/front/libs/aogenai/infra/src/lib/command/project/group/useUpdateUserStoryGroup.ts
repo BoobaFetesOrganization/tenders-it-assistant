@@ -3,7 +3,7 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { GetUserStoryGroupQuery, UpdateUserStoryGroupMutation } from './cqrs';
 
 interface Request {
-  projectId: number;
+  projectId: string;
   input: IUserStoryGroupDto;
 }
 interface Response {

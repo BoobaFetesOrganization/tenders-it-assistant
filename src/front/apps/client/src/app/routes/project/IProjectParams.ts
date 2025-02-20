@@ -1,3 +1,3 @@
 export interface IProjectParams {
-  id: number;
+  id: string;
 }

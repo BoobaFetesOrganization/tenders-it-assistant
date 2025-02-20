@@ -1,6 +1,4 @@
-﻿using GenAIChat.Domain.Document;
-using GenAIChat.Domain.Project.Group;
-using GenAIChat.Presentation.API.Controllers.Common;
+﻿using GenAIChat.Presentation.API.Controllers.Common;
 
 namespace GenAIChat.Presentation.API.Controllers.Dto
 {

@@ -6,14 +6,14 @@ import { CustomAccordion, useTotalCost } from '../common';
 import { Story } from './component/Story';
 
 interface IUserStoryGroupProps {
-  projectId?: number;
-  groupId?: number;
+  projectId?: string;
+  groupId?: string;
   showRequest?: boolean;
   actions?: ReactNode;
 }
 
 export const UserStoryGroup: FC<IUserStoryGroupProps> = memo(
-  ({ projectId = 0, groupId = 0, showRequest, actions }) => {
+  ({ projectId = '', groupId = '', showRequest, actions }) => {
     const [open, setOpen] = useState(false);
 
     const { data: { group } = { group: newUserStoryGroupDto() } } =

@@ -3,9 +3,9 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GetUserStoryQuery } from './cqrs';
 
 interface Request {
-  projectId: number;
-  groupId: number;
-  id: number;
+  projectId: string;
+  groupId: string;
+  id: string;
 }
 interface Response {
   story: IUserStoryDto;

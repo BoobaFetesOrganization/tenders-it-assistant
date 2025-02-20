@@ -1,4 +1,4 @@
 export interface IUserStoryGroupParams {
-  projectId: number;
-  id: number;
+  projectId: string;
+  id: string;
 }

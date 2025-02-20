@@ -2,8 +2,8 @@ import { getInfraSettings } from '../../../settings';
 import { newDocumentRequestInit } from './tools';
 
 export async function updateDocumentCommand(
-  projectId: number,
-  id: number,
+  projectId: string,
+  id: string,
   file: File
 ) {
   const serverUri = getInfraSettings().api.url;

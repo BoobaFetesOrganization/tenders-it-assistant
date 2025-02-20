@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 export const GetUserStoriesQuery = gql`
   query GetUserStorys(
-    $projectId: Int!
-    $groupId: Int!
+    $projectId: String!
+    $groupId: String!
     $limit: Int!
     $offset: Int!
   ) {
