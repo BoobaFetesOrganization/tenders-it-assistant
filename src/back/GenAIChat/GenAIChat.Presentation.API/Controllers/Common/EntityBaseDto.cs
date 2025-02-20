@@ -1,9 +1,9 @@
-﻿using GenAIChat.Domain.Common;
-
-namespace GenAIChat.Presentation.API.Controllers.Common
+﻿namespace GenAIChat.Presentation.API.Controllers.Common
 {
-    public class EntityBaseDto : EntityDomain
+    public class EntityBaseDto
     {
+        public string Id { get; set; } = string.Empty;
+        public DateTimeOffset? Timestamp { get; set; } = null;
     }
 
 }

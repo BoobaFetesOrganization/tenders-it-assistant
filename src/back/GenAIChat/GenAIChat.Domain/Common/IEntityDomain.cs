@@ -17,16 +17,13 @@ namespace GenAIChat.Domain.Common
     /// <item>The ETag property is used to store the entity tag of the entity.</item>      
     /// </list>
     /// </summary>
-    public abstract class EntityDomain : IEntityDomain
+    public abstract class EntityDomain : IEntityDomain, ICloneable
     {
+        private const string DefaultPartitionKey = "GenAIChat";
+        private static string NewRowKey() => Guid.NewGuid().ToString();
+
+        [Obsolete]
         public static string NewId() => $"genaiChat|{Guid.NewGuid()}";
-        public static (string partitionKey, string rowKey) ExtractKeys(IEntityDomain domain) => ExtractKeys(domain.Id);
-        public static (string partitionKey, string rowKey) ExtractKeys(string id)
-        {
-            var ids = id.Split('|');
-            return (ids[0], ids[1]);
-        }
-        public static void SetNewTimeStamp(IEntityDomain domain) => domain.Timestamp = DateTimeOffset.Now;
 
         /// <summary>
         /// The Id property is used to store the unique identifier of the entity. 
@@ -38,20 +35,28 @@ namespace GenAIChat.Domain.Common
             get => $"{PartitionKey}|{RowKey}";
             set
             {
-                var (partitionKey, rowKey) = ExtractKeys(value);
-                PartitionKey = partitionKey;
-                RowKey = rowKey;
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    PartitionKey = DefaultPartitionKey;
+                    RowKey = NewRowKey();
+                }
+                else
+                {
+                    var parts = value.Split("|");
+                    PartitionKey = parts[0];
+                    RowKey = parts[1];
+                }
             }
         }
 
         #region ITableEntity
         [NotMapped]
-        public string PartitionKey { get; set; } = "GenAIChat";
+        public string PartitionKey { get; set; } = DefaultPartitionKey;
         [NotMapped]
-        public string RowKey { get; set; } = Guid.NewGuid().ToString();
-        public DateTimeOffset? Timestamp { get; set; } = DateTimeOffset.Now;
-        [NotMapped] 
-        public ETag ETag { get; set; } = new ETag();
+        public string RowKey { get; set; } = NewRowKey();
+        public DateTimeOffset? Timestamp { get; set; }
+        [NotMapped]
+        public ETag ETag { get; set; }
         #endregion
 
         public EntityDomain() { }
@@ -62,5 +67,7 @@ namespace GenAIChat.Domain.Common
             Timestamp = domain.Timestamp;
             ETag = domain.ETag;
         }
+
+        public abstract object Clone();
     }
 }

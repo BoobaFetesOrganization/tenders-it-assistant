@@ -14,5 +14,19 @@ namespace GenAIChat.Domain.Project
         public UserStoryGroupDomain? SelectedGroup { get; set; } = null;
 
         public ICollection<UserStoryGroupDomain> Generated { get; protected set; } = [];
+
+        public override object Clone()
+        {
+            var clone = new ProjectDomain()
+            {
+                Name = Name,
+                SelectedGroup = SelectedGroup?.Clone() as UserStoryGroupDomain
+            };
+
+            foreach (var item in Documents) clone.Documents.Add((DocumentDomain)item.Clone());
+            foreach (var item in Generated) clone.Generated.Add((UserStoryGroupDomain)item.Clone());
+
+            return clone;
+        }
     }
 }

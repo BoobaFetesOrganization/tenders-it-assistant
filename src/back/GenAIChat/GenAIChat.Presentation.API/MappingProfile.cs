@@ -60,7 +60,7 @@ namespace GenAIChat.Presentation.API
             var destinationMapExpression = CreateMap<TSource, TDestination>();
             convertDestination?.Invoke(destinationMapExpression);
 
-            var sourceMapExpression= CreateMap<TDestination, TSource>();
+            var sourceMapExpression = CreateMap<TDestination, TSource>();
             convertSource?.Invoke(sourceMapExpression);
         }
 

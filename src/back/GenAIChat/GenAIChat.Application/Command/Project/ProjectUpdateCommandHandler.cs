@@ -15,10 +15,7 @@ namespace GenAIChat.Application.Command.Project
             var item = await projectRepository.GetByIdAsync(request.Entity.Id);
             if (item is null) return null;
 
-            var otherProjectsWithSameName = await projectRepository.GetAllAsync(
-                PaginationOptions.All,
-                p => p.Id != item.Id && p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
-            var isExisting = otherProjectsWithSameName.Any();
+            var isExisting = (await projectRepository.GetAllAsync()).Any(p => p.Id != item.Id && p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
             if (isExisting) throw new Exception("Name already exists");
 
             item.Name = request.Entity.Name;

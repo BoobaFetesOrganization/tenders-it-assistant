@@ -13,15 +13,6 @@ namespace GenAIChat.Domain.Project.Group.UserStory
         public string GroupId { get; set; } = string.Empty;
         #endregion
 
-        public UserStoryDomain() { }
-
-        public UserStoryDomain(UserStoryDomain entity) : base(entity)
-        {
-            Name = entity.Name;
-            GroupId = entity.GroupId;
-            Tasks = entity.Tasks;
-        }
-
         public void AddTask(TaskDomain task)
         {
             task.UserStoryId = Id;
@@ -30,6 +21,19 @@ namespace GenAIChat.Domain.Project.Group.UserStory
         public bool RemoveTask(TaskDomain task)
         {
             return Tasks.Remove(task);
+        }
+
+        public override object Clone()
+        {
+            UserStoryDomain clone = new()
+            {
+                Name = Name,
+                GroupId = GroupId
+            };
+
+            foreach (var item in Tasks) clone.Tasks.Add((TaskDomain)item.Clone());
+
+            return clone;
         }
     }
 }

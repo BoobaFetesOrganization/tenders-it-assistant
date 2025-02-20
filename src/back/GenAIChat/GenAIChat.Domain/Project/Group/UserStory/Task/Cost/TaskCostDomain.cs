@@ -10,5 +10,16 @@ namespace GenAIChat.Domain.Project.Group.UserStory.Task.Cost
         #region  navigation properties
         public string TaskId { get; set; } = string.Empty;
         #endregion
+
+        public override object Clone()
+        {
+            TaskCostDomain clone = new();
+
+            clone.Kind = Kind;
+            clone.Cost = Cost;
+            clone.TaskId = TaskId;
+
+            return clone;
+        }
     }
 }

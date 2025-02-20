@@ -1,7 +1,9 @@
 ﻿using Azure.Data.Tables;
 using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Common;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
 {
@@ -31,33 +33,63 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             return await Task.FromResult(count);
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null)
         {
-            // arrange
             Expression<Func<TEntity, bool>> _filter = filter ?? (entity => true);
 
+            var response = client.Query(_filter);
 
-            return await Task.Run(() =>
+            return await Task.FromResult(response.ToImmutableArray());
+        }
+
+        public async Task<Paged<TEntity>> GetAllPagedAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
+        {
+            Expression<Func<TEntity, bool>> _filter = filter ?? (entity => true);
+
+            // act : query
+            var response = client.Query(_filter, options.Limit);
+
+            // act : paginate
+            string? continuationToken = null;
+            List<TEntity> results = [];
+
+            int count = 0;
+            foreach (var page in response.AsPages(continuationToken))
             {
-                var response = client.Query(_filter, options.Limit);
-                int offset = 0;
-                var result = new List<TEntity>();
-                foreach (var page in response.AsPages())
-                {
-                    // skip until options.Offset is reached
-                    offset += page.Values.Count;
-                    if (options.Offset > offset) continue;
+                count += page.Values.Count;
+                continuationToken = page.ContinuationToken;
 
-                    result.AddRange(page.Values);
-                }
-                return result;
-            });
+                // check 
+                if (count != options.Offset) continue;
+
+                // act
+                results.AddRange(page.Values);
+            }
+
+            return await Task.FromResult(new Paged<TEntity>(new PaginationOptions(options, count), results));
         }
 
         public async Task<TEntity?> GetByIdAsync(string id) => await Task.FromResult(client.Query<TEntity>(filter: $"PartitionKey eq '{id}'").FirstOrDefault());
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
+            if (string.IsNullOrEmpty(entity.PartitionKey)) throw new ArgumentException("PartitionKey has to be set");
+            if (string.IsNullOrEmpty(entity.RowKey)) throw new ArgumentException("RowKey has to be set");
+
+            var json = JsonSerializer.Serialize(entity);
+            Console.WriteLine("entity as json");
+            Console.WriteLine(json);
+
+            // Ajoutez des journaux pour vérifier les valeurs des propriétés de l'entité
+            Console.WriteLine($"Adding entity with PartitionKey: {entity.PartitionKey}, RowKey: {entity.RowKey}");
+
+            // Vérifiez les autres propriétés de l'entité si nécessaire
+            foreach (var property in typeof(TEntity).GetProperties())
+            {
+                var value = property.GetValue(entity);
+                Console.WriteLine($"{property.Name}: {value}");
+            }
+
             var response = await client.AddEntityAsync(entity);
 
             var entry = await client.GetEntityAsync<TEntity>(entity.PartitionKey, (entity as ITableEntity).RowKey);
@@ -72,9 +104,10 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             return entry;
         }
 
-        public async Task DeleteAsync(TEntity entity)
+        public async Task<TEntity> DeleteAsync(TEntity entity)
         {
             await client.DeleteEntityAsync(entity);
+            return entity;
         }
 
         public Task SaveAsync(CancellationToken cancellationToken = default)

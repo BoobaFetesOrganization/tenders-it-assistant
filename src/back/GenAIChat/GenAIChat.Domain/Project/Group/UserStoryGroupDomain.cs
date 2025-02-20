@@ -19,21 +19,6 @@ namespace GenAIChat.Domain.Project.Group
         public string ProjectId { get; set; } = string.Empty;
         #endregion
 
-        public UserStoryGroupDomain() { }
-
-        public UserStoryGroupDomain(UserStoryGroupDomain domain) : base(domain)
-        {
-            Request = new UserStoryPromptDomain(domain.Request);
-            Response = domain.Response;
-            UserStories = [.. domain.UserStories];
-            ProjectId = domain.ProjectId;
-        }
-
-        public UserStoryGroupDomain(UserStoryPromptDomain prompt)
-        {
-            Request = new UserStoryPromptDomain(prompt);
-        }
-
         public void ClearUserStories() => UserStories.Clear();
 
         public void SetUserStory(IEnumerable<UserStoryDomain>? stories)
@@ -50,6 +35,20 @@ namespace GenAIChat.Domain.Project.Group
         public bool RemoveUserStory(UserStoryDomain userStory)
         {
             return UserStories.Remove(userStory);
+        }
+
+        public override object Clone()
+        {
+            UserStoryGroupDomain clone = new()
+            {
+                Request = (UserStoryPromptDomain)Request.Clone(),
+                Response = Response,
+                ProjectId = ProjectId
+            };
+
+            foreach (var item in UserStories) clone.UserStories.Add((UserStoryDomain)item.Clone());
+
+            return clone;
         }
     }
 }

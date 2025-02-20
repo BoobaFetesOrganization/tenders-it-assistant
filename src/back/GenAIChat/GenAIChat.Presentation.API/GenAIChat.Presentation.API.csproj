@@ -19,7 +19,7 @@
     <ProjectReference Include="..\GenAIChat.Application\GenAIChat.Application.csproj" />
     <ProjectReference Include="..\GenAIChat.Domain\GenAIChat.Domain.csproj" />
     <ProjectReference Include="..\GenAIChat.Infrastructure.Api.Gemini\GenAIChat.Infrastructure.Api.Gemini.csproj" />
-    <ProjectReference Include="..\GenAIChat.Infrastructure.Database.Sqlite\GenAIChat.Infrastructure.Database.Sqlite.csproj" />
+    <ProjectReference Include="..\GenAIChat.Infrastructure.Database.TableStorage\GenAIChat.Infrastructure.Database.TableStorage.csproj" />
     <ProjectReference Include="..\GenAIChat.Infrastructure\GenAIChat.Infrastructure.csproj" />
   </ItemGroup>
 

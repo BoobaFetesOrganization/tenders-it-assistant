@@ -1,6 +1,5 @@
 ﻿using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Application.Command.Common;
-using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project.Group.UserStory;
 using MediatR;
 
@@ -12,13 +11,12 @@ namespace GenAIChat.Application.Command.Project.Group.UserStory
         {
             if (String.IsNullOrWhiteSpace(request.Entity.Name)) throw new Exception("Name is required");
 
-            var isExisting = (await userStoryRepository.GetAllAsync(PaginationOptions.All, p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()))).Any();
+            var isExisting = (await userStoryRepository.GetAllAsync()).Any(p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
             if (isExisting) throw new Exception("Name already exists");
 
-            var item = new UserStoryDomain(request.Entity) { Id = EntityDomain.NewId() };
-            await userStoryRepository.AddAsync(item);
+            await userStoryRepository.AddAsync((UserStoryDomain)request.Entity.Clone());
 
-            return item;
+            return await userStoryRepository.GetByIdAsync(request.Entity.Id) ?? throw new Exception("UserStory entity created but not found in database !");
         }
     }
 

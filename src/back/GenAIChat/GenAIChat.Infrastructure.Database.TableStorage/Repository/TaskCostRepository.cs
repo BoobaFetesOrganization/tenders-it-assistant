@@ -4,7 +4,7 @@ using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    public class TaskCostRepository(TableServiceClient service) : GenericRepository<TaskCostDomain>(service, "task-costs")
+    public class TaskCostRepository(TableServiceClient service) : GenericRepository<TaskCostDomain>(service, "TaskCosts")
     {
     }
 }

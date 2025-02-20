@@ -17,5 +17,19 @@ namespace GenAIChat.Domain.Project.Group.UserStory.Task
         {
             WorkingCosts.Add(new() { Cost = cost, Kind = TaskCostKind.Gemini });
         }
+
+        public override object Clone()
+        {
+            TaskDomain clone = new()
+            {
+                Name = Name,
+                Cost = Cost,
+                UserStoryId = UserStoryId
+            };
+
+            foreach (var item in WorkingCosts) clone.WorkingCosts.Add((TaskCostDomain)item.Clone());
+
+            return clone;
+        }
     }
 }

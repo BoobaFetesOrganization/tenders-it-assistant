@@ -45,7 +45,7 @@ namespace GenAIChat.Application.Command.Project.Group
         public async Task<UserStoryGroupDomain> Handle(UserStoryGroupGenerateCommand request, CancellationToken cancellationToken)
         {
             // upload files to the GenAI and store new Metadata
-            IEnumerable<DocumentDomain> documents = await documentRepository.GetAllAsync(PaginationOptions.All, document => document.ProjectId == request.Entity.ProjectId);
+            IEnumerable<DocumentDomain> documents = await documentRepository.GetAllAsync(document => document.ProjectId == request.Entity.ProjectId);
             if (!documents.Any()) throw new Exception("To generate user stories, at least one document is required");
 
             var expiredDocuments = documents.Where(d => d.Metadata.ExpirationTime < DateTime.Now);
@@ -79,18 +79,22 @@ namespace GenAIChat.Application.Command.Project.Group
                 ?? throw new InvalidOperationException("Error while getting the text result from the payload");
 
             // load user stories from the GenAI result
-            var stories = JsonSerializer.Deserialize<ICollection<UserStoryDomain>>(text);
-            foreach (var story in stories ?? [])
-            {
-                story.Id = EntityDomain.NewId();
-                foreach (var task in story.Tasks)
-                {
-                    task.Id = task.UserStoryId = EntityDomain.NewId();
-                    task.AddGeminiCost(task.Cost);
-                    task.Cost = 0;
-                }
-            }
-            request.Entity.SetUserStory(stories);
+            var temp = JsonSerializer.Deserialize<ICollection<UserStoryDomain>>(text) ?? [];
+
+            throw new Exception("ARO : hsitoire pas claire !! à investiguer !");
+
+            //var stories = new List<UserStoryDomain>(temp.Select(i => item.Clone()));
+            //foreach (var item in 
+            //{
+            //    story.Id = EntityDomain.NewId();
+            //    foreach (var task in story.Tasks)
+            //    {
+            //        task.Id = task.UserStoryId = EntityDomain.NewId();
+            //        task.AddGeminiCost(task.Cost);
+            //        task.Cost = 0;
+            //    }
+            //}
+            // request.Entity.SetUserStory(stories);
 
             return request.Entity;
         }

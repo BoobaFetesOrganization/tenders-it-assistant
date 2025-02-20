@@ -2,34 +2,24 @@
 {
     public class PaginationOptions
     {
-        public static PaginationOptions Default => new();
-        public static PaginationOptions All => new(DefaultOffset, null);
-        public static PaginationOptions AllAfter(int offset) => new(offset, null);
-
         public const int DefaultOffset = 0;
         public const int MaxLimit = 1000;
         public const int DefaultLimit = 10;
 
         public int Offset { get; set; } = DefaultOffset;
-        public int? Limit { get; set; } = DefaultLimit;
+        public int Limit { get; set; } = DefaultLimit;
 
         public int? Count { get; set; } = null;
 
         public PaginationOptions() { }
-        public PaginationOptions(int offset, int? limit)
+        public PaginationOptions(int offset, int limit)
         {
             Offset = offset;
-
-            Limit = !limit.HasValue
-                ? null
-                : limit.Value > MaxLimit ? MaxLimit : limit.Value;
+            Limit = limit > MaxLimit ? MaxLimit : limit;
         }
-        public PaginationOptions(PaginationOptions options
-            )
+        public PaginationOptions(PaginationOptions options, int? count = null) : this(options.Offset, options.Limit)
         {
-            Offset = options.Offset;
-            Limit = options.Limit;
-            Count = options.Count;
+            Count = count;
         }
 
         public void SetCount(int count) => Count = count;

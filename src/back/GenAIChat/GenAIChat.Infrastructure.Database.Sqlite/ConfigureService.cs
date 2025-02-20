@@ -16,18 +16,23 @@ namespace GenAIChat.Infrastructure.Database.Sqlite
     {
         private const string AssemblyNameInCharggeOfMigration = "GenAIChat.Infrastructure.Database.Sqlite.Migrations";
 
-        public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration)
+        public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
+            writeLine?.Invoke("Add SqlLite database services");
+
             // database configuration
             var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");
+            writeLine?.Invoke($"use connection string named '{databaseProvider}'");
             services.AddDbContext<GenAiDbContext>(options => options.UseSqlite(
                 configuration.GetConnectionString(databaseProvider),
                 b => b.MigrationsAssembly(AssemblyNameInCharggeOfMigration)
                 ));
+
             services.AddScoped<IRepositoryAdapter<ProjectDomain>, ProjectRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();
             services.AddScoped<IRepositoryAdapter<UserStoryGroupDomain>, UserStoryGroupRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryPromptDomain>, UserStoryPromptRepository>();
             services.AddScoped<IRepositoryAdapter<UserStoryDomain>, UserStoryRepository>();
             services.AddScoped<IRepositoryAdapter<TaskDomain>, TaskRepository>();
             services.AddScoped<IRepositoryAdapter<TaskCostDomain>, TaskCostRepository>();

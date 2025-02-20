@@ -19,7 +19,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> GetAllAsync(string projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
-            var result = await application.GetAllAsync(options, group => group.ProjectId == projectId);
+            var result = await application.GetAllPagedAsync(options, group => group.ProjectId == projectId);
             return Ok(mapper.Map<Paged<UserStoryGroupBaseDto>>(result));
         }
 

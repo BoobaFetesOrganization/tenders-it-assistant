@@ -1,5 +1,4 @@
-﻿using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Application.Command.Common;
+﻿using GenAIChat.Application.Command.Common;
 using GenAIChat.Application.Command.Project.Group;
 using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase.Common;
@@ -10,7 +9,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Usecase
 {
-    public class UserStoryGroupApplication(IMediator mediator, IRepositoryAdapter<UserStoryGroupDomain> repository, ProjectApplication projectApplication, EmbeddedResource resource) : ApplicationBase<UserStoryGroupDomain>(mediator, repository)
+    public class UserStoryGroupApplication(IMediator mediator, ProjectApplication projectApplication, EmbeddedResource resource) : ApplicationBase<UserStoryGroupDomain>(mediator)
     {
         public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain entity)
         {
@@ -19,8 +18,8 @@ namespace GenAIChat.Application.Usecase
 
         public async Task<UserStoryGroupDomain> CreateAsync(string projectId)
         {
-            UserStoryPromptDomain prompt = new(resource.UserStoryPrompt);
-            UserStoryGroupDomain domain = new(prompt) { ProjectId = projectId };
+            UserStoryGroupDomain domain = (UserStoryGroupDomain)resource.UserStoryPrompt.Clone();
+            domain.ProjectId = projectId;
 
             var result = await base.CreateAsync(domain);
             if (!string.IsNullOrEmpty(result.Id))

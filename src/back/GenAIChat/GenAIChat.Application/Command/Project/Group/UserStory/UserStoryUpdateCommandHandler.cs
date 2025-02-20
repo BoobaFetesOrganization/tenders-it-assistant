@@ -10,7 +10,7 @@ namespace GenAIChat.Application.Command.Project.Group.UserStory
     {
         public async Task<UserStoryDomain?> Handle(UpdateCommand<UserStoryDomain> request, CancellationToken cancellationToken)
         {
-            var isExisting = (await userStoryRepository.GetAllAsync(PaginationOptions.All, p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()))).Any();
+            var isExisting = (await userStoryRepository.GetAllAsync()).Any(p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
             if (isExisting) throw new Exception("Name already exists");
 
             var item = await userStoryRepository.GetByIdAsync(request.Entity.Id);

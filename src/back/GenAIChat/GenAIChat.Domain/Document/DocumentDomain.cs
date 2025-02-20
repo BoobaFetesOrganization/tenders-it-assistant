@@ -11,6 +11,19 @@ namespace GenAIChat.Domain.Document
 
         #region  navigation properties
         public string ProjectId { get; set; } = string.Empty;
+
         #endregion
+
+        public override object Clone()
+        {
+            DocumentDomain clone = new();
+
+            clone.Name = Name;
+            clone.Content = Content;
+            clone.Metadata = (DocumentMetadataDomain)Metadata.Clone();
+            clone.ProjectId = ProjectId;
+
+            return clone;
+        }
     }
 }

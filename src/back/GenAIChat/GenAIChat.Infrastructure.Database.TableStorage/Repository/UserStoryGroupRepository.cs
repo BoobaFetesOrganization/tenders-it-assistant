@@ -4,7 +4,7 @@ using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    public class UserStoryGroupRepository(TableServiceClient service) : GenericRepository<UserStoryGroupDomain>(service, "user-story-groups")
+    public class UserStoryGroupRepository(TableServiceClient service) : GenericRepository<UserStoryGroupDomain>(service, "UserStoryGroups")
     {
     }
 }

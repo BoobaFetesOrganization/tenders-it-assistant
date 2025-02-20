@@ -13,14 +13,6 @@ namespace GenAIChat.Domain.Project.Group
         public string GroupId { get; set; } = string.Empty;
         #endregion
 
-        public UserStoryPromptDomain() { }
-        public UserStoryPromptDomain(UserStoryPromptDomain domain) : base(domain)
-        {
-            Context = domain.Context;
-            Personas = domain.Personas;
-            Tasks = domain.Tasks;
-        }
-
         public string ToGenAIRequest()
         {
             StringBuilder sb = new();
@@ -35,6 +27,19 @@ namespace GenAIChat.Domain.Project.Group
             append(nameof(Tasks), Tasks);
 
             return sb.ToString();
+        }
+
+        public override object Clone()
+        {
+            UserStoryPromptDomain clone = new()
+            {
+                Context = Context,
+                Personas = Personas,
+                Tasks = Tasks,
+                GroupId = GroupId
+            };
+
+            return clone;
         }
     }
 }
