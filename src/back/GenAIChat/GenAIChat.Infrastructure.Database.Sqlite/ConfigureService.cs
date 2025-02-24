@@ -32,7 +32,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite
             services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();
             services.AddScoped<IRepositoryAdapter<UserStoryGroupDomain>, UserStoryGroupRepository>();
-            services.AddScoped<IRepositoryAdapter<UserStoryPromptDomain>, UserStoryPromptRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryRequestDomain>, UserStoryPromptRepository>();
             services.AddScoped<IRepositoryAdapter<UserStoryDomain>, UserStoryRepository>();
             services.AddScoped<IRepositoryAdapter<TaskDomain>, TaskRepository>();
             services.AddScoped<IRepositoryAdapter<TaskCostDomain>, TaskCostRepository>();

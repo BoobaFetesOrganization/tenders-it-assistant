@@ -3,7 +3,7 @@ using System.Text;
 
 namespace GenAIChat.Domain.Project.Group
 {
-    public class UserStoryPromptDomain : EntityDomain
+    public class UserStoryRequestDomain : EntityDomain
     {
         public string Context { get; set; } = string.Empty;
         public string Personas { get; set; } = string.Empty;
@@ -31,7 +31,7 @@ namespace GenAIChat.Domain.Project.Group
 
         public override object Clone()
         {
-            UserStoryPromptDomain clone = new()
+            UserStoryRequestDomain clone = new()
             {
                 Context = Context,
                 Personas = Personas,

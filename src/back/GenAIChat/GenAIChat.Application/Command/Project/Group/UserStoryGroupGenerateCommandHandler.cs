@@ -1,6 +1,5 @@
 ﻿using GenAIChat.Application.Adapter.Api;
 using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Gemini;
 using GenAIChat.Domain.Gemini.GeminiCommon;

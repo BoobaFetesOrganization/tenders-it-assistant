@@ -92,8 +92,8 @@ namespace GenAIChat.Presentation.API.Controllers
             try
             {
                 var domain = mapper.Map<UserStoryGroupDomain>(request);
-                if (domain.Id != id) return BadRequest(); 
-                
+                if (domain.Id != id) return BadRequest();
+
                 domain.ProjectId = projectId;
                 var result = await application.UpdateUserStoriesAsync(domain.Id, domain.UserStories);
 

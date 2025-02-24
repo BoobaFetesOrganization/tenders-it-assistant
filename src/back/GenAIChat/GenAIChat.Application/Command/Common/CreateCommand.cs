@@ -4,16 +4,16 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Common
 {
-    public class CreateCommand<TEntity> : IRequest<TEntity> where TEntity : class, IEntityDomain, ICloneable
+    public class CreateCommand<TDomain> : IRequest<TDomain> where TDomain : class, IEntityDomain, ICloneable
     {
-        public required TEntity Entity { get; init; }
+        public required TDomain Entity { get; init; }
     }
 
-    public class GetCreateCommandHandler<TEntity>(IRepositoryAdapter<TEntity> repository) : IRequestHandler<CreateCommand<TEntity>, TEntity> where TEntity : class, IEntityDomain, ICloneable
+    public class GetCreateCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<CreateCommand<TDomain>, TDomain> where TDomain : class, IEntityDomain, ICloneable
     {
-        public async Task<TEntity> Handle(CreateCommand<TEntity> request, CancellationToken cancellationToken)
+        public async Task<TDomain> Handle(CreateCommand<TDomain> request, CancellationToken cancellationToken)
         {
-            return await repository.AddAsync((TEntity)request.Entity.Clone());
+            return await repository.AddAsync((TDomain)request.Entity.Clone());
         }
     }
 }

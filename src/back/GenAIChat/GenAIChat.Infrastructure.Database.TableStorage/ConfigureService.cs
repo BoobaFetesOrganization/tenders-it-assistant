@@ -17,21 +17,44 @@ namespace GenAIChat.Infrastructure.Database.TableStorage
         public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("Add TableStorage database services");
-            
-            // database configuration
+
+            services.AddAutoMapper(typeof(ConfigureService).Assembly);
+
+            services.AddDatabase(configuration, writeLine);
+            services.AddRepositories();
+        }
+
+        private static void AddDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine)
+        {
             var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");
             writeLine?.Invoke($"use connection string named '{databaseProvider}'");
             var connectionString = configuration.GetConnectionString(databaseProvider) ?? throw new InvalidOperationException("The DatabaseProvider property's value is not found in the ConnectionStrings section");
             if (string.IsNullOrEmpty(connectionString)) throw new InvalidOperationException("The connection string cannot be null or empty.");
-            
-            var service = new TableServiceClient(connectionString);
-            services.AddSingleton(service);
 
+            var service = new TableServiceClient(connectionString);
+
+            services.AddSingleton(service);
+        }
+
+        private static void AddRepositories(this IServiceCollection services)
+        {
             services.AddScoped<IRepositoryAdapter<ProjectDomain>, ProjectRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();
             services.AddScoped<IRepositoryAdapter<UserStoryGroupDomain>, UserStoryGroupRepository>();
-            services.AddScoped<IRepositoryAdapter<UserStoryPromptDomain>, UserStoryPromptRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryRequestDomain>, UserStoryPromptRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryDomain>, UserStoryRepository>();
+            services.AddScoped<IRepositoryAdapter<TaskDomain>, TaskRepository>();
+            services.AddScoped<IRepositoryAdapter<TaskCostDomain>, TaskCostRepository>();
+        }
+
+        private static void AddMapDomain(this IServiceCollection services)
+        {
+            services.AddScoped<IRepositoryAdapter<ProjectDomain>, ProjectRepository>();
+            services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
+            services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryGroupDomain>, UserStoryGroupRepository>();
+            services.AddScoped<IRepositoryAdapter<UserStoryRequestDomain>, UserStoryPromptRepository>();
             services.AddScoped<IRepositoryAdapter<UserStoryDomain>, UserStoryRepository>();
             services.AddScoped<IRepositoryAdapter<TaskDomain>, TaskRepository>();
             services.AddScoped<IRepositoryAdapter<TaskCostDomain>, TaskCostRepository>();

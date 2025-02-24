@@ -5,14 +5,14 @@ using System.Linq.Expressions;
 
 namespace GenAIChat.Application.Command.Common
 {
-    public class GetAllQuery<TEntity> : IRequest<IEnumerable<TEntity>> where TEntity : class, IEntityDomain
+    public class GetAllQuery<TDomain> : IRequest<IEnumerable<TDomain>> where TDomain : class, IEntityDomain
     {
-        public Expression<Func<TEntity, bool>>? Filter { get; init; }
+        public Expression<Func<TDomain, bool>>? Filter { get; init; }
     }
 
-    public class GetAllQueryHandler<TEntity>(IRepositoryAdapter<TEntity> repository) : IRequestHandler<GetAllQuery<TEntity>, IEnumerable<TEntity>> where TEntity : class, IEntityDomain
+    public class GetAllQueryHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<GetAllQuery<TDomain>, IEnumerable<TDomain>> where TDomain : class, IEntityDomain
     {
-        public async Task<IEnumerable<TEntity>> Handle(GetAllQuery<TEntity> request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TDomain>> Handle(GetAllQuery<TDomain> request, CancellationToken cancellationToken)
             => await repository.GetAllAsync(request.Filter);
     }
 }

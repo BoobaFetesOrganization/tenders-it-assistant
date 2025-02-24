@@ -20,7 +20,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite
             modelBuilder.Entity<UserStoryDomain>().ToTable("UserStories");
             modelBuilder.Entity<TaskDomain>().ToTable("Tasks");
             modelBuilder.Entity<TaskCostDomain>().ToTable("TaskCosts");
-            modelBuilder.Entity<UserStoryPromptDomain>().ToTable("UserStoryPrompts");
+            modelBuilder.Entity<UserStoryRequestDomain>().ToTable("UserStoryPrompts");
 
             // Relation ProjectDomain -> DocumentDomain
             modelBuilder.Entity<ProjectDomain>()
@@ -44,7 +44,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite
             modelBuilder.Entity<UserStoryGroupDomain>()
                 .HasOne(ug => ug.Request)
                 .WithOne()
-                .HasForeignKey<UserStoryPromptDomain>(p => p.GroupId);
+                .HasForeignKey<UserStoryRequestDomain>(p => p.GroupId);
 
             // Relation UserStoryGroupDomain -> UserStoryDomain
             modelBuilder.Entity<UserStoryGroupDomain>()

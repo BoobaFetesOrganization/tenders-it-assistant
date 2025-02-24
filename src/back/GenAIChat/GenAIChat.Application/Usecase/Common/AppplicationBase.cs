@@ -1,5 +1,4 @@
-﻿using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Application.Command.Common;
+﻿using GenAIChat.Application.Command.Common;
 using GenAIChat.Domain.Common;
 using MediatR;
 using System.Linq.Expressions;

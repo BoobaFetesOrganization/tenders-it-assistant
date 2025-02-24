@@ -1,41 +1,47 @@
 ﻿using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Common;
+using GenAIChat.Domain.Filter;
 using GenAIChat.Infrastructure.Database.Sqlite.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
 {
-    public abstract class GenericRepository<TEntity>(GenAiDbContext dbContext) : IRepositoryAdapter<TEntity> where TEntity : class, IEntityDomain
+    public abstract class GenericRepository<TDomain>(GenAiDbContext dbContext) : IRepositoryAdapter<TDomain> where TDomain : class, IEntityDomain
     {
-        private readonly DbSet<TEntity> _dbSet = dbContext.Set<TEntity>();
+        private readonly DbSet<TDomain> _dbSet = dbContext.Set<TDomain>();
 
-        protected virtual IQueryable<TEntity> GetPropertiesForCollection(IQueryable<TEntity> query) => query;
-        protected virtual IQueryable<TEntity> GetProperties(IQueryable<TEntity> query) => query;
+        protected virtual IQueryable<TDomain> GetPropertiesForCollection(IQueryable<TDomain> query) => query;
+        protected virtual IQueryable<TDomain> GetProperties(IQueryable<TDomain> query) => query;
 
-        public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<int> CountAsync(Expression<Func<TDomain, bool>>? filter = null)
         {
-            IQueryable<TEntity> query = _dbSet;
+            IQueryable<TDomain> query = _dbSet;
             if (filter is not null) query = query.Where(filter);
             return await query.CountAsync();
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null) => await GetAllWhereAsQuery(filter).ToListAsync();
-
-        private IQueryable<TEntity> GetAllWhereAsQuery(Expression<Func<TEntity, bool>>? filter = null)
+        public Task<IEnumerable<TDomain>> GetAllAsync2(IFilter? specifications = null)
         {
-            IQueryable<TEntity> query = GetPropertiesForCollection(_dbSet);
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<TDomain>> GetAllAsync(Expression<Func<TDomain, bool>>? filter = null) => await GetAllWhereAsQuery(filter).ToListAsync();
+
+        private IQueryable<TDomain> GetAllWhereAsQuery(Expression<Func<TDomain, bool>>? filter = null)
+        {
+            IQueryable<TDomain> query = GetPropertiesForCollection(_dbSet);
 
             if (filter is not null) query = query.Where(filter);
 
             return query;
         }
 
-        public async Task<Paged<TEntity>> GetAllPagedAsync(PaginationOptions options, Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, Expression<Func<TDomain, bool>>? filter = null)
         {
             // arrange
             var countRequest = CountAsync(filter);
-            IQueryable<TEntity> query = GetAllWhereAsQuery(filter);
+            IQueryable<TDomain> query = GetAllWhereAsQuery(filter);
 
             query = query.Skip(options.Offset);
             query = query.Take(options.Limit);
@@ -43,12 +49,12 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             // act
             var data = await query.ToArrayAsync();
             var count = await countRequest;
-            return new Paged<TEntity>(new PaginationOptions(options, count), data);
+            return new Paged<TDomain>(new PaginationOptions(options, count), data);
         }
 
-        public async Task<TEntity?> GetByIdAsync(string id) => await GetProperties(_dbSet).FirstOrDefaultAsync(i => i.Id == id);
+        public async Task<TDomain?> GetByIdAsync(string id) => await GetProperties(_dbSet).FirstOrDefaultAsync(i => i.Id == id);
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        public async Task<TDomain> AddAsync(TDomain entity)
         {
             entity.SetNewTimeStamp();
             var entry = await _dbSet.AddAsync(entity);
@@ -56,10 +62,10 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             return entry.Entity;
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        public async Task<TDomain> UpdateAsync(TDomain entity)
         {
             var actual = _dbSet.Find(entity.Id) ?? throw new InvalidOperationException($"entity not exists");
-            if (actual.Timestamp != entity.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.RowKey} but has '{entity.RowKey}'");
+            if (actual.Timestamp != entity.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{entity.Timestamp}'");
 
             entity.SetNewTimeStamp();
             var entry = _dbSet.Update(entity);
@@ -67,10 +73,10 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             return entry.Entity;
         }
 
-        public async Task<TEntity> DeleteAsync(TEntity entity)
+        public async Task<TDomain> DeleteAsync(TDomain entity)
         {
             var actual = _dbSet.Find(entity.Id) ?? throw new InvalidOperationException($"entity not exists");
-            if (actual.RowKey != entity.RowKey) throw new InvalidOperationException($"RowKey is not up to date, expected : '{actual.RowKey} but has '{entity.RowKey}'");
+            if (actual.Timestamp != entity.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{entity.Timestamp}'");
 
             entity.SetNewTimeStamp();
             _dbSet.Remove(entity);

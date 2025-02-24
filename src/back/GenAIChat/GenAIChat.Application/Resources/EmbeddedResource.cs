@@ -6,7 +6,7 @@ namespace GenAIChat.Application.Resources
 {
     public class EmbeddedResource
     {
-        public readonly UserStoryPromptDomain UserStoryPrompt;
+        public readonly UserStoryRequestDomain UserStoryPrompt;
 
         private readonly Assembly _assembly;
         private readonly string _namespaceName;
@@ -16,7 +16,7 @@ namespace GenAIChat.Application.Resources
             _assembly = Assembly.GetExecutingAssembly();
             _namespaceName = GetType().Namespace ?? string.Empty;
 
-            UserStoryPrompt = GetResourceAs<UserStoryPromptDomain>("UserStoriesPrompt.json");
+            UserStoryPrompt = GetResourceAs<UserStoryRequestDomain>("UserStoriesPrompt.json");
         }
 
 

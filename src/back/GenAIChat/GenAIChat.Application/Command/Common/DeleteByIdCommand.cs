@@ -4,14 +4,14 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Common
 {
-    public class DeleteByIdCommand<TEntity> : IRequest<TEntity?> where TEntity : class, IEntityDomain
+    public class DeleteByIdCommand<TDomain> : IRequest<TDomain?> where TDomain : class, IEntityDomain
     {
         public required string Id { get; init; }
     }
 
-    public class GetDeleteByIdCommandHandler<TEntity>(IRepositoryAdapter<TEntity> repository, IMediator mediator) : IRequestHandler<DeleteByIdCommand<TEntity>, TEntity?> where TEntity : class, IEntityDomain
+    public class GetDeleteByIdCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository, IMediator mediator) : IRequestHandler<DeleteByIdCommand<TDomain>, TDomain?> where TDomain : class, IEntityDomain
     {
-        public async Task<TEntity?> Handle(DeleteByIdCommand<TEntity> request, CancellationToken cancellationToken)
-            => await mediator.Send(new DeleteCommand<TEntity> { Entity = await repository.GetByIdAsync(request.Id) }, cancellationToken);
+        public async Task<TDomain?> Handle(DeleteByIdCommand<TDomain> request, CancellationToken cancellationToken)
+            => await mediator.Send(new DeleteCommand<TDomain> { Entity = await repository.GetByIdAsync(request.Id) }, cancellationToken);
     }
 }

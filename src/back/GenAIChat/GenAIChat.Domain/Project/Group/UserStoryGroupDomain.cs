@@ -4,10 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenAIChat.Domain.Project.Group
 {
-
     public class UserStoryGroupDomain : EntityDomain
     {
-        public UserStoryPromptDomain Request { get; set; } = new UserStoryPromptDomain();
+        public UserStoryRequestDomain Request { get; set; } = new UserStoryRequestDomain();
         public string? Response { get; set; } = null;
 
         [NotMapped]
@@ -41,7 +40,7 @@ namespace GenAIChat.Domain.Project.Group
         {
             UserStoryGroupDomain clone = new()
             {
-                Request = (UserStoryPromptDomain)Request.Clone(),
+                Request = (UserStoryRequestDomain)Request.Clone(),
                 Response = Response,
                 ProjectId = ProjectId
             };

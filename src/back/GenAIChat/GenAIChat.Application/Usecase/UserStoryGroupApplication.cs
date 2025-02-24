@@ -38,7 +38,7 @@ namespace GenAIChat.Application.Usecase
             return result;
         }
 
-        public async Task<UserStoryGroupDomain?> UpdateRequestAsync(string id, UserStoryPromptDomain request)
+        public async Task<UserStoryGroupDomain?> UpdateRequestAsync(string id, UserStoryRequestDomain request)
         {
             UserStoryGroupDomain group = await GetByIdAsync(id) ?? throw new Exception("UserStoryGroup not found");
 
