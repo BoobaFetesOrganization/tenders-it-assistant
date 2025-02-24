@@ -6,12 +6,12 @@ namespace GenAIChat.Application.Command.Common
 {
     public class DeleteCommand<TDomain> : IRequest<TDomain?> where TDomain : class, IEntityDomain
     {
-        public required TDomain? Entity { get; init; }
+        public required TDomain? Domain { get; init; }
     }
 
     public class GetDeleteCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<DeleteCommand<TDomain>, TDomain?> where TDomain : class, IEntityDomain
     {
         public async Task<TDomain?> Handle(DeleteCommand<TDomain> request, CancellationToken cancellationToken)
-            => (request.Entity is null) ? null : await repository.DeleteAsync(request.Entity);
+            => (request.Domain is null) ? null : await repository.DeleteAsync(request.Domain);
     }
 }

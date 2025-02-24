@@ -9,14 +9,14 @@ namespace GenAIChat.Application.Command.Project.Group.UserStory
     {
         public async Task<UserStoryDomain> Handle(CreateCommand<UserStoryDomain> request, CancellationToken cancellationToken)
         {
-            if (String.IsNullOrWhiteSpace(request.Entity.Name)) throw new Exception("Name is required");
+            if (String.IsNullOrWhiteSpace(request.Domain.Name)) throw new Exception("Name is required");
 
-            var isExisting = (await userStoryRepository.GetAllAsync()).Any(p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
+            var isExisting = (await userStoryRepository.GetAllAsync()).Any(p => p.Name.ToLower().Equals(request.Domain.Name.ToLower()));
             if (isExisting) throw new Exception("Name already exists");
 
-            await userStoryRepository.AddAsync((UserStoryDomain)request.Entity.Clone());
+            await userStoryRepository.AddAsync((UserStoryDomain)request.Domain.Clone());
 
-            return await userStoryRepository.GetByIdAsync(request.Entity.Id) ?? throw new Exception("UserStory entity created but not found in database !");
+            return await userStoryRepository.GetByIdAsync(request.Domain.Id) ?? throw new Exception("UserStory entity created but not found in database !");
         }
     }
 

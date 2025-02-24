@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
 {
     [DbContext(typeof(GenAiDbContext))]
-    [Migration("20250217211242_InitialCreate")]
+    [Migration("20250224134425_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -199,7 +199,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                     b.ToTable("UserStoryGroups", (string)null);
                 });
 
-            modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryPromptDomain", b =>
+            modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryRequestDomain", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -307,11 +307,11 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryPromptDomain", b =>
+            modelBuilder.Entity("GenAIChat.Domain.Project.Group.UserStoryRequestDomain", b =>
                 {
                     b.HasOne("GenAIChat.Domain.Project.Group.UserStoryGroupDomain", null)
                         .WithOne("Request")
-                        .HasForeignKey("GenAIChat.Domain.Project.Group.UserStoryPromptDomain", "GroupId")
+                        .HasForeignKey("GenAIChat.Domain.Project.Group.UserStoryRequestDomain", "GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

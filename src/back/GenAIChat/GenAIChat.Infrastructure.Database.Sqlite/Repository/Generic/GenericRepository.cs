@@ -21,9 +21,14 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             return await query.CountAsync();
         }
 
-        public Task<IEnumerable<TDomain>> GetAllAsync2(IFilter? specifications = null)
+        public async Task<IEnumerable<TDomain>> GetAllAsync2(IFilter? filter = null)
         {
-            throw new NotImplementedException();
+            var queryableFilter = filter?.ToQueryableExpression<TDomain>();
+            IQueryable<TDomain> query = GetPropertiesForCollection(_dbSet);
+
+            if (queryableFilter is not null) query = query.Where(queryableFilter);
+
+            return await query.ToListAsync();
         }
 
         public async Task<IEnumerable<TDomain>> GetAllAsync(Expression<Func<TDomain, bool>>? filter = null) => await GetAllWhereAsQuery(filter).ToListAsync();
@@ -54,35 +59,38 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
 
         public async Task<TDomain?> GetByIdAsync(string id) => await GetProperties(_dbSet).FirstOrDefaultAsync(i => i.Id == id);
 
-        public async Task<TDomain> AddAsync(TDomain entity)
+        public async Task<TDomain> AddAsync(TDomain domain)
         {
+            var entity = (TDomain)domain.Clone();
+            entity.Id = EntityDomain.NewId();
             entity.SetNewTimeStamp();
+
             var entry = await _dbSet.AddAsync(entity);
             await SaveAsync();
             return entry.Entity;
         }
 
-        public async Task<TDomain> UpdateAsync(TDomain entity)
+        public async Task<TDomain> UpdateAsync(TDomain domain)
         {
-            var actual = _dbSet.Find(entity.Id) ?? throw new InvalidOperationException($"entity not exists");
-            if (actual.Timestamp != entity.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{entity.Timestamp}'");
+            var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
+            if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
 
-            entity.SetNewTimeStamp();
-            var entry = _dbSet.Update(entity);
+            domain.SetNewTimeStamp();
+            var entry = _dbSet.Update(domain);
             await SaveAsync();
             return entry.Entity;
         }
 
-        public async Task<TDomain> DeleteAsync(TDomain entity)
+        public async Task<TDomain> DeleteAsync(TDomain domain)
         {
-            var actual = _dbSet.Find(entity.Id) ?? throw new InvalidOperationException($"entity not exists");
-            if (actual.Timestamp != entity.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{entity.Timestamp}'");
+            var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
+            if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
 
-            entity.SetNewTimeStamp();
-            _dbSet.Remove(entity);
+            domain.SetNewTimeStamp();
+            _dbSet.Remove(domain);
             await SaveAsync();
 
-            return entity;
+            return domain;
         }
 
         public async Task SaveAsync(CancellationToken cancellationToken = default)

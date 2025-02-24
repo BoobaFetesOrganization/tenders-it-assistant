@@ -74,7 +74,7 @@
 
 //        public async Task<TDomain?> GetByIdAsync(string id) => await Task.FromResult(client.Query<TDomain>(filter: $"PartitionKey eq '{id}'").FirstOrDefault());
 
-//        public async Task<TDomain> AddAsync(TDomain entity)
+//        public async Task<TDomain> AddAsync(TDomain domain)
 //        {
 //            if (string.IsNullOrEmpty(entity.PartitionKey)) throw new ArgumentException("PartitionKey has to be set");
 //            if (string.IsNullOrEmpty(entity.RowKey)) throw new ArgumentException("RowKey has to be set");
@@ -99,7 +99,7 @@
 //            return entry;
 //        }
 
-//        public async Task<TDomain> UpdateAsync(TDomain entity)
+//        public async Task<TDomain> UpdateAsync(TDomain domain)
 //        {
 //            var response = await client.UpdateEntityAsync(entity, Azure.ETag.All);
 
@@ -107,7 +107,7 @@
 //            return entry;
 //        }
 
-//        public async Task<TDomain> DeleteAsync(TDomain entity)
+//        public async Task<TDomain> DeleteAsync(TDomain domain)
 //        {
 //            await client.DeleteEntityAsync(entity);
 //            return entity;

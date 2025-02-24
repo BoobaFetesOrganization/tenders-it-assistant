@@ -9,7 +9,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
     public class TaskCostRepository(TableServiceClient service) : BaseRepository<TaskCostDomain>(service, "TaskCosts")
     {
-        public override Task<TaskCostDomain> AddAsync(TaskCostDomain entity)
+        public override Task<TaskCostDomain> AddAsync(TaskCostDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -19,7 +19,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<TaskCostDomain> DeleteAsync(TaskCostDomain entity)
+        public override Task<TaskCostDomain> DeleteAsync(TaskCostDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -44,7 +44,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<TaskCostDomain> UpdateAsync(TaskCostDomain entity)
+        public override Task<TaskCostDomain> UpdateAsync(TaskCostDomain domain)
         {
             throw new NotImplementedException();
         }

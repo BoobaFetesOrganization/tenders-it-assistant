@@ -6,13 +6,10 @@
 
         public readonly object Value;
 
-        public readonly bool Insensitive;
-
-        public PropertyEqualsFilter(string propertyName, object value, bool insensitive = false)
+        public PropertyEqualsFilter(string propertyName, object value)
         {
             PropertyName = propertyName;
             Value = value;
-            Insensitive = insensitive;
         }
     }
 }

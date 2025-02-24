@@ -10,14 +10,13 @@ namespace GenAIChat.Application.Command.Project
     {
         public async Task<ProjectDomain> Handle(CreateCommand<ProjectDomain> request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(request.Entity.Name)) throw new Exception("Name is required");
+            if (string.IsNullOrEmpty(request.Domain.Name)) throw new Exception("Name is required");
 
-            var filter = new PropertyEqualsFilter(nameof(ProjectDomain.Name), request.Entity.Name);
-            var exists = (await projectRepository.GetAllAsync()).Any(p => p.Name.ToLower().Equals(request.Entity.Name.ToLower()));
-            if (exists) throw new Exception("Name already exists");
+            var filter = new PropertyEqualsFilter(nameof(ProjectDomain.Name), request.Domain.Name);
+            var sameProjectNames = await projectRepository.GetAllAsync2(filter);
+            if (sameProjectNames.Any()) throw new Exception("Name already exists");
 
-            var item = await projectRepository.AddAsync(request.Entity);
-            return item;
+            return await projectRepository.AddAsync(request.Domain);
         }
     }
 

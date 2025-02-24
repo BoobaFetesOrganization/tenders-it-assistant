@@ -11,7 +11,7 @@ namespace GenAIChat.Application.Usecase
 {
     public class UserStoryGroupApplication(IMediator mediator, ProjectApplication projectApplication, EmbeddedResource resource) : ApplicationBase<UserStoryGroupDomain>(mediator)
     {
-        public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain entity)
+        public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain domain)
         {
             throw new Exception("Use CreateAsync(int projectId) instead, because a group needs to be initialized from the server only");
         }
@@ -70,7 +70,7 @@ namespace GenAIChat.Application.Usecase
                     ?? throw new Exception("Le projet avec l'ID spécifié n'a pas été trouvé.");
 
                 project.SelectedGroup = null;
-                await mediator.Send(new UpdateCommand<ProjectDomain> { Entity = project });
+                await mediator.Send(new UpdateCommand<ProjectDomain> { Domain = project });
             }
 
             return item;

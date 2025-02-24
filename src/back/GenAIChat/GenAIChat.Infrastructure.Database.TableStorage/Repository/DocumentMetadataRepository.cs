@@ -9,7 +9,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
     public class DocumentMetadataRepository(TableServiceClient service) : BaseRepository<DocumentMetadataDomain>(service, "DocumentMetadatas")
     {
-        public override Task<DocumentMetadataDomain> AddAsync(DocumentMetadataDomain entity)
+        public override Task<DocumentMetadataDomain> AddAsync(DocumentMetadataDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -19,7 +19,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<DocumentMetadataDomain> DeleteAsync(DocumentMetadataDomain entity)
+        public override Task<DocumentMetadataDomain> DeleteAsync(DocumentMetadataDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -44,7 +44,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<DocumentMetadataDomain> UpdateAsync(DocumentMetadataDomain entity)
+        public override Task<DocumentMetadataDomain> UpdateAsync(DocumentMetadataDomain domain)
         {
             throw new NotImplementedException();
         }

@@ -1,6 +1,6 @@
 ﻿namespace GenAIChat.Domain.Common
 {
-    public interface IEntityDomain
+    public interface IEntityDomain : ICloneable
     {
         string Id { get; set; }
         DateTimeOffset? Timestamp { get; set; }
@@ -14,8 +14,9 @@
     /// <item>The ETag property is used to store the entity tag of the entity.</item>      
     /// </list>
     /// </summary>
-    public abstract class EntityDomain : IEntityDomain, ICloneable
+    public abstract class EntityDomain : IEntityDomain
     {
+        public static string NewId() => Guid.NewGuid().ToString();
         public string Id { get; set; } = string.Empty;
         public DateTimeOffset? Timestamp { get; set; }
 

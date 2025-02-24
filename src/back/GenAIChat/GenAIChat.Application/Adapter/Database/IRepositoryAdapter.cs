@@ -11,9 +11,9 @@ namespace GenAIChat.Application.Adapter.Database
         Task<IEnumerable<TDomain>> GetAllAsync(Expression<Func<TDomain, bool>>? filter = null);
         Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, Expression<Func<TDomain, bool>>? filter = null);
         Task<TDomain?> GetByIdAsync(string id);
-        Task<TDomain> AddAsync(TDomain entity);
-        Task<TDomain> UpdateAsync(TDomain entity);
-        Task<TDomain> DeleteAsync(TDomain entity);
+        Task<TDomain> AddAsync(TDomain domain);
+        Task<TDomain> UpdateAsync(TDomain domain);
+        Task<TDomain> DeleteAsync(TDomain domain);
         Task SaveAsync(CancellationToken cancellationToken = default);
     }
 }

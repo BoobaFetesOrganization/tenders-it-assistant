@@ -9,7 +9,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
     public class DocumentRepository(TableServiceClient service) : BaseRepository<DocumentDomain>(service, "Documents")
     {
-        public override Task<DocumentDomain> AddAsync(DocumentDomain entity)
+        public override Task<DocumentDomain> AddAsync(DocumentDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -19,7 +19,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<DocumentDomain> DeleteAsync(DocumentDomain entity)
+        public override Task<DocumentDomain> DeleteAsync(DocumentDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -44,7 +44,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<DocumentDomain> UpdateAsync(DocumentDomain entity)
+        public override Task<DocumentDomain> UpdateAsync(DocumentDomain domain)
         {
             throw new NotImplementedException();
         }

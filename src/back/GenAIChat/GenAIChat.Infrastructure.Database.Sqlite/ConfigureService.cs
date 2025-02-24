@@ -5,12 +5,13 @@ using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
+using GenAIChat.Infrastructure.Database.Sqlite;
 using GenAIChat.Infrastructure.Database.Sqlite.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GenAIChat.Infrastructure.Database.Sqlite
+namespace GenAIChat.Infrastructure.Database
 {
     public static class ConfigureService
     {

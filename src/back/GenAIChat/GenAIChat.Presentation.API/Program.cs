@@ -2,7 +2,7 @@ using GenAIChat.Application;
 using GenAIChat.Infrastructure;
 using GenAIChat.Infrastructure.Api.Gemini;
 using GenAIChat.Infrastructure.Api.Gemini.Service;
-using GenAIChat.Infrastructure.Database.TableStorage;
+using GenAIChat.Infrastructure.Database;
 using GenAIChat.Presentation.API;
 using GenAIChat.Presentation.API.Configuation;
 

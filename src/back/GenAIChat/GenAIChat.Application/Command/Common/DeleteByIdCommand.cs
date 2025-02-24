@@ -12,6 +12,6 @@ namespace GenAIChat.Application.Command.Common
     public class GetDeleteByIdCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository, IMediator mediator) : IRequestHandler<DeleteByIdCommand<TDomain>, TDomain?> where TDomain : class, IEntityDomain
     {
         public async Task<TDomain?> Handle(DeleteByIdCommand<TDomain> request, CancellationToken cancellationToken)
-            => await mediator.Send(new DeleteCommand<TDomain> { Entity = await repository.GetByIdAsync(request.Id) }, cancellationToken);
+            => await mediator.Send(new DeleteCommand<TDomain> { Domain = await repository.GetByIdAsync(request.Id) }, cancellationToken);
     }
 }

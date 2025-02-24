@@ -11,27 +11,27 @@ namespace GenAIChat.Application.Command.Document
     {
         public async Task<DocumentDomain> Handle(CreateCommand<DocumentDomain> request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(request.Entity.Name)) throw new Exception("Name should not be empty");
-            if (request.Entity.Content.Length == 0) throw new Exception("Content is required");
+            if (string.IsNullOrEmpty(request.Domain.Name)) throw new Exception("Name should not be empty");
+            if (request.Domain.Content.Length == 0) throw new Exception("Content is required");
 
-            var project = await projectRepository.GetByIdAsync(request.Entity.ProjectId)
+            var project = await projectRepository.GetByIdAsync(request.Domain.ProjectId)
                 ?? throw new Exception("Project not found");
 
-            var isExisting = (await documentRepository.GetAllAsync(p => p.ProjectId == request.Entity.ProjectId))
-                .Where(p => p.Name != null && p.Name.ToLower().Equals(request.Entity.Name.ToLower()))
+            var isExisting = (await documentRepository.GetAllAsync(p => p.ProjectId == request.Domain.ProjectId))
+                .Where(p => p.Name != null && p.Name.ToLower().Equals(request.Domain.Name.ToLower()))
                 .Any();
             if (isExisting) throw new Exception("Name already exists");
 
             DocumentDomain document = new()
             {
-                Name = request.Entity.Name,
+                Name = request.Domain.Name,
                 Metadata = new()
                 {
-                    MimeType = request.Entity.Metadata.MimeType,
-                    Length = request.Entity.Metadata.Length
+                    MimeType = request.Domain.Metadata.MimeType,
+                    Length = request.Domain.Metadata.Length
                 },
-                Content = request.Entity.Content,
-                ProjectId = request.Entity.ProjectId
+                Content = request.Domain.Content,
+                ProjectId = request.Domain.ProjectId
             };
 
             // upload files to the GenAI and add the doc if successful

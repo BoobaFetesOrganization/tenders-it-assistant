@@ -10,7 +10,7 @@ using GenAIChat.Infrastructure.Database.TableStorage.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GenAIChat.Infrastructure.Database.TableStorage
+namespace GenAIChat.Infrastructure.Database
 {
     public static class ConfigureService
     {

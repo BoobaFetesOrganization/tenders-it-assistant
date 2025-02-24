@@ -13,11 +13,11 @@ namespace GenAIChat.Application.Usecase.Common
         public async Task<TDomain?> GetByIdAsync(string id)
             => await mediator.Send(new GetByIdQuery<TDomain> { Id = id });
 
-        public async virtual Task<TDomain> CreateAsync(TDomain entity)
-            => await mediator.Send(new CreateCommand<TDomain> { Entity = entity });
+        public async virtual Task<TDomain> CreateAsync(TDomain domain)
+            => await mediator.Send(new CreateCommand<TDomain> { Domain = domain });
 
-        public async virtual Task<TDomain?> UpdateAsync(TDomain entity)
-            => await mediator.Send(new UpdateCommand<TDomain> { Entity = entity });
+        public async virtual Task<TDomain?> UpdateAsync(TDomain domain)
+            => await mediator.Send(new UpdateCommand<TDomain> { Domain = domain });
 
         public async Task<TDomain?> DeleteAsync(string id)
             => await mediator.Send(new DeleteByIdCommand<TDomain> { Id = id });

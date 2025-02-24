@@ -6,29 +6,33 @@ namespace GenAIChat.Application.Specifications
     {
         public static string ToAzureFilterString(this IFilter filter)
         {
-            if (filter is PropertyEqualsFilter propertyEqualsFilter)
+            switch (filter)
             {
-                // Vérification du type de la propriété pour une gestion appropriée dans la chaîne de filtre
-                if (propertyEqualsFilter.Value is string)
-                {
-                    return $"{propertyEqualsFilter.PropertyName} eq '{propertyEqualsFilter.Value}'";
-                }
-                else if (propertyEqualsFilter.Value is int || propertyEqualsFilter.Value is double || propertyEqualsFilter.Value is long || propertyEqualsFilter.Value is float || propertyEqualsFilter.Value is decimal)
-                {
-                    return $"{propertyEqualsFilter.PropertyName} eq {propertyEqualsFilter.Value}";
-                }
-                else if (propertyEqualsFilter.Value is DateTime)
-                {
-                    return $"{propertyEqualsFilter.PropertyName} eq datetime'{((DateTime)propertyEqualsFilter.Value).ToString("yyyy-MM-ddTHH:mm:ss")}'"; // Format ISO 8601
-                }
-                // Gestion des autres types (booléen, Guid, etc.) selon vos besoins
-                else
-                {
-                    throw new NotSupportedException($"Type de propriété non pris en charge : {propertyEqualsFilter.Value.GetType()}");
-                }
+                case PropertyEqualsFilter propertyEqualsFilter:
+                    return ConvertPropertyEqualsFilterAsString(propertyEqualsFilter);
+                case AndFilter andFilter:
+                    return ConvertAndFilterAsString(andFilter);
             }
 
             throw new NotSupportedException($"The filter of type '{filter.GetType().Name}' is unknow");
+        }
+
+        private static string ConvertAndFilterAsString(AndFilter andFilter)
+        {
+            var left = andFilter.Left.ToAzureFilterString();
+            var right = andFilter.Right.ToAzureFilterString();
+            return $"({left} and {right})";
+        }
+
+        private static string ConvertPropertyEqualsFilterAsString(PropertyEqualsFilter propertyEqualsFilter)
+        {
+            return propertyEqualsFilter.Value switch
+            {
+                string stringValue => $"{propertyEqualsFilter.PropertyName} eq '{stringValue}'",
+                int or double or long or float or decimal => $"{propertyEqualsFilter.PropertyName} eq {propertyEqualsFilter.Value}",
+                DateTime => $"{propertyEqualsFilter.PropertyName} eq datetime'{((DateTime)propertyEqualsFilter.Value).ToString("yyyy-MM-ddTHH:mm:ss")}'",
+                _ => throw new NotSupportedException($"Type de propriété non pris en charge : {propertyEqualsFilter.Value.GetType()}")
+            };
         }
     }
 }

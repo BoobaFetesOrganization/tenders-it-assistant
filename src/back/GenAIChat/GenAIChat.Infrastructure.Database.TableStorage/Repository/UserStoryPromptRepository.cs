@@ -9,7 +9,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
     public class UserStoryPromptRepository(TableServiceClient service) : BaseRepository<UserStoryRequestDomain>(service, "UserStoryPrompts")
     {
-        public override Task<UserStoryRequestDomain> AddAsync(UserStoryRequestDomain entity)
+        public override Task<UserStoryRequestDomain> AddAsync(UserStoryRequestDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -19,7 +19,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<UserStoryRequestDomain> DeleteAsync(UserStoryRequestDomain entity)
+        public override Task<UserStoryRequestDomain> DeleteAsync(UserStoryRequestDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -44,7 +44,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<UserStoryRequestDomain> UpdateAsync(UserStoryRequestDomain entity)
+        public override Task<UserStoryRequestDomain> UpdateAsync(UserStoryRequestDomain domain)
         {
             throw new NotImplementedException();
         }
