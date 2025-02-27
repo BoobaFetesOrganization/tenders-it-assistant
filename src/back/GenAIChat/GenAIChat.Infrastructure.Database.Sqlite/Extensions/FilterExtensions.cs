@@ -23,7 +23,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Extensions
         {
             var left = andFilter.Left.ToQueryableExpression<TDomain>();
             var right = andFilter.Right.ToQueryableExpression<TDomain>();
-            
+
             var body = Expression.AndAlso(left.Body, right.Body);
             return Expression.Lambda<Func<TDomain, bool>>(body, left.Parameters);
         }
@@ -33,7 +33,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Extensions
             var parameter = Expression.Parameter(typeof(TDomain), "x");
             var property = Expression.Property(parameter, propertyEqualsFilter.PropertyName);
             var constant = Expression.Constant(propertyEqualsFilter.Value);
-            
+
             var body = Expression.Equal(property, constant);
             return Expression.Lambda<Func<TDomain, bool>>(body, parameter);
         }

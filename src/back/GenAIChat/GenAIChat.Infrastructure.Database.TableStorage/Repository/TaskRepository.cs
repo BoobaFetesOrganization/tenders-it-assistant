@@ -3,7 +3,6 @@ using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Common;
-using System.Linq.Expressions;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
@@ -14,7 +13,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<int> CountAsync(Expression<Func<TaskDomain, bool>>? filter = null)
+        public override Task<int> CountAsync(IFilter? filter = null)
         {
             throw new NotImplementedException();
         }
@@ -24,17 +23,12 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<IEnumerable<TaskDomain>> GetAllAsync(Expression<Func<TaskDomain, bool>>? filter = null)
+        public override Task<IEnumerable<TaskDomain>> GetAllAsync(IFilter? filter = null)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<IEnumerable<TaskDomain>> GetAllAsync2(IFilter? filter = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<Paged<TaskDomain>> GetAllPagedAsync(PaginationOptions options, Expression<Func<TaskDomain, bool>>? filter = null)
+        public override Task<Paged<TaskDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null)
         {
             throw new NotImplementedException();
         }

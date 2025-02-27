@@ -22,10 +22,8 @@ namespace GenAIChat.Application.Command.Document
             document.Metadata = request.Domain.Metadata;
 
             // upload files to the GenAI and update the docs if successful
-            await genAiAdapter.SendFilesAsync(
-                [document],
-                async doc => await documentRepository.UpdateAsync(document)
-                );
+            var documents = await genAiAdapter.SendFilesAsync([document]);
+            await Task.WhenAll(documents.Select(async doc => await documentRepository.UpdateAsync(document)));
 
             return document;
         }

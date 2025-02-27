@@ -6,7 +6,8 @@ namespace GenAIChat.Application.Resources
 {
     public class EmbeddedResource
     {
-        public readonly UserStoryRequestDomain UserStoryPrompt;
+        public readonly UserStoryRequestDomain UserStoryRequest;
+        public readonly object UserStoryRequestSchema;
 
         private readonly Assembly _assembly;
         private readonly string _namespaceName;
@@ -16,7 +17,8 @@ namespace GenAIChat.Application.Resources
             _assembly = Assembly.GetExecutingAssembly();
             _namespaceName = GetType().Namespace ?? string.Empty;
 
-            UserStoryPrompt = GetResourceAs<UserStoryRequestDomain>("UserStoriesPrompt.json");
+            UserStoryRequest = GetResourceAs<UserStoryRequestDomain>("UserStoriesRequest.json");
+            UserStoryRequestSchema = GetResourceAs<object>("UserStoriesRequestSchema.json");
         }
 
 
@@ -33,11 +35,10 @@ namespace GenAIChat.Application.Resources
                 content = reader.ReadToEnd();
             }
 
-
             if (content is null) throw new FileNotFoundException($"Resource {resourceName} is found but there is no content");
 
             return JsonSerializer.Deserialize<T>(content)
-                ?? throw new JsonException($"The content of {resourceName} can not be converted to UserStoryPromptDomain");
+                ?? throw new JsonException($"The content of {resourceName} can not be converted to UserStoryRequestDomain");
         }
     }
 }

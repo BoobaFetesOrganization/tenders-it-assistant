@@ -1,19 +1,9 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace GenAIChat.Domain.Gemini.GeminiCommon
 {
     public class GeminiGenerationConfig
     {
-        public static GeminiGenerationConfig AsJsonResult(string? schema) => new()
-        {
-            MimeType = "application/json",
-            Schema = String.IsNullOrWhiteSpace(schema) 
-                ? null 
-                : JsonSerializer.Deserialize<object>(schema) 
-                    ?? "Failed to deserialize the schema from the Gemini API in charge to generate documents"
-        };
-
         [JsonPropertyName("candidate_count")]
         public int? CandidateCount { get; set; }
 

@@ -22,7 +22,6 @@ namespace GenAIChat.Domain.Project.Group
 
         public void SetUserStory(IEnumerable<UserStoryDomain>? stories)
         {
-            UserStories.Clear();
             if (stories is null) return;
             foreach (var story in stories) AddUserStory(story);
         }

@@ -104,7 +104,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserStoryPrompts",
+                name: "UserStoryRequests",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
@@ -116,9 +116,9 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserStoryPrompts", x => x.Id);
+                    table.PrimaryKey("PK_UserStoryRequests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserStoryPrompts_UserStoryGroups_GroupId",
+                        name: "FK_UserStoryRequests_UserStoryGroups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "UserStoryGroups",
                         principalColumn: "Id",
@@ -204,8 +204,8 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserStoryPrompts_GroupId",
-                table: "UserStoryPrompts",
+                name: "IX_UserStoryRequests_GroupId",
+                table: "UserStoryRequests",
                 column: "GroupId",
                 unique: true);
 
@@ -247,7 +247,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                 name: "TaskCosts");
 
             migrationBuilder.DropTable(
-                name: "UserStoryPrompts");
+                name: "UserStoryRequests");
 
             migrationBuilder.DropTable(
                 name: "Documents");

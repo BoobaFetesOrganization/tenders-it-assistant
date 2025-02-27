@@ -225,7 +225,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Migrations.Migrations
                     b.HasIndex("GroupId")
                         .IsUnique();
 
-                    b.ToTable("UserStoryPrompts", (string)null);
+                    b.ToTable("UserStoryRequests", (string)null);
                 });
 
             modelBuilder.Entity("GenAIChat.Domain.Project.ProjectDomain", b =>

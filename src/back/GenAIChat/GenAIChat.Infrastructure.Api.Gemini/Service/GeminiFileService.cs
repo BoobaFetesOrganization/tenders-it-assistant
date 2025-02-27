@@ -6,7 +6,6 @@ using System.Text.Json;
 
 namespace GenAIChat.Infrastructure.Api.Gemini.Service
 {
-
     public class GeminiFileService
     {
         private readonly HttpClient _httpClient;
@@ -22,16 +21,15 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<DocumentDomain> UploadAsync(DocumentDomain document)
+        public async Task UploadAsync(DocumentDomain document)
         {
             // upoad file
             var uploadUrl = await UploadFileMetadataAsync(document);
 
             // Assuming the response contains the upload URL
             await UploadFileContentAsync(document, uploadUrl);
-
-            return document;
         }
+
         private async Task<string> UploadFileMetadataAsync(DocumentDomain document)
         {
             // action
@@ -82,5 +80,4 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             document.Metadata = await UploadFileContentConverter.Convert(response.Content);
         }
     }
-
 }

@@ -6,7 +6,6 @@ using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Common;
-using System.Linq.Expressions;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
@@ -20,7 +19,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             return result!;
         }
 
-        public override Task<int> CountAsync(Expression<Func<ProjectDomain, bool>>? filter = null)
+        public override Task<int> CountAsync(IFilter? filter = null)
         {
             throw new NotImplementedException();
         }
@@ -30,19 +29,14 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<IEnumerable<ProjectDomain>> GetAllAsync(Expression<Func<ProjectDomain, bool>>? filter = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async override Task<IEnumerable<ProjectDomain>> GetAllAsync2(IFilter? filter = null)
+        public async override Task<IEnumerable<ProjectDomain>> GetAllAsync(IFilter? filter = null)
         {
             var filterString = filter is null ? null : filter.ToAzureFilterString();
             var results = client.Query<ProjectEntity>(filterString).ToArray();
             return await Task.FromResult(mapper.Map<IEnumerable<ProjectDomain>>(results));
         }
 
-        public override Task<Paged<ProjectDomain>> GetAllPagedAsync(PaginationOptions options, Expression<Func<ProjectDomain, bool>>? filter = null)
+        public override Task<Paged<ProjectDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null)
         {
             throw new NotImplementedException();
         }

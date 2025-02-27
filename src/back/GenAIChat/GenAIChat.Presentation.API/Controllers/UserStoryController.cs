@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Usecase;
+using GenAIChat.Application.Command.Common;
 using GenAIChat.Domain.Common;
+using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Presentation.API.Controllers.Common;
 using GenAIChat.Presentation.API.Controllers.Dto;
+using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,33 +14,34 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/project/{projectId}/group/{groupId}/[controller]")]
-    public class UserStoryController(UserStoryApplication application, IMapper mapper)
+    public class UserStoryController(IMediator mediator, IMapper mapper)
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(string groupId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken, string groupId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
-            var result = await application.GetAllPagedAsync(options, us => us.GroupId == groupId);
+            var filter = new PropertyEqualsFilter(nameof(UserStoryDomain.GroupId), groupId);
+            var result = await mediator.Send(new GetAllPagedQuery<UserStoryDomain>() { Options = options, Filter = filter }, cancellationToken);
             return Ok(mapper.Map<Paged<UserStoryBaseDto>>(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(string groupId, string id)
+        public async Task<IActionResult> GetByIdAsync(string groupId, string id, CancellationToken cancellationToken)
         {
-            var result = await application.GetByIdAsync(id);
+            var result = await mediator.Send(new GetByIdQuery<UserStoryDomain>() { Id = id }, cancellationToken);
             if (result is null || result.GroupId != groupId) return NotFound();
             return Ok(mapper.Map<UserStoryDto>(result));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string groupId, [FromBody] UserStoryDto request)
+        public async Task<IActionResult> Create(string groupId, [FromBody] UserStoryDto request, CancellationToken cancellationToken)
         {
             try
             {
-                var item = mapper.Map<UserStoryDomain>(request);
-                item.GroupId = groupId;
-                var result = await application.CreateAsync(item);
+                var domain = mapper.Map<UserStoryDomain>(request);
+                domain.GroupId = groupId;
+                var result = await mediator.Send(new CreateCommand<UserStoryDomain>() { Domain = domain }, cancellationToken);
                 return Created(string.Empty, mapper.Map<UserStoryDto>(result));
             }
             catch (Exception ex)
@@ -48,13 +51,13 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(string groupId, [FromBody] UserStoryDto request)
+        public async Task<IActionResult> Update(string groupId, [FromBody] UserStoryDto request, CancellationToken cancellationToken)
         {
             try
             {
-                var item = mapper.Map<UserStoryDomain>(request);
-                item.GroupId = groupId;
-                var result = await application.UpdateAsync(item);
+                var domain = mapper.Map<UserStoryDomain>(request);
+                domain.GroupId = groupId;
+                var result = await mediator.Send(new UpdateCommand<UserStoryDomain>() { Domain = domain }, cancellationToken);
 
                 if (result is null) return NotFound();
 
@@ -67,9 +70,9 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(string id)
+        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
         {
-            var result = await application.DeleteAsync(id);
+            var result = await mediator.Send(new DeleteByIdCommand<UserStoryDomain>() { Id = id }, cancellationToken);
             if (result is null) return NotFound();
             return Ok(mapper.Map<UserStoryDto>(result));
         }

@@ -22,7 +22,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage
             SetMappingFor<TaskDomain, TaskEntity>();
             SetMappingFor<TaskCostDomain, TaskCostEntity>();
             SetMappingFor<UserStoryGroupDomain, UserStoryGroupEntity>();
-            SetMappingFor<UserStoryRequestDomain, UserStoryPromptEntity>();
+            SetMappingFor<UserStoryRequestDomain, UserStoryRequestEntity>();
             SetMappingFor<UserStoryDomain, UserStoryEntity>();
         }
 
@@ -36,11 +36,12 @@ namespace GenAIChat.Infrastructure.Database.TableStorage
             CreateMap<Paged<TSource>, Paged<TDestination>>()
                 .ConvertUsing(new PagedConverter<TSource, TDestination>());
 
-            CreateMap<ICollection<TSource>, ICollection<TDestination>>()
-                .ConvertUsing(new ListConverter<TSource, TDestination>());
+            //A VOIR SI NECESSAIRE POUR LES COLLECTIONS : SELON LA DOC CE N'EST PLUS NECESSAIRE
+            // CreateMap<ICollection<TSource>, ICollection<TDestination>>()
+            //    .ConvertUsing(new ListConverter<TSource, TDestination>());
 
             CreateMap<TSource, TDestination>();
-            CreateMap<TDestination, TSource>();
+            // CA NON PLUS : CreateMap<TDestination, TSource>();
         }
 
         public class ListConverter<TSource, TDestination> : ITypeConverter<ICollection<TSource>, ICollection<TDestination>>

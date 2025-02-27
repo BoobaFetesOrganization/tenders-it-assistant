@@ -2,7 +2,7 @@
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Entity
 {
-    internal class UserStoryPromptEntity : BaseEntity
+    internal class UserStoryRequestEntity : BaseEntity
     {
         public string Context { get; set; } = string.Empty;
         public string Personas { get; set; } = string.Empty;

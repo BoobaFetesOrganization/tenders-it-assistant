@@ -20,7 +20,7 @@
 //            this.mapper = mapper;
 //        }
 
-//        public async Task<int> CountAsync(Expression<Func<TDomain, bool>>? filter = null)
+//        public async Task<int> CountAsync(IFilter? filter = null)
 //        {
 //            int count = 0;
 //            int maxPerPage = 1000;
@@ -36,7 +36,7 @@
 //            return await Task.FromResult(count);
 //        }
 
-//        public async Task<IEnumerable<TDomain>> GetAllAsync(Expression<Func<TDomain, bool>>? filter = null)
+//        public async Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null)
 //        {
 //            Expression<Func<TDomain, bool>> _filter = filter ?? (entity => true);
 
@@ -45,7 +45,7 @@
 //            return await Task.FromResult(response.ToImmutableArray());
 //        }
 
-//        public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, Expression<Func<TDomain, bool>>? filter = null)
+//        public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null)
 //        {
 //            Expression<Func<TDomain, bool>> _filter = filter ?? (entity => true);
 

@@ -24,7 +24,7 @@ namespace GenAIChat.Presentation.API
                 );
 
             SetMappingFor<UserStoryGroupDomain, UserStoryGroupBaseDto, UserStoryGroupDto>();
-            SetMappingWithoutBaseFor<UserStoryRequestDomain, UserStoryPromptDto>();
+            SetMappingWithoutBaseFor<UserStoryRequestDomain, UserStoryRequestDto>();
 
             SetMappingFor<UserStoryDomain, UserStoryBaseDto, UserStoryDto>();
 

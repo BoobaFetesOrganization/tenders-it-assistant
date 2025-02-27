@@ -11,20 +11,20 @@ namespace GenAIChat.Domain.Project
 
         public ICollection<DocumentDomain> Documents { get; protected set; } = [];
 
-        public UserStoryGroupDomain? SelectedGroup { get; set; } = null;
+        public string? SelectedGroupId { get; set; } = null;
 
-        public ICollection<UserStoryGroupDomain> Generated { get; protected set; } = [];
+        public ICollection<UserStoryGroupDomain> Groups { get; protected set; } = [];
 
         public override object Clone()
         {
             var clone = new ProjectDomain()
             {
                 Name = Name,
-                SelectedGroup = SelectedGroup?.Clone() as UserStoryGroupDomain
+                SelectedGroupId = SelectedGroupId
             };
 
             foreach (var item in Documents) clone.Documents.Add((DocumentDomain)item.Clone());
-            foreach (var item in Generated) clone.Generated.Add((UserStoryGroupDomain)item.Clone());
+            foreach (var item in Groups) clone.Groups.Add((UserStoryGroupDomain)item.Clone());
 
             return clone;
         }

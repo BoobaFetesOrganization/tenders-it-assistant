@@ -2,6 +2,7 @@
 using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Application.Command.Common;
 using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project;
 using MediatR;
 
@@ -17,10 +18,13 @@ namespace GenAIChat.Application.Command.Document
             var project = await projectRepository.GetByIdAsync(request.Domain.ProjectId)
                 ?? throw new Exception("Project not found");
 
-            var isExisting = (await documentRepository.GetAllAsync(p => p.ProjectId == request.Domain.ProjectId))
-                .Where(p => p.Name != null && p.Name.ToLower().Equals(request.Domain.Name.ToLower()))
-                .Any();
-            if (isExisting) throw new Exception("Name already exists");
+            var filter = new AndFilter(
+                new PropertyEqualsFilter(nameof(DocumentDomain.ProjectId), request.Domain.ProjectId),
+                new PropertyEqualsFilter(nameof(DocumentDomain.Name), request.Domain.Name)
+                );
+            var sameNames = await projectRepository.GetAllAsync(filter);
+            if (sameNames.Any()) throw new Exception("Name already exists");
+
 
             DocumentDomain document = new()
             {
@@ -35,10 +39,8 @@ namespace GenAIChat.Application.Command.Document
             };
 
             // upload files to the GenAI and add the doc if successful
-            await genAiAdapter.SendFilesAsync(
-                [document],
-                async doc => await documentRepository.AddAsync(document)
-                );
+            var documents = await genAiAdapter.SendFilesAsync([document]);
+            await Task.WhenAll(documents.Select(async doc => await documentRepository.AddAsync(document)));
 
             return document;
         }

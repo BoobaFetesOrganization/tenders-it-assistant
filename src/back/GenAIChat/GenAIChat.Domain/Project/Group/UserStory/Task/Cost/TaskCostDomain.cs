@@ -13,11 +13,12 @@ namespace GenAIChat.Domain.Project.Group.UserStory.Task.Cost
 
         public override object Clone()
         {
-            TaskCostDomain clone = new();
-
-            clone.Kind = Kind;
-            clone.Cost = Cost;
-            clone.TaskId = TaskId;
+            TaskCostDomain clone = new()
+            {
+                Kind = Kind,
+                Cost = Cost,
+                TaskId = TaskId
+            };
 
             return clone;
         }

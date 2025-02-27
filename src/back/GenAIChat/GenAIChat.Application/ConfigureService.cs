@@ -1,5 +1,4 @@
-﻿using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Application.Resources;
+﻿using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +9,9 @@ namespace GenAIChat.Application
         public static void AddGenAiChatApplication(this IServiceCollection services, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("Add Application services");
+
+            // set automapper configuration to allow to merge easily the domain and database models
+            services.AddAutoMapper(typeof(ConfigureService).Assembly);
 
             // resource registration
             services.AddSingleton<EmbeddedResource>();

@@ -16,12 +16,13 @@ namespace GenAIChat.Domain.Document
 
         public override object Clone()
         {
-            DocumentDomain clone = new();
-
-            clone.Name = Name;
-            clone.Content = Content;
-            clone.Metadata = (DocumentMetadataDomain)Metadata.Clone();
-            clone.ProjectId = ProjectId;
+            DocumentDomain clone = new()
+            {
+                Name = Name,
+                Content = Content,
+                Metadata = (DocumentMetadataDomain)Metadata.Clone(),
+                ProjectId = ProjectId
+            };            
 
             return clone;
         }

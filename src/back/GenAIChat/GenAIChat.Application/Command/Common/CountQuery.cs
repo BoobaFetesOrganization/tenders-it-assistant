@@ -1,13 +1,13 @@
 ﻿using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Common;
+using GenAIChat.Domain.Filter;
 using MediatR;
-using System.Linq.Expressions;
 
 namespace GenAIChat.Application.Command.Common
 {
     public class CountQuery<TDomain> : IRequest<CountQuery> where TDomain : class, IEntityDomain
     {
-        public Expression<Func<TDomain, bool>>? Filter { get; init; }
+        public IFilter? Filter { get; init; }
     }
     public class CountQuery
     {
