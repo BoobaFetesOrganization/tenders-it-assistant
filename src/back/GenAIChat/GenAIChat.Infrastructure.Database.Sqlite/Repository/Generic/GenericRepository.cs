@@ -54,7 +54,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             return entry.Entity;
         }
 
-        public async Task<TDomain> UpdateAsync(TDomain domain)
+        public async Task<bool?> UpdateAsync(TDomain domain)
         {
             var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
@@ -65,10 +65,10 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
 
             var entry = _dbSet.Update(actual);
             await SaveAsync();
-            return entry.Entity;
+            return true;
         }
 
-        public async Task<TDomain> DeleteAsync(TDomain domain)
+        public async Task<bool?> DeleteAsync(TDomain domain)
         {
             var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
@@ -76,7 +76,7 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             _dbSet.Remove(domain);
             await SaveAsync();
 
-            return domain;
+            return true;
         }
 
         public async Task SaveAsync(CancellationToken cancellationToken = default)

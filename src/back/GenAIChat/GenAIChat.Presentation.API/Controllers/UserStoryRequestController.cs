@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Command.Common;
-using GenAIChat.Domain.Filter;
+using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Presentation.API.Controllers.Dto;
-using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,19 +10,14 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/project/{projectId}/group/{groupId}/request")]
-    public class UserStoryRequestController(IMediator mediator, IMapper mapper)
+    public class UserStoryRequestController(IApplication<UserStoryRequestDomain> application, IMapper mapper)
         : ControllerBase
     {
 
-        [HttpGet()]
-        public async Task<IActionResult> GetByIdAsync(string groupId, CancellationToken cancellationToken)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetByParentAsync(string id, CancellationToken cancellationToken)
         {
-            var result = (
-                await mediator.Send(new GetAllQuery<UserStoryRequestDomain>()
-                {
-                    Filter = new PropertyEqualsFilter(nameof(UserStoryRequestDomain.GroupId), groupId)
-                }, cancellationToken))
-                .FirstOrDefault();
+            var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null) return NotFound();
             return Ok(mapper.Map<UserStoryRequestDto>(result));
         }
@@ -32,12 +25,8 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpPut()]
         public async Task<IActionResult> UpdateAsync(string groupId, [FromBody] UserStoryRequestDto request, CancellationToken cancellationToken)
         {
-            var result = (
-                await mediator.Send(new UpdateCommand<UserStoryRequestDomain>()
-                {
-                    Filter = new PropertyEqualsFilter(nameof(UserStoryRequestDomain.GroupId), groupId)
-                }, cancellationToken))
-                .FirstOrDefault();
+            var result = await application.UpdateAsync(mapper.Map<UserStoryRequestDomain>(request), cancellationToken);
+
             if (result is null) return NotFound();
             return Ok(mapper.Map<UserStoryRequestDto>(result));
         }

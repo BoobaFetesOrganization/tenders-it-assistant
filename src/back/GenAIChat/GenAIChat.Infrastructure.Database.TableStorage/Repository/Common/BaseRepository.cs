@@ -17,11 +17,11 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Common
 
         public abstract Task<TDomain> AddAsync(TDomain domain);
         public abstract Task<int> CountAsync(IFilter? filter = null);
-        public abstract Task<TDomain> DeleteAsync(TDomain domain);
+        public abstract Task<bool?> DeleteAsync(TDomain domain);
         public abstract Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null);
         public abstract Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null);
         public abstract Task<TDomain?> GetByIdAsync(string id);
-        public abstract Task<TDomain> UpdateAsync(TDomain domain);
+        public abstract Task<bool?> UpdateAsync(TDomain domain);
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public void Dispose()

@@ -18,7 +18,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<TaskDomain> DeleteAsync(TaskDomain domain)
+        public override Task<bool?> DeleteAsync(TaskDomain domain)
         {
             throw new NotImplementedException();
         }
@@ -38,7 +38,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             throw new NotImplementedException();
         }
 
-        public override Task<TaskDomain> UpdateAsync(TaskDomain domain)
+        public override Task<bool?> UpdateAsync(TaskDomain domain)
         {
             throw new NotImplementedException();
         }

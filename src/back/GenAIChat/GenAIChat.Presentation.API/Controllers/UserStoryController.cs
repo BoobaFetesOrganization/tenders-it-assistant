@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Command.Common;
+using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Presentation.API.Controllers.Common;
 using GenAIChat.Presentation.API.Controllers.Dto;
-using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +13,7 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/project/{projectId}/group/{groupId}/[controller]")]
-    public class UserStoryController(IMediator mediator, IMapper mapper)
+    public class UserStoryController(IApplication<UserStoryDomain> application, IMapper mapper)
         : ControllerBase
     {
         [HttpGet]
@@ -22,14 +21,14 @@ namespace GenAIChat.Presentation.API.Controllers
         {
             var options = new PaginationOptions(offset, limit);
             var filter = new PropertyEqualsFilter(nameof(UserStoryDomain.GroupId), groupId);
-            var result = await mediator.Send(new GetAllPagedQuery<UserStoryDomain>() { Options = options, Filter = filter }, cancellationToken);
+            var result = await application.GetAllPagedAsync(options, filter, cancellationToken);
             return Ok(mapper.Map<Paged<UserStoryBaseDto>>(result));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(string groupId, string id, CancellationToken cancellationToken)
         {
-            var result = await mediator.Send(new GetByIdQuery<UserStoryDomain>() { Id = id }, cancellationToken);
+            var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null || result.GroupId != groupId) return NotFound();
             return Ok(mapper.Map<UserStoryDto>(result));
         }
@@ -41,7 +40,7 @@ namespace GenAIChat.Presentation.API.Controllers
             {
                 var domain = mapper.Map<UserStoryDomain>(request);
                 domain.GroupId = groupId;
-                var result = await mediator.Send(new CreateCommand<UserStoryDomain>() { Domain = domain }, cancellationToken);
+                var result = await application.CreateAsync(domain, cancellationToken);
                 return Created(string.Empty, mapper.Map<UserStoryDto>(result));
             }
             catch (Exception ex)
@@ -57,7 +56,7 @@ namespace GenAIChat.Presentation.API.Controllers
             {
                 var domain = mapper.Map<UserStoryDomain>(request);
                 domain.GroupId = groupId;
-                var result = await mediator.Send(new UpdateCommand<UserStoryDomain>() { Domain = domain }, cancellationToken);
+                var result = await application.UpdateAsync(domain, cancellationToken);
 
                 if (result is null) return NotFound();
 
@@ -72,7 +71,7 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
         {
-            var result = await mediator.Send(new DeleteByIdCommand<UserStoryDomain>() { Id = id }, cancellationToken);
+            var result = await application.DeleteAsync(id, cancellationToken);
             if (result is null) return NotFound();
             return Ok(mapper.Map<UserStoryDto>(result));
         }

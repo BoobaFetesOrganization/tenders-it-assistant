@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Command.Common;
+using GenAIChat.Application.Usecase;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Presentation.API.Controllers.Common;
 using GenAIChat.Presentation.API.Controllers.Dto;
 using GenAIChat.Presentation.API.Controllers.Request;
-using MediatR;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +14,7 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/project/{projectId}/[controller]")]
-    public class DocumentController(IMediator mediator, IMapper mapper)
+    public class DocumentController(IApplication<DocumentDomain> application, IMapper mapper)
         : ControllerBase
     {
 
@@ -35,14 +34,14 @@ namespace GenAIChat.Presentation.API.Controllers
             var options = new PaginationOptions(offset, limit);
             var filter = new PropertyEqualsFilter(nameof(DocumentDomain.ProjectId), projectId);
 
-            var result = await mediator.Send(new GetAllPagedQuery<DocumentDomain>() { Options = options, Filter = filter }, cancellationToken);
+            var result = await application.GetAllPagedAsync(options, filter, cancellationToken);
             return Ok(mapper.Map<Paged<DocumentBaseDto>>(result));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetByIdAsync(string id, CancellationToken cancellationToken)
         {
-            var result = await mediator.Send(new GetByIdQuery<DocumentDomain>() { Id = id }, cancellationToken);
+            var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null) return NotFound();
             return Ok(mapper.Map<DocumentDto>(result));
         }
@@ -55,16 +54,14 @@ namespace GenAIChat.Presentation.API.Controllers
                 var content = await ReadFile(request.File);
                 if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
-                var result = await mediator.Send(new CreateCommand<DocumentDomain>()
+                var result = await application.CreateAsync(new()
                 {
-                    Domain = new()
-                    {
-                        Name = request.File.FileName,
-                        Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
-                        Content = content,
-                        ProjectId = projectId
-                    }
-                }, cancellationToken);
+                    Name = request.File.FileName,
+                    Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
+                    Content = content,
+                    ProjectId = projectId
+                }
+                , cancellationToken);
                 return Created(string.Empty, mapper.Map<DocumentBaseDto>(result));
             }
             catch (Exception ex)
@@ -81,16 +78,14 @@ namespace GenAIChat.Presentation.API.Controllers
                 var content = await ReadFile(request.File);
                 if (content is null) return BadRequest(new ErrorDto("File is empty or null"));
 
-                var result = await mediator.Send(new UpdateCommand<DocumentDomain>()
+                var result = await application.UpdateAsync(new()
                 {
-                    Domain = new()
-                    {
-                        Name = request.File.FileName,
-                        Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
-                        Content = content,
-                        ProjectId = projectId
-                    }
-                }, cancellationToken);
+                    Name = request.File.FileName,
+                    Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
+                    Content = content,
+                    ProjectId = projectId
+                }
+                , cancellationToken);
 
                 if (result is null) return NotFound();
 
@@ -105,7 +100,7 @@ namespace GenAIChat.Presentation.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
         {
-            var result = await mediator.Send(new DeleteByIdCommand<DocumentDomain>() { Id = id }, cancellationToken);
+            var result = await application.DeleteAsync(id, cancellationToken);
             if (result is null) return NotFound();
             return Ok(mapper.Map<DocumentBaseDto>(result));
         }

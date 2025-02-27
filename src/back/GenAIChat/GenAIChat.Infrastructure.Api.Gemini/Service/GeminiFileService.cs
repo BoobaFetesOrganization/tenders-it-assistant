@@ -21,16 +21,16 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task UploadAsync(DocumentDomain document)
+        public async Task UploadAsync(DocumentDomain document, CancellationToken cancellationToken)
         {
             // upoad file
-            var uploadUrl = await UploadFileMetadataAsync(document);
+            var uploadUrl = await UploadFileMetadataAsync(document, cancellationToken);
 
             // Assuming the response contains the upload URL
-            await UploadFileContentAsync(document, uploadUrl);
+            await UploadFileContentAsync(document, uploadUrl, cancellationToken);
         }
 
-        private async Task<string> UploadFileMetadataAsync(DocumentDomain document)
+        private async Task<string> UploadFileMetadataAsync(DocumentDomain document, CancellationToken cancellationToken)
         {
             // action
             HttpRequestMessage request = new(HttpMethod.Post, Endpoint);
@@ -45,7 +45,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
                     file = new { display_name = document.Name }
                 }), System.Text.Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
                 throw new AggregateException(string.Empty, [
                     new Exception("Error while starting the upload to the Gemini API"),
@@ -60,7 +60,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             return uploadUrl;
         }
 
-        private async Task UploadFileContentAsync(DocumentDomain document, string uploadUrl)
+        private async Task UploadFileContentAsync(DocumentDomain document, string uploadUrl, CancellationToken cancellationToken)
         {
             HttpRequestMessage request = new(HttpMethod.Put, uploadUrl)
             {
@@ -70,7 +70,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             request.Headers.Add("X-Goog-Upload-Command", "upload, finalize");
             request.Content.Headers.ContentType = new MediaTypeHeaderValue(document.Metadata.MimeType);
 
-            var response = await _httpClient.SendAsync(request);
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
                 throw new AggregateException(string.Empty, [
                     new Exception("Error while uploading the file to the Gemini API"),

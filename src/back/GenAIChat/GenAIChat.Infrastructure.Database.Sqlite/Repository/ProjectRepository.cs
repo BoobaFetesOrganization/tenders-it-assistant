@@ -9,9 +9,6 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository
     {
         protected override IQueryable<ProjectDomain> GetProperties(IQueryable<ProjectDomain> query) => query
             .Include(i => i.Documents)
-                .ThenInclude(d => d.Metadata)
-            .Include(i => i.SelectedGroup)
-                .ThenInclude(g => g!.UserStories)
-                    .ThenInclude(us => us.Tasks);
+                .ThenInclude(d => d.Metadata);
     }
 }

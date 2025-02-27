@@ -1,5 +1,12 @@
 ﻿using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase;
+using GenAIChat.Application.Usecase.Interface;
+using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Project;
+using GenAIChat.Domain.Project.Group;
+using GenAIChat.Domain.Project.Group.UserStory;
+using GenAIChat.Domain.Project.Group.UserStory.Task;
+using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GenAIChat.Application
@@ -17,17 +24,16 @@ namespace GenAIChat.Application
             services.AddSingleton<EmbeddedResource>();
 
             // application registration
-            services.AddScoped<ProjectApplication>();
-            services.AddScoped<DocumentApplication>();
-            services.AddScoped<UserStoryGroupApplication>();
-            services.AddScoped<UserStoryApplication>();
+            services.AddScoped<IApplication<DocumentDomain>, DocumentApplication>();
+            services.AddScoped<IApplication<ProjectDomain>, ProjectApplication>();
+            services.AddScoped<IUserStoryGroupApplication, UserStoryGroupApplication>();
+            services.AddScoped<IApplication<UserStoryRequestDomain>, ApplicationBase<UserStoryRequestDomain>>();
+            services.AddScoped<IApplication<UserStoryDomain>, ApplicationBase<UserStoryDomain>>();
+            services.AddScoped<IApplication<TaskDomain>, ApplicationBase<TaskDomain>>();
+            services.AddScoped<IApplication<TaskCostDomain>, ApplicationBase<TaskCostDomain>>();
 
             // register MediatR to scan all assemblies in the current domain
-            services.AddMediatR(cfg =>
-            {
-                cfg.RegisterGenericHandlers = true;
-                cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
-            });
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
         }
     }
 }
