@@ -5,11 +5,40 @@ using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace GenAIChat.Infrastructure.Database.Sqlite
 {
     public class GenAiDbContext(DbContextOptions<GenAiDbContext> options) : DbContext(options)
     {
+        public TDomain? Detach<TDomain>(TDomain? entity) where TDomain : class
+        {
+            if (entity == null) return null;
+
+            // check status
+            var entry = Entry(entity);
+            if (entry.State == EntityState.Detached) return entity;
+
+            // detache recursively
+            entry.State = EntityState.Detached;
+
+            foreach (var navigationEntry in entry.Navigations.Where(e => e.CurrentValue != null))
+            {
+                switch (navigationEntry)
+                {
+                    case CollectionEntry collectionEntry:
+                        foreach (var relatedEntity in collectionEntry.CurrentValue!)
+                            Detach(relatedEntity);
+                        break;
+                    default:
+                        Detach(navigationEntry.CurrentValue);
+                        break;
+                }
+            }
+
+            return entity;
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Nom des tables

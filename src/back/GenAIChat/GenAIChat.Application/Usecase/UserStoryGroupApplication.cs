@@ -56,15 +56,20 @@ namespace GenAIChat.Application.Usecase
             var group = _group ?? throw new Exception("Group not found");
 
             // actions
-            IEnumerable<DocumentDomain> documents = await RehydrateDocuments(group, cancellationToken);
+            List<Task> actions = [];
+
+            // act : update documents
+            IEnumerable<DocumentDomain> documents = await RehydrateDocuments(group, actions, cancellationToken);
             group.Response = await SendRequestToGenAi(group, documents, cancellationToken);
             GeminiResponse response = GeminiResponse.LoadFrom(group.Response);
 
             // set values of the group
-            List<Task> actions = [mediator.Send(new UpdateCommand<UserStoryRequestDomain> { Domain = group.Request }, cancellationToken)];
             group.ClearUserStories();
             CreateGeneratedStories(group, response);
             actions.Add(mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = group }, cancellationToken));
+
+            // wait resolutions of the actions
+            await Task.WhenAll(actions);
 
             // reset property SelectGroupId of the project
             ResetSelectedGroupOfTheProjectIfNeeded(project, group, actions, cancellationToken);
@@ -76,7 +81,7 @@ namespace GenAIChat.Application.Usecase
         }
         #region GenerateUsertoriesAsync helpers
 
-        private async Task<IEnumerable<DocumentDomain>> RehydrateDocuments(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
+        private async Task<IEnumerable<DocumentDomain>> RehydrateDocuments(UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken = default)
         {
             // upload files to the GenAI and store new Metadata
             var filter = new PropertyEqualsFilter(nameof(UserStoryGroupDomain.ProjectId), domain.ProjectId);
@@ -84,8 +89,8 @@ namespace GenAIChat.Application.Usecase
             if (!documents.Any()) throw new Exception("To generate user stories, at least one document is required");
 
             var uploads = await genAiAdapter.SendFilesAsync(documents, cancellationToken);
-            await Task.WhenAll(uploads.Select(doc => mediator.Send(new UpdateCommand<DocumentDomain>() { Domain = doc }, cancellationToken)));
 
+            actions.AddRange(uploads.Select(doc => mediator.Send(new UpdateCommand<DocumentDomain>() { Domain = doc }, cancellationToken)));
             return documents;
         }
 
@@ -141,7 +146,7 @@ namespace GenAIChat.Application.Usecase
                 task.Cost = 0;
             }
             // act: set user stories to the group and create them
-            domain.SetUserStory(userStories);
+            domain.AddManyStory(userStories);
         }
 
         private void ResetSelectedGroupOfTheProjectIfNeeded(ProjectDomain project, UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken = default)

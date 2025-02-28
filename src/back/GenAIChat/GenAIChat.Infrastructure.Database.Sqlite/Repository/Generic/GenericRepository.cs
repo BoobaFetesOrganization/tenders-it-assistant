@@ -22,10 +22,9 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
         {
             // arrange
             var countRequest = CountAsync(filter);
-            IQueryable<TDomain> query = GetAllWhereAsQuery(filter);
-
-            query = query.Skip(options.Offset);
-            query = query.Take(options.Limit);
+            IQueryable<TDomain> query = GetAllWhereAsQuery(filter)
+                .Skip(options.Offset)
+                .Take(options.Limit);
 
             // act
             var data = await query.ToArrayAsync();
@@ -39,34 +38,39 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
 
             if (filter is not null) query = query.Where(filter.ToQueryableExpression<TDomain>());
 
-            return query;
+            return query.AsNoTracking();
         }
 
-        public async Task<TDomain?> GetByIdAsync(string id) => await GetProperties(_dbSet).FirstOrDefaultAsync(i => i.Id == id);
+        public async Task<TDomain?> GetByIdAsync(string id) => await GetProperties(_dbSet.AsNoTracking()).FirstOrDefaultAsync(e => e.Id == id);
 
         public async Task<TDomain> AddAsync(TDomain domain)
         {
-            var entity = (TDomain)domain.Clone();
-            entity.SetNewTimeStamp();
+            domain.SetNewTimeStamp();
 
-            var entry = await _dbSet.AddAsync(entity);
+            await _dbSet.AddAsync(domain);
             await SaveAsync();
-            return entry.Entity;
+
+            dbContext.Detach(domain);
+            return domain;
         }
 
         public async Task<bool?> UpdateAsync(TDomain domain)
         {
-            var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");            
+            TDomain actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
 
-            // detach entity to update it / see ef core update rules
-            dbContext.Entry(actual).State = EntityState.Detached;
+            // attention: le merge est effectué avec automapper.
+            // De plus, EF Core impose que l'on donne à_dbSet.Update l'entité trackée afin qu'il puisse effectuer les mofications automatiquement en base de données
+            // DONC : le mapping est très important, hors il est chargé à l'initialisation, donc attention aux effet de bord qui pourrait survenir dans la couche Application ou Presentation !
 
-            // merge domain in actual and change the timestamp
-            var entity = mapper.Map(domain, actual);
-            entity.SetNewTimeStamp();
-            var entry = _dbSet.Update(entity);
+            // merge domain in 'actual' and change the timestamp
+            mapper.Map(domain, actual);
+            actual.SetNewTimeStamp();
+
+            _dbSet.Update(actual);
             await SaveAsync();
+
+            dbContext.Detach(actual);
             return true;
         }
 
@@ -75,8 +79,9 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
 
-            _dbSet.Remove(domain);
+            _dbSet.Remove(actual);
             await SaveAsync();
+            dbContext.Detach(actual);
 
             return true;
         }
