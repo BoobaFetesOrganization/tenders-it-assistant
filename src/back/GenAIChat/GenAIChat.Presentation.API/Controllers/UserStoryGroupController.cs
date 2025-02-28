@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Usecase;
+using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group;
@@ -13,7 +13,7 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/project/{projectId}/group")]
-    public class UserStoryGroupController(UserStoryGroupApplication application, IMapper mapper)
+    public class UserStoryGroupController(IUserStoryGroupApplication application, IMapper mapper)
         : ControllerBase
     {
         [HttpGet]

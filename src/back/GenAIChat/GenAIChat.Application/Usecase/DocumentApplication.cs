@@ -1,5 +1,6 @@
 ﻿using GenAIChat.Application.Adapter.Api;
 using GenAIChat.Application.Command.Common;
+using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
 using MediatR;

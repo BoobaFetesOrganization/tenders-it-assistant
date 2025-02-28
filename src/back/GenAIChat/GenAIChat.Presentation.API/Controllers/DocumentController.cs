@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Usecase;
+using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Filter;

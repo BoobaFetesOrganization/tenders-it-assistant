@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Usecase;
+using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Presentation.API.Controllers.Dto;
 using Microsoft.AspNetCore.Cors;

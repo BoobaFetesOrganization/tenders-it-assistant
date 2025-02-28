@@ -1,7 +1,7 @@
 ﻿using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Filter;
 
-namespace GenAIChat.Application.Usecase
+namespace GenAIChat.Application.Usecase.Interface
 {
     public interface IApplication<TDomain> where TDomain : EntityDomain, new()
     {

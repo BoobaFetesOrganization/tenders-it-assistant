@@ -1,4 +1,5 @@
 ﻿using GenAIChat.Application.Command.Common;
+using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Filter;
 using MediatR;
