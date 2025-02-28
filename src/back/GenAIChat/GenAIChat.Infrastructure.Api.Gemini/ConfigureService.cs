@@ -10,7 +10,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini
     {
         public static void AddGenAiChatInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb, Action<string>? writeLine = null)
         {
-            writeLine?.Invoke("Add Gemini Api Infrastructure services");
+            writeLine?.Invoke("configure Infrastructure : Api : Gemini Api services");
 
             // app settings configuration 
             writeLine?.Invoke("Infrastructure.Api.Gemini : Configuration : 'AI:Gemini' :");

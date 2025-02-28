@@ -12,7 +12,7 @@ namespace GenAIChat.Presentation.API
 
         public static void AddGenAiChatPresentationApi(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
-            writeLine?.Invoke("Add Api Presentation services");
+            writeLine?.Invoke("configure Presentation : Web Api services");
             
             // register AutoMapper to scan all assemblies in the current domain
             services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));

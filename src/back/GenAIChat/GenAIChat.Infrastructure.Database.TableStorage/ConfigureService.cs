@@ -16,7 +16,7 @@ namespace GenAIChat.Infrastructure.Database
     {
         public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
-            writeLine?.Invoke("Add TableStorage database services");
+            writeLine?.Invoke("configure Infrastructure : database : TableStorage services");
 
             services.AddAutoMapper(typeof(ConfigureService).Assembly);
 

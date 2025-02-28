@@ -19,7 +19,7 @@ namespace GenAIChat.Infrastructure.Database
 
         public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
-            writeLine?.Invoke("Add SqlLite database services");
+            writeLine?.Invoke("configure Infrastructure : database : SqlLite services");
 
             // database configuration
             var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");

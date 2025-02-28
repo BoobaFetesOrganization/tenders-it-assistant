@@ -8,7 +8,7 @@ namespace GenAIChat.Infrastructure
     {
         public static void AddGenAiChatInfrastructure(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
-            writeLine?.Invoke("Add Infrastructure services");
+            writeLine?.Invoke("configure Infrastructure : FileSystem services");
 
             // services registration
             services.AddScoped<IFileSystemAdapter, FileSystemAdapter>();

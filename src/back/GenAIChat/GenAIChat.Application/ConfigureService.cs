@@ -15,7 +15,7 @@ namespace GenAIChat.Application
     {
         public static void AddGenAiChatApplication(this IServiceCollection services, Action<string>? writeLine = null)
         {
-            writeLine?.Invoke("Add Application services");
+            writeLine?.Invoke("configure Application : usecases services");
 
             // set automapper configuration to allow to merge easily the domain and database models
             services.AddAutoMapper(typeof(ConfigureService).Assembly);
