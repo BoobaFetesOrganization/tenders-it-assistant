@@ -58,9 +58,7 @@ namespace GenAIChat.Presentation.API.Controllers
                 domain.GroupId = groupId;
                 var result = await application.UpdateAsync(domain, cancellationToken);
 
-                if (result is null) return NotFound();
-
-                return Ok(mapper.Map<UserStoryDto>(result));
+                return result is null ? NoContent() : result.Value ? Ok() : NotFound();
             }
             catch (Exception ex)
             {
@@ -72,8 +70,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.DeleteAsync(id, cancellationToken);
-            if (result is null) return NotFound();
-            return Ok(mapper.Map<UserStoryDto>(result));
+            return result is null ? NoContent() : result.Value ? Ok() : NotFound();
         }
     }
 }

@@ -88,9 +88,8 @@ namespace GenAIChat.Presentation.API.Controllers
                 }
                 , cancellationToken);
 
-                if (result is null) return NotFound();
+                return result is null ? NoContent() : result.Value ? Ok() : NotFound();
 
-                return Ok(mapper.Map<DocumentBaseDto>(result));
             }
             catch (Exception ex)
             {
@@ -102,8 +101,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.DeleteAsync(id, cancellationToken);
-            if (result is null) return NotFound();
-            return Ok(mapper.Map<DocumentBaseDto>(result));
+            return result is null ? NoContent() : result.Value ? Ok() : NotFound();
         }
     }
 }
