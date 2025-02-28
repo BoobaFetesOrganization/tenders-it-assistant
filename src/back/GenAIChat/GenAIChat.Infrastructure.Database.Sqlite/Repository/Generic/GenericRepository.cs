@@ -56,14 +56,16 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
 
         public async Task<bool?> UpdateAsync(TDomain domain)
         {
-            var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
+            var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");            
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
+
+            // detach entity to update it / see ef core update rules
+            dbContext.Entry(actual).State = EntityState.Detached;
 
             // merge domain in actual and change the timestamp
             var entity = mapper.Map(domain, actual);
             entity.SetNewTimeStamp();
-
-            var entry = _dbSet.Update(actual);
+            var entry = _dbSet.Update(entity);
             await SaveAsync();
             return true;
         }
