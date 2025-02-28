@@ -22,18 +22,5 @@ namespace GenAIChat.Domain.Project.Group.UserStory
         {
             return Tasks.Remove(task);
         }
-
-        public override object Clone()
-        {
-            UserStoryDomain clone = new()
-            {
-                Name = Name,
-                GroupId = GroupId
-            };
-
-            foreach (var item in Tasks) clone.Tasks.Add((TaskDomain)item.Clone());
-
-            return clone;
-        }
     }
 }

@@ -1,9 +1,8 @@
 ﻿using GenAIChat.Domain.Common;
-using System.Text;
 
 namespace GenAIChat.Domain.Project.Group
 {
-    public class UserStoryRequestDomain : EntityDomain
+    public class UserStoryRequestDomain : EntityDomain, ICloneable
     {
         public string Context { get; set; } = string.Empty;
         public string Personas { get; set; } = string.Empty;
@@ -14,7 +13,7 @@ namespace GenAIChat.Domain.Project.Group
         #endregion
 
 
-        public override object Clone()
+        public object Clone()
         {
             UserStoryRequestDomain clone = new()
             {

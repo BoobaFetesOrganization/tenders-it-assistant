@@ -1,6 +1,6 @@
 ﻿namespace GenAIChat.Domain.Common
 {
-    public interface IEntityDomain : ICloneable
+    public interface IEntityDomain
     {
         string Id { get; set; }
         DateTimeOffset? Timestamp { get; set; }
@@ -25,7 +25,5 @@
         {
             Id = domain.Id;
         }
-
-        public abstract object Clone();
     }
 }

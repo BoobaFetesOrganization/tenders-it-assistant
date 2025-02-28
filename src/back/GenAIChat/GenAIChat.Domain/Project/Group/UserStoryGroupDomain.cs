@@ -20,33 +20,19 @@ namespace GenAIChat.Domain.Project.Group
 
         public void ClearUserStories() => UserStories.Clear();
 
-        public void SetUserStory(IEnumerable<UserStoryDomain>? stories)
+        public void AddManyStory(IEnumerable<UserStoryDomain>? stories)
         {
             if (stories is null) return;
-            foreach (var story in stories) AddUserStory(story);
+            foreach (var story in stories) AddStory(story);
         }
-        public void AddUserStory(UserStoryDomain userStory)
+        public void AddStory(UserStoryDomain userStory)
         {
             userStory.GroupId = Id;
             UserStories.Add(userStory);
         }
-        public bool RemoveUserStory(UserStoryDomain userStory)
+        public bool RemoveStory(UserStoryDomain userStory)
         {
             return UserStories.Remove(userStory);
-        }
-
-        public override object Clone()
-        {
-            UserStoryGroupDomain clone = new()
-            {
-                Request = (UserStoryRequestDomain)Request.Clone(),
-                Response = Response,
-                ProjectId = ProjectId
-            };
-
-            foreach (var item in UserStories) clone.UserStories.Add((UserStoryDomain)item.Clone());
-
-            return clone;
         }
     }
 }
