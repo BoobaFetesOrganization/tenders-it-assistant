@@ -27,8 +27,4 @@
     <ProjectReference Include="..\GenAIChat.Domain\GenAIChat.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Command\Document\" />
-  </ItemGroup>
-
 </Project>

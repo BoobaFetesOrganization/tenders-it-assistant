@@ -7,7 +7,7 @@ using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 
-namespace GenAIChat.Infrastructure.Database.Sqlite
+namespace GenAIChat.Presentation.API
 {
     public class MappingProfile : Profile
     {
