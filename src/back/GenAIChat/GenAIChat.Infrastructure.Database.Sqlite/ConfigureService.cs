@@ -21,6 +21,9 @@ namespace GenAIChat.Infrastructure.Database
         {
             writeLine?.Invoke("configure Infrastructure : database : SqlLite services");
 
+            // register AutoMapper to scan all assemblies in the current domain
+            services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
+
             // database configuration
             var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");
             writeLine?.Invoke($"use connection string named '{databaseProvider}'");

@@ -18,7 +18,8 @@ namespace GenAIChat.Infrastructure.Database
         {
             writeLine?.Invoke("configure Infrastructure : database : TableStorage services");
 
-            services.AddAutoMapper(typeof(ConfigureService).Assembly);
+            // register AutoMapper to scan all assemblies in the current domain
+            services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
 
             services.AddDatabase(configuration, writeLine);
             services.AddRepositories();

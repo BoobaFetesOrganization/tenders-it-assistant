@@ -17,9 +17,6 @@ namespace GenAIChat.Application
         {
             writeLine?.Invoke("configure Application : usecases services");
 
-            // set automapper configuration to allow to merge easily the domain and database models
-            services.AddAutoMapper(typeof(ConfigureService).Assembly);
-
             // resource registration
             services.AddSingleton<EmbeddedResource>();
 
@@ -33,7 +30,11 @@ namespace GenAIChat.Application
             services.AddScoped<IApplication<TaskCostDomain>, ApplicationBase<TaskCostDomain>>();
 
             // register MediatR to scan all assemblies in the current domain
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterGenericHandlers = true;
+                cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+            });
         }
     }
 }
