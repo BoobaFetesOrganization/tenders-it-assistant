@@ -8,13 +8,12 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Extensions
     {
         public static Expression<Func<TDomain, bool>> ToQueryableExpression<TDomain>(this IFilter filter) where TDomain : class, IEntityDomain
         {
-            switch (filter)
+            return filter switch
             {
-                case PropertyEqualsFilter propertyEqualsFilter:
-                    return ConvertPropertyEqualsFilter<TDomain>(propertyEqualsFilter);
-                case AndFilter andFilter:
-                    return ConvertAndFilter<TDomain>(andFilter);
-            }
+                PropertyEqualsFilter propertyEqualsFilter => ConvertPropertyEqualsFilter<TDomain>(propertyEqualsFilter),
+                AndFilter andFilter => ConvertAndFilter<TDomain>(andFilter),
+                _ => throw new NotSupportedException($"The filter of type '{filter.GetType().Name}' is unknown"),
+            };
 
             throw new NotSupportedException($"The filter of type '{filter.GetType().Name}' is unknown");
         }

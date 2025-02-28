@@ -1,35 +1,22 @@
 ﻿using GenAIChat.Application.Adapter.Api;
 using GenAIChat.Application.Command.Common;
 using GenAIChat.Domain.Document;
-using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project;
 using MediatR;
 
 namespace GenAIChat.Application.Usecase
 {
-    public class DocumentApplication : ApplicationBase<DocumentDomain>, IApplication<DocumentDomain>
+#pragma warning disable CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
+    public class DocumentApplication(IGenAiApiAdapter genAiAdapter, IMediator mediator) : ApplicationBase<DocumentDomain>(mediator), IApplication<DocumentDomain>
+#pragma warning restore CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
     {
-        private readonly IGenAiApiAdapter genAiAdapter;
-        public DocumentApplication(IGenAiApiAdapter genAiAdapter, IMediator mediator) : base(mediator)
-        {
-            this.genAiAdapter = genAiAdapter;
-        }
-
         public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");
 
-            var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = domain.ProjectId }, cancellationToken)
+            _ = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = domain.ProjectId }, cancellationToken)
                 ?? throw new Exception("Project not found");
-
-            var filter = new AndFilter(
-                new PropertyEqualsFilter(nameof(DocumentDomain.ProjectId), domain.ProjectId),
-                new PropertyEqualsFilter(nameof(DocumentDomain.Name), domain.Name)
-                );
-            var sameNames = await mediator.Send(new GetAllQuery<ProjectDomain>() { Filter = filter }, cancellationToken);
-            if (sameNames.Any()) throw new Exception("Name already exists");
-
 
             DocumentDomain document = new()
             {
@@ -44,7 +31,7 @@ namespace GenAIChat.Application.Usecase
             };
 
             // upload files to the GenAI and add the doc if successful
-            var documents = await genAiAdapter.SendFilesAsync([document], cancellationToken);
+            await genAiAdapter.SendFilesAsync([document], cancellationToken);
             await mediator.Send(new CreateCommand<DocumentDomain>() { Domain = document }, cancellationToken);
 
             return document;

@@ -80,6 +80,7 @@ namespace GenAIChat.Presentation.API.Controllers
 
                 var result = await application.UpdateAsync(new()
                 {
+                    Id = id,
                     Name = request.File.FileName,
                     Metadata = new() { MimeType = request.File.ContentType, Length = request.File.Length },
                     Content = content,

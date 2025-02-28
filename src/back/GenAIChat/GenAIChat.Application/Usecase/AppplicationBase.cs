@@ -5,18 +5,8 @@ using MediatR;
 
 namespace GenAIChat.Application.Usecase
 {
-    public class ApplicationBase<TDomain> : IApplication<TDomain> where TDomain : EntityDomain, new()
+    public class ApplicationBase<TDomain>(IMediator mediator) : IApplication<TDomain> where TDomain : EntityDomain, new()
     {
-        protected readonly IMediator mediator;
-
-#pragma warning disable CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
-        public ApplicationBase() { }
-#pragma warning restore CS8618 // Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.
-        protected ApplicationBase(IMediator mediator)
-        {
-            this.mediator = mediator;
-        }
-
         public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
             => await mediator.Send(new GetAllPagedQuery<TDomain> { Options = options, Filter = filter }, cancellationToken);
 

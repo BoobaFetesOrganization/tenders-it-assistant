@@ -23,7 +23,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut()]
-        public async Task<IActionResult> UpdateAsync(string groupId, [FromBody] UserStoryRequestDto request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateAsync([FromBody] UserStoryRequestDto request, CancellationToken cancellationToken = default)
         {
             var result = await application.UpdateAsync(mapper.Map<UserStoryRequestDomain>(request), cancellationToken);
 

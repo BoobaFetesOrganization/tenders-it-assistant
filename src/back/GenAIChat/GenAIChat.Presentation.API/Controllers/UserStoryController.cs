@@ -17,7 +17,7 @@ namespace GenAIChat.Presentation.API.Controllers
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken, string groupId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(string groupId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit, CancellationToken cancellationToken = default)
         {
             var options = new PaginationOptions(offset, limit);
             var filter = new PropertyEqualsFilter(nameof(UserStoryDomain.GroupId), groupId);
