@@ -29,7 +29,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken, string projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(string projectId, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit, CancellationToken cancellationToken = default)
         {
             var options = new PaginationOptions(offset, limit);
             var filter = new PropertyEqualsFilter(nameof(DocumentDomain.ProjectId), projectId);
@@ -39,7 +39,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null) return NotFound();
@@ -47,7 +47,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string projectId, [FromForm] DocumentRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create(string projectId, [FromForm] DocumentRequest request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string projectId, string id, [FromForm] DocumentRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Update(string projectId, string id, [FromForm] DocumentRequest request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -98,7 +98,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.DeleteAsync(id, cancellationToken);
             if (result is null) return NotFound();

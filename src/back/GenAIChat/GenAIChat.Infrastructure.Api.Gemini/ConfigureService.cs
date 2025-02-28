@@ -8,6 +8,8 @@ namespace GenAIChat.Infrastructure.Api.Gemini
 {
     public static class ConfigureService
     {
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
+
         public static void AddGenAiChatInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("configure Infrastructure : Api : Gemini Api services");
@@ -17,8 +19,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini
             var geminiApiConfig = configuration.GetSection("AI:Gemini").Get<GeminiApiConfiguration>()
                 ?? throw new InvalidOperationException("AI:Gemini section is missing or invalid in appsettings.json, it should be { \"AI\": { \"Gemini\": { \"Version\": \"something\", \"ApiKey\": \"something\" } }}");
 
-            writeLine?.Invoke(JsonSerializer.Serialize(geminiApiConfig, new JsonSerializerOptions { WriteIndented = true }));
-
+            writeLine?.Invoke(JsonSerializer.Serialize(geminiApiConfig, JsonSerializerOptions));
 
             services.AddSingleton(geminiApiConfig);
 

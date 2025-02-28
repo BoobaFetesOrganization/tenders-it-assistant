@@ -11,7 +11,7 @@ namespace GenAIChat.Application.Command.Common
 
     public class GetCreateCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<CreateCommand<TDomain>, TDomain> where TDomain : class, IEntityDomain, ICloneable
     {
-        public async Task<TDomain> Handle(CreateCommand<TDomain> request, CancellationToken cancellationToken)
+        public async Task<TDomain> Handle(CreateCommand<TDomain> request, CancellationToken cancellationToken = default)
             => await repository.AddAsync(request.Domain);
     }
 }

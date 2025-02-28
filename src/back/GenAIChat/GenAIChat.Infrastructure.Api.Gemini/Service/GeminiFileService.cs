@@ -21,7 +21,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task UploadAsync(DocumentDomain document, CancellationToken cancellationToken)
+        public async Task UploadAsync(DocumentDomain document, CancellationToken cancellationToken = default)
         {
             // upoad file
             var uploadUrl = await UploadFileMetadataAsync(document, cancellationToken);
@@ -30,7 +30,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             await UploadFileContentAsync(document, uploadUrl, cancellationToken);
         }
 
-        private async Task<string> UploadFileMetadataAsync(DocumentDomain document, CancellationToken cancellationToken)
+        private async Task<string> UploadFileMetadataAsync(DocumentDomain document, CancellationToken cancellationToken = default)
         {
             // action
             HttpRequestMessage request = new(HttpMethod.Post, Endpoint);
@@ -60,7 +60,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini.Service
             return uploadUrl;
         }
 
-        private async Task UploadFileContentAsync(DocumentDomain document, string uploadUrl, CancellationToken cancellationToken)
+        private async Task UploadFileContentAsync(DocumentDomain document, string uploadUrl, CancellationToken cancellationToken = default)
         {
             HttpRequestMessage request = new(HttpMethod.Put, uploadUrl)
             {

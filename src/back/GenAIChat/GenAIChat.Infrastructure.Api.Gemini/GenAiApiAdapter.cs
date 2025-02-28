@@ -7,13 +7,13 @@ namespace GenAIChat.Infrastructure.Api.Gemini
 {
     public class GenAiApiAdapter(GeminiGenerateContentService generateContentService, GeminiFileService fileService) : IGenAiApiAdapter
     {
-        public async Task<string> SendRequestAsync(GeminiRequest request, CancellationToken cancellationToken)
+        public async Task<string> SendRequestAsync(GeminiRequest request, CancellationToken cancellationToken = default)
         {
             return await generateContentService.CallAsync(request, cancellationToken);
         }
 
 
-        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain> documents, CancellationToken cancellationToken)
+        public async Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain> documents, CancellationToken cancellationToken = default)
         {
             // find expired documents
             var uploads = documents.Where(doc => doc.Metadata.ExpirationTime <= DateTime.UtcNow);

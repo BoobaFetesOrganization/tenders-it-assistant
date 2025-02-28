@@ -26,7 +26,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(string groupId, string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetByIdAsync(string groupId, string id, CancellationToken cancellationToken = default)
         {
             var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null || result.GroupId != groupId) return NotFound();
@@ -34,7 +34,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string groupId, [FromBody] UserStoryDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create(string groupId, [FromBody] UserStoryDto request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(string groupId, [FromBody] UserStoryDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Update(string groupId, [FromBody] UserStoryDto request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.DeleteAsync(id, cancellationToken);
             if (result is null) return NotFound();

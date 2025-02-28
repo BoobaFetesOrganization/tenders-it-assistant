@@ -11,7 +11,7 @@ namespace GenAIChat.Application.Command.Common
 
     public class GetDeleteCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<DeleteCommand<TDomain>, bool?> where TDomain : class, IEntityDomain
     {
-        public async Task<bool?> Handle(DeleteCommand<TDomain> request, CancellationToken cancellationToken)
+        public async Task<bool?> Handle(DeleteCommand<TDomain> request, CancellationToken cancellationToken = default)
         {
             TDomain item = await repository.GetByIdAsync(request.Domain.Id)
                 ?? throw new Exception($"entity '{request.Domain.Id} of type '{nameof(TDomain)}' not found. The entity is not deleted.");

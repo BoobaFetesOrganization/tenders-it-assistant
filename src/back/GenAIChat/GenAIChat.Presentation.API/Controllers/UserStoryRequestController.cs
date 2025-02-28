@@ -15,7 +15,7 @@ namespace GenAIChat.Presentation.API.Controllers
     {
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByParentAsync(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetByParentAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null) return NotFound();
@@ -23,7 +23,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut()]
-        public async Task<IActionResult> UpdateAsync(string groupId, [FromBody] UserStoryRequestDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateAsync(string groupId, [FromBody] UserStoryRequestDto request, CancellationToken cancellationToken = default)
         {
             var result = await application.UpdateAsync(mapper.Map<UserStoryRequestDomain>(request), cancellationToken);
 

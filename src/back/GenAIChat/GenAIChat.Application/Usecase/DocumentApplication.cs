@@ -15,7 +15,7 @@ namespace GenAIChat.Application.Usecase
             this.genAiAdapter = genAiAdapter;
         }
 
-        public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken)
+        public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");
@@ -50,7 +50,7 @@ namespace GenAIChat.Application.Usecase
             return document;
         }
 
-        public async override Task<bool?> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken)
+        public async override Task<bool?> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");

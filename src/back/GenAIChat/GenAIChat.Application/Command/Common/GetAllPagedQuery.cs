@@ -13,7 +13,7 @@ namespace GenAIChat.Application.Command.Common
 
     public class GetAllPagedQueryHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<GetAllPagedQuery<TDomain>, Paged<TDomain>> where TDomain : class, IEntityDomain
     {
-        public async Task<Paged<TDomain>> Handle(GetAllPagedQuery<TDomain> request, CancellationToken cancellationToken)
+        public async Task<Paged<TDomain>> Handle(GetAllPagedQuery<TDomain> request, CancellationToken cancellationToken = default)
             => await repository.GetAllPagedAsync(request.Options, request.Filter);
     }
 }

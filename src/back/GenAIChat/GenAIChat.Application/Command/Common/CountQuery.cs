@@ -16,7 +16,7 @@ namespace GenAIChat.Application.Command.Common
 
     public class GetCountQueryHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<CountQuery<TDomain>, CountQuery> where TDomain : class, IEntityDomain
     {
-        public async Task<CountQuery> Handle(CountQuery<TDomain> request, CancellationToken cancellationToken)
+        public async Task<CountQuery> Handle(CountQuery<TDomain> request, CancellationToken cancellationToken = default)
             => new() { Value = await repository.CountAsync(request.Filter) };
     }
 }

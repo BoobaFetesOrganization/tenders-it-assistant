@@ -18,9 +18,9 @@ namespace GenAIChat.Application.Usecase
 {
     public class UserStoryGroupApplication(EmbeddedResource resources, IGenAiApiAdapter genAiAdapter, IMediator mediator) : ApplicationBase<UserStoryGroupDomain>(mediator), IUserStoryGroupApplication
     {
-        public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken) => CreateAsync(domain.ProjectId, cancellationToken);
+        public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default) => CreateAsync(domain.ProjectId, cancellationToken);
 
-        public async Task<UserStoryGroupDomain> CreateAsync(string projectId, CancellationToken cancellationToken)
+        public async Task<UserStoryGroupDomain> CreateAsync(string projectId, CancellationToken cancellationToken = default)
         {
             var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken) ?? throw new Exception("Project not found");
 
@@ -43,12 +43,12 @@ namespace GenAIChat.Application.Usecase
             return (await GetByIdAsync(group.Id, cancellationToken)) ?? throw new Exception("new item not found !");
         }
 
-        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(string projectId, string groupId, CancellationToken cancellationToken) => await GenerateUserStoriesAsync(
+        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(string projectId, string groupId, CancellationToken cancellationToken = default) => await GenerateUserStoriesAsync(
                await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken),
                await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken),
                cancellationToken);
 
-        private async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? _group, CancellationToken cancellationToken)
+        private async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? _group, CancellationToken cancellationToken = default)
         {
             var project = _project ?? throw new Exception("Project  not found");
             var group = _group ?? throw new Exception("Group not found");
@@ -61,7 +61,7 @@ namespace GenAIChat.Application.Usecase
             // set values of the group
             List<Task> actions = [mediator.Send(new UpdateCommand<UserStoryRequestDomain> { Domain = group.Request }, cancellationToken)];
             group.ClearUserStories();
-            CreateGeneratedStories(group, response, cancellationToken);
+            CreateGeneratedStories(group, response);
             actions.Add(mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = group }, cancellationToken));
 
             // reset property SelectGroupId of the project
@@ -74,7 +74,7 @@ namespace GenAIChat.Application.Usecase
         }
         #region GenerateUsertoriesAsync helpers
 
-        private async Task<IEnumerable<DocumentDomain>> RehydrateDocuments(UserStoryGroupDomain domain, CancellationToken cancellationToken)
+        private async Task<IEnumerable<DocumentDomain>> RehydrateDocuments(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
         {
             // upload files to the GenAI and store new Metadata
             var filter = new PropertyEqualsFilter(nameof(UserStoryGroupDomain.ProjectId), domain.ProjectId);
@@ -87,7 +87,7 @@ namespace GenAIChat.Application.Usecase
             return documents;
         }
 
-        private async Task<string> SendRequestToGenAi(UserStoryGroupDomain domain, IEnumerable<DocumentDomain> documents, CancellationToken cancellationToken)
+        private async Task<string> SendRequestToGenAi(UserStoryGroupDomain domain, IEnumerable<DocumentDomain> documents, CancellationToken cancellationToken = default)
         {
             GeminiContent content = new();
             content.AddPart(ConvertRequestDomainToGeminiContent(domain.Request));
@@ -122,7 +122,7 @@ namespace GenAIChat.Application.Usecase
             return new(sb.ToString());
         }
 
-        private void CreateGeneratedStories(UserStoryGroupDomain domain, GeminiResponse response, CancellationToken cancellationToken)
+        private static void CreateGeneratedStories(UserStoryGroupDomain domain, GeminiResponse response)
         {
             // check constraints
             var responseResult = response.Candidates.FirstOrDefault(i => i.Content.Role == "model")?.Content?.Parts.Last()
@@ -142,7 +142,7 @@ namespace GenAIChat.Application.Usecase
             domain.SetUserStory(userStories);
         }
 
-        private void ResetSelectedGroupOfTheProjectIfNeeded(ProjectDomain project, UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken)
+        private void ResetSelectedGroupOfTheProjectIfNeeded(ProjectDomain project, UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken = default)
         {
             // when the selected group of the project is generated (or regenerated),
             // the selection must be unset
@@ -157,7 +157,7 @@ namespace GenAIChat.Application.Usecase
 
         #endregion
 
-        public async Task<UserStoryGroupDomain> ValidateCostsAsync(string projectId, string groupId, CancellationToken cancellationToken)
+        public async Task<UserStoryGroupDomain> ValidateCostsAsync(string projectId, string groupId, CancellationToken cancellationToken = default)
         {
             var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken) ?? throw new Exception("Project not found");
             var group = await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken) ?? throw new Exception("Group not found");

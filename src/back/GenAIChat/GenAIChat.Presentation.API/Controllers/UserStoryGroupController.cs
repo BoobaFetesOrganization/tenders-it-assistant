@@ -25,7 +25,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(string projectId, string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetByIdAsync(string projectId, string id, CancellationToken cancellationToken = default)
         {
             var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null || result.ProjectId != projectId) return NotFound();
@@ -33,7 +33,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string projectId, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create(string projectId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(string projectId, [FromBody] UserStoryGroupDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Update(string projectId, [FromBody] UserStoryGroupDto request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         // pas dans le bon controller / pas de raccouri / merci [HttpPut("{groupId}/request")]
-        // pas dans le bon controller / pas de raccouri / merci public async Task<IActionResult> UpdateRequest(string groupId, [FromBody] UserStoryRequestDto request, CancellationToken cancellationToken)
+        // pas dans le bon controller / pas de raccouri / merci public async Task<IActionResult> UpdateRequest(string groupId, [FromBody] UserStoryRequestDto request, CancellationToken cancellationToken = default)
         // pas dans le bon controller / pas de raccouri / merci {
         // pas dans le bon controller / pas de raccouri / merci     try
         // pas dans le bon controller / pas de raccouri / merci     {
@@ -104,7 +104,7 @@ namespace GenAIChat.Presentation.API.Controllers
         // pas dans le bon controller / pas de raccouri / merci }
 
         // pas dans le bon controller / pas de raccouri / merci [HttpPut("{id}/story")]
-        // pas dans le bon controller / pas de raccouri / merci public async Task<IActionResult> UpdateUserStories(string projectId, string id, [FromBody] UserStoryGroupDto request, CancellationToken cancellationToken)
+        // pas dans le bon controller / pas de raccouri / merci public async Task<IActionResult> UpdateUserStories(string projectId, string id, [FromBody] UserStoryGroupDto request, CancellationToken cancellationToken = default)
         // pas dans le bon controller / pas de raccouri / merci {
         // pas dans le bon controller / pas de raccouri / merci     try
         // pas dans le bon controller / pas de raccouri / merci     {
@@ -127,7 +127,7 @@ namespace GenAIChat.Presentation.API.Controllers
         // pas dans le bon controller / pas de raccouri / merci }
 
         [HttpPut("{id}/generate")]
-        public async Task<IActionResult> Generate(string projectId, string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Generate(string projectId, string id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut("{id}/validate")]
-        public async Task<IActionResult> Validate(string projectId, string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Validate(string projectId, string id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -158,7 +158,7 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
             var result = await application.DeleteAsync(id, cancellationToken);
             if (result is null) return NotFound();
