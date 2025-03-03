@@ -1,10 +1,4 @@
 ﻿using GenAIChat.Domain;
-using GenAIChat.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage
 {
@@ -21,7 +15,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage
 
         public static (string, string) ExtractKeys(string id)
         {
-            var parts = string.IsNullOrWhiteSpace(id) ? Array.Empty<string>() : id.Split("|");
+            var parts = string.IsNullOrWhiteSpace(id) ? [] : id.Split("|");
 
             if (parts.Length < 2) return (DefaultPartitionKey, DomainTools.NewId());
 
