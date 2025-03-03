@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Azure.Data.Tables;
-using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
 using GenAIChat.Domain.Project.Group;
@@ -8,7 +6,6 @@ using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
-using GenAIChat.Infrastructure.Database.TableStorage.Entity.Common;
 
 
 namespace GenAIChat.Infrastructure.Database.TableStorage
@@ -17,30 +14,41 @@ namespace GenAIChat.Infrastructure.Database.TableStorage
     {
         public MappingProfile()
         {
-            void MapFor<TSource, TDomain>()
-                where TSource : class, IEntityDomain
-                where TDomain : class, ITableEntity
-            {
-                CreateMap<TSource, TDomain>();
-                CreateMap<TDomain, TSource>();
+            // project
+            CreateMap<ProjectDomain, ProjectEntity>();
+            CreateMap<ProjectEntity, ProjectDomain>();
 
-                CreateMap<IEnumerable<TSource>, IEnumerable<TDomain>>()
-                    .ConvertUsing(new IEnumerableConverter<TSource, TDomain>());
-            }
+            //// document
+            CreateMap<DocumentDomain, DocumentEntity>();
+            CreateMap<DocumentEntity, DocumentDomain>();
 
-            MapFor<EntityDomain, BaseEntity>();
-            MapFor<ProjectDomain, ProjectEntity>();
-            MapFor<DocumentDomain, DocumentEntity>();
-            MapFor<DocumentMetadataDomain, DocumentMetadataEntity>();
-            MapFor<UserStoryGroupDomain, UserStoryGroupEntity>();
-            MapFor<UserStoryRequestDomain, UserStoryRequestEntity>();
-            MapFor<UserStoryDomain, UserStoryEntity>();
-            MapFor<TaskDomain, TaskEntity>();
-            MapFor<TaskCostDomain, TaskCostEntity>();
+            //// document metadata
+            CreateMap<DocumentMetadataDomain, DocumentMetadataEntity>();
+            CreateMap<DocumentMetadataEntity, DocumentMetadataDomain>();
+
+            //// user story group
+            CreateMap<UserStoryGroupDomain, UserStoryGroupEntity>();
+            CreateMap<UserStoryGroupEntity, UserStoryGroupDomain>();
+
+            //// user story request
+            CreateMap<UserStoryRequestDomain, UserStoryRequestEntity>();
+            CreateMap<UserStoryRequestEntity, UserStoryRequestDomain>();
+
+            //// user story
+            CreateMap<UserStoryDomain, UserStoryEntity>();
+            CreateMap<UserStoryEntity, UserStoryDomain>();
+
+            //// task
+            CreateMap<TaskDomain, TaskEntity>();
+            CreateMap<TaskEntity, TaskDomain>();
+
+            //// task cost
+            CreateMap<TaskCostDomain, TaskCostEntity>();
+            CreateMap<TaskCostEntity, TaskCostDomain>();
         }
 
         public class IEnumerableConverter<TSource, TDestination> : ITypeConverter<IEnumerable<TSource>, IEnumerable<TDestination>>
-            where TSource : class, IEntityDomain
+            where TSource : class
             where TDestination : class
         {
             public IEnumerable<TDestination> Convert(IEnumerable<TSource> source, IEnumerable<TDestination> destination, ResolutionContext context)

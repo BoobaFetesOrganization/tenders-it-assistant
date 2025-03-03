@@ -1,44 +1,29 @@
 ﻿using Azure;
 using Azure.Data.Tables;
-using GenAIChat.Domain.Common;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Entity.Common
 {
     internal abstract class BaseEntity : ITableEntity
     {
-        private const string DefaultPartitionKey = "GenAIChat";
-
 
         #region for mapping with IEntityDomain
-        public string Id { get => $"{PartitionKey}|{RowKey}"; set => SetId(value); }
+        public string Id
+        {
+            get => Tools.GetId(PartitionKey, RowKey);
+            set
+            {
+                var (partitionKey, rowKey) = Tools.ExtractKeys(value);
+                PartitionKey = partitionKey;
+                RowKey = rowKey;
+            }
+        }
         #endregion
 
         #region ITableEntity
-        public string PartitionKey { get; set; } = DefaultPartitionKey;
-        public string RowKey { get; set; } = EntityDomain.NewId();
+        public string PartitionKey { get; set; } = string.Empty;
+        public string RowKey { get; set; } = string.Empty;
         public DateTimeOffset? Timestamp { get; set; }
         public ETag ETag { get; set; }
         #endregion
-
-        protected BaseEntity() { }
-        protected BaseEntity(string id) => SetId(id);
-        protected BaseEntity(string partitionKey, string rowKey) => SetKeys(partitionKey, rowKey);
-
-        private void SetNewKeys()
-        {
-            PartitionKey = DefaultPartitionKey;
-            RowKey = EntityDomain.NewId();
-        }
-        private void SetKeys(string partitionKey, string rowKey)
-        {
-            PartitionKey = partitionKey;
-            RowKey = rowKey;
-        }
-        private void SetId(string id)
-        {
-            var parts = string.IsNullOrWhiteSpace(id) ? [] : id.Split("|");
-            if (parts.Length < 2) SetNewKeys();
-            else SetKeys(parts[0], parts[1]);
-        }
     }
 }

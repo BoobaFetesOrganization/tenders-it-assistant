@@ -1,4 +1,5 @@
 ﻿using Azure.Data.Tables;
+using Azure.Storage.Blobs;
 using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Project;
@@ -32,9 +33,11 @@ namespace GenAIChat.Infrastructure.Database
             var connectionString = configuration.GetConnectionString(databaseProvider) ?? throw new InvalidOperationException("The DatabaseProvider property's value is not found in the ConnectionStrings section");
             if (string.IsNullOrEmpty(connectionString)) throw new InvalidOperationException("The connection string cannot be null or empty.");
 
-            var service = new TableServiceClient(connectionString);
+            var tableService = new TableServiceClient(connectionString);
+            services.AddSingleton(tableService);
 
-            services.AddSingleton(service);
+            var blobService = new BlobServiceClient(connectionString);
+            services.AddSingleton(blobService);
         }
 
         private static void AddRepositories(this IServiceCollection services)

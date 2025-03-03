@@ -1,108 +1,42 @@
 ﻿using AutoMapper;
-using Azure;
 using Azure.Data.Tables;
-using GenAIChat.Application.Specifications;
-using GenAIChat.Domain.Common;
+using GenAIChat.Application.Adapter.Database;
+using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project;
+using GenAIChat.Domain.Project.Group;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
-using GenAIChat.Infrastructure.Database.TableStorage.Repository.Common;
-using System.Net;
+using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    public class ProjectRepository(TableServiceClient service, IMapper mapper) : BaseRepository<ProjectDomain>(service, "Projects")
+    internal class ProjectRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<DocumentDomain> documentRepository, IRepositoryAdapter<UserStoryGroupDomain> groupRepository) : GenericRepository<ProjectDomain, ProjectEntity>(service, "Projects", mapper)
     {
-        public async override Task<ProjectDomain> AddAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool?> DeleteAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
-            var entity = mapper.Map<ProjectEntity>(domain);
-            await client.AddEntityAsync(entity, cancellationToken);
-            var result = await GetByIdAsync(entity, cancellationToken);
-            return result!;
+            // cascading deletion of all related entities
+            var actionResults = await Task.WhenAll([
+                ..domain.Documents.Select(item => documentRepository.DeleteAsync(item, cancellationToken)),
+                ..domain.Groups.Select(item => groupRepository.DeleteAsync(item, cancellationToken))
+                ]);
+
+            if (!actionResults.All(x => x.HasValue && x.Value)) return false;
+            return await base.DeleteAsync(domain, cancellationToken);
         }
 
-        public override async Task<int> CountAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
+        public async override Task<ProjectDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            var filterString = filter?.ToAzureFilterString();
-            var count = client.Query<ProjectEntity>(filterString, null, null, cancellationToken).Count();
-            return await Task.FromResult(count);
-        }
+            var result = await base.GetByIdAsync(id, cancellationToken);
+            if (result is null) return null;
 
-        public override async Task<bool?> DeleteAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
-        {
-            var entity = mapper.Map<ProjectEntity>(domain);
-            try
-            {
-                await client.DeleteEntityAsync(entity.PartitionKey, entity.RowKey, default, cancellationToken);
-                return true;
-            }
-            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NoContent)
-            {
-                return false;
-            }
-            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-            catch (Exception) // on sait jamais, faudra revoir ca un jour ....
-            {
-                return null;
-            }
-        }
+            //cascading loading of all related entities 
+            var documents = await documentRepository.GetAllAsync(new PropertyEqualsFilter(nameof(DocumentEntity.ProjectId), id), cancellationToken);
+            var groups = await groupRepository.GetAllAsync(new PropertyEqualsFilter(nameof(UserStoryGroupEntity.ProjectId), id), cancellationToken);
 
-        public async override Task<IEnumerable<ProjectDomain>> GetAllAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
-        {
-            var results = client.Query<ProjectEntity>(filter?.ToAzureFilterString(), null, null, cancellationToken).ToArray();
-            return await Task.FromResult(mapper.Map<IEnumerable<ProjectDomain>>(results));
-        }
+            result.Documents = [.. await Task.WhenAll(documents.Select(i => documentRepository.GetByIdAsync(i.Id, cancellationToken)))];
+            result.Groups = [.. await Task.WhenAll(groups.Select(i => groupRepository.GetByIdAsync(i.Id, cancellationToken)))];
 
-        public async override Task<Paged<ProjectDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
-        {
-            var filterString = filter?.ToAzureFilterString();
-
-            var count = await CountAsync(filter, cancellationToken);
-            var data = client.Query<ProjectEntity>(filterString, null, null, cancellationToken)
-                                .Skip(options.Offset)
-                                .Take(options.Limit)
-                                .ToArray();
-
-            return new Paged<ProjectDomain>(new PaginationOptions(options, count), mapper.Map<IEnumerable<ProjectDomain>>(data));
-        }
-
-        public async override Task<ProjectDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default) => await GetByIdAsync(new ProjectEntity(id), cancellationToken);
-
-        private async Task<ProjectDomain?> GetByIdAsync(ProjectEntity entity, CancellationToken cancellationToken = default)
-        {
-            var filter = new AndFilter(
-                new PropertyEqualsFilter(nameof(ITableEntity.PartitionKey), entity.PartitionKey),
-                new PropertyEqualsFilter(nameof(ITableEntity.RowKey), entity.RowKey)
-                );
-
-            var results = client.Query<ProjectEntity>(filter.ToAzureFilterString(), null, null, cancellationToken).FirstOrDefault();
-
-            return await Task.FromResult(results is null ? null : mapper.Map<ProjectDomain>(results));
-        }
-
-        public override async Task<bool?> UpdateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
-        {
-            var entity = mapper.Map<ProjectEntity>(domain);
-            try
-            {
-                await client.UpdateEntityAsync(entity, default, TableUpdateMode.Replace, cancellationToken);
-                return true;
-            }
-            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NoContent)
-            {
-                return false;
-            }
-            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-            catch (Exception) // on sait jamais, faudra revoir ca un jour ....
-            {
-                return null;
-            }
+            return result;
         }
     }
 }

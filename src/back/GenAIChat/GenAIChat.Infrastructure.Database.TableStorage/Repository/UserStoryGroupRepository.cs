@@ -1,46 +1,54 @@
-﻿using Azure.Data.Tables;
-using GenAIChat.Domain.Common;
+﻿using AutoMapper;
+using Azure;
+using Azure.Data.Tables;
+using GenAIChat.Application.Adapter.Database;
+using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group;
-using GenAIChat.Infrastructure.Database.TableStorage.Repository.Common;
+using GenAIChat.Domain.Project.Group.UserStory;
+using GenAIChat.Infrastructure.Database.TableStorage.Entity;
+using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
+using System.Net;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    public class UserStoryGroupRepository(TableServiceClient service) : BaseRepository<UserStoryGroupDomain>(service, "UserStoryGroups")
+    internal class UserStoryGroupRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<UserStoryRequestDomain> requestRepository, IRepositoryAdapter<UserStoryDomain> storyRepository) : GenericRepository<UserStoryGroupDomain, UserStoryGroupEntity>(service, "UserStoryGroups", mapper)
     {
-        public override Task<UserStoryGroupDomain> AddAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<UserStoryGroupDomain> AddAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var clone = mapper.Map<UserStoryGroupDomain>(domain);
+            clone.Id = Tools.GetNewId();
+            clone.Request.GroupId = clone.Id;
+
+            // create related entity metadata
+            clone.Request = await requestRepository.AddAsync(clone.Request, cancellationToken);
+
+            return await base.AddAsync(clone, cancellationToken);
         }
 
-        public override Task<int> CountAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
+        public async override Task<bool?> DeleteAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            // cascading deletion of all related entities
+            List<Task<bool?>> actions = [.. domain.UserStories.Select(item => storyRepository.DeleteAsync(item, cancellationToken))];
+            if (domain.Request != null) actions.AddRange(requestRepository.DeleteAsync(domain.Request, cancellationToken));
+            var actionResults = await Task.WhenAll(actions);
+
+            if (!actionResults.All(x => x.HasValue && x.Value)) return false;
+            return await base.DeleteAsync(domain, cancellationToken);
         }
 
-        public override Task<bool?> DeleteAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<UserStoryGroupDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
+            var result = await base.GetByIdAsync(id, cancellationToken);
+            if (result is null) return null;
 
-        public override Task<IEnumerable<UserStoryGroupDomain>> GetAllAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+            //cascading loading of all related entities 
+            var stories = await storyRepository.GetAllAsync(new PropertyEqualsFilter(nameof(UserStoryEntity.GroupId), id), cancellationToken);
 
-        public override Task<Paged<UserStoryGroupDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+            result.Request = (await requestRepository.GetAllAsync(new PropertyEqualsFilter(nameof(UserStoryRequestEntity.GroupId), result.Id), cancellationToken)).Single();
+            result.UserStories = [.. await Task.WhenAll(stories.Select(i => storyRepository.GetByIdAsync(i.Id, cancellationToken)))];
 
-        public override Task<UserStoryGroupDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<bool?> UpdateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
+            return result;
         }
     }
 }

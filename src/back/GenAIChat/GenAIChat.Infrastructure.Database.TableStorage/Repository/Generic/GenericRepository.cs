@@ -1,150 +1,131 @@
-﻿//using AutoMapper;
-//using Azure.Data.Tables;
-//using GenAIChat.Application.Adapter.Database;
-//using GenAIChat.Domain.Common;
-//using System.Collections.Immutable;
-//using System.Linq.Expressions;
-//using System.Text.Json;
+﻿using AutoMapper;
+using Azure;
+using Azure.Data.Tables;
+using GenAIChat.Application.Adapter.Database;
+using GenAIChat.Application.Specifications;
+using GenAIChat.Domain.Common;
+using GenAIChat.Domain.Filter;
+using GenAIChat.Infrastructure.Database.TableStorage.Entity.Common;
+using System.Net;
 
-//namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
-//{
-//    public abstract class GenericRepository<TDomain> : IRepositoryAdapter<TDomain> where TDomain : class, IEntityDomain
-//    {
-//        protected TableClient client;
-//        protected IMapper mapper;
+namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
+{
+    internal abstract class GenericRepository<TDomain, TEntity> : IRepositoryAdapter<TDomain>
+        where TDomain : class, IEntityDomain
+        where TEntity : BaseEntity, new()
+    {
+        protected TableClient client;
+        protected IMapper mapper;
 
-//        protected GenericRepository(TableServiceClient service, string tableName, IMapper mapper)
-//        {
-//            client = service.GetTableClient(tableName);
-//            client.CreateIfNotExistsAsync();
-//            this.mapper = mapper;
-//        }
+        public GenericRepository(TableServiceClient service, string tableName, IMapper mapper)
+        {
+            client = service.GetTableClient(tableName);
+            client.CreateIfNotExistsAsync();
+            this.mapper = mapper;
+        }
 
-//        public async Task<int> CountAsync(IFilter? filter = null)
-//        {
-//            int count = 0;
-//            int maxPerPage = 1000;
-//            string? continuationToken = null;
+        public async virtual Task<TDomain> AddAsync(TDomain domain, CancellationToken cancellationToken = default)
+        {
+            var entity = mapper.Map<TEntity>(domain);
+            await client.AddEntityAsync(entity, cancellationToken);
+            var result = await GetByIdAsync(entity.Id, cancellationToken);
+            return result!;
+        }
 
-//            var response = client.Query<TDomain>((entity) => true, maxPerPage, ["PartitionKey", "RowKey"]); // Ajustez maxPerPage
-//            foreach (var page in response.AsPages(continuationToken))
-//            {
-//                count += page.Values.Count;
-//                continuationToken = page.ContinuationToken;
-//            }
+        public async virtual Task<int> CountAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
+        {
+            var filterString = filter?.ToAzureFilterString();
+            var count = client.Query<TEntity>(filterString, null, null, cancellationToken).Count();
+            return await Task.FromResult(count);
+        }
 
-//            return await Task.FromResult(count);
-//        }
+        public async virtual Task<bool?> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default)
+        {
+            var entity = mapper.Map<TEntity>(domain);
+            try
+            {
+                await client.DeleteEntityAsync(entity.PartitionKey, entity.RowKey, default, cancellationToken);
+                return true;
+            }
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NoContent)
+            {
+                return false;
+            }
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            catch (Exception) // on sait jamais, faudra revoir ca un jour ....
+            {
+                return null;
+            }
+        }
 
-//        public async Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null)
-//        {
-//            Expression<Func<TDomain, bool>> _filter = filter ?? (entity => true);
+        public async virtual Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
+        {
+            var results = client.Query<TEntity>(filter?.ToAzureFilterString(), null, null, cancellationToken).ToArray();
+            return await Task.FromResult(mapper.Map<IEnumerable<TDomain>>(results));
+        }
 
-//            var response = client.Query(_filter);
+        public async virtual Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
+        {
+            var filterString = filter?.ToAzureFilterString();
 
-//            return await Task.FromResult(response.ToImmutableArray());
-//        }
+            // A single request is made to retrieve the desired page and does not block the current thread
+            return await Task.Run(async () =>
+            {
+                var count = await CountAsync(filter, cancellationToken);
+                var data = client.Query<TEntity>(filterString, null, null, cancellationToken)
+                    .Skip(options.Offset)
+                    .Take(options.Limit).ToArray();
 
-//        public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null)
-//        {
-//            Expression<Func<TDomain, bool>> _filter = filter ?? (entity => true);
+                return new Paged<TDomain>(
+                    new PaginationOptions(options, count),
+                    mapper.Map<IEnumerable<TDomain>>(data));
+            });
+        }
 
-//            // act : query
-//            var response = client.Query(_filter, options.Limit);
+        public async virtual Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        {
+            var (partitionKey, rowKey) = Tools.ExtractKeys(id);
+            var filter = new AndFilter(
+                new PropertyEqualsFilter(nameof(ITableEntity.PartitionKey), partitionKey),
+                new PropertyEqualsFilter(nameof(ITableEntity.RowKey), rowKey)
+                ).ToAzureFilterString();
 
-//            // act : paginate
-//            string? continuationToken = null;
-//            List<TDomain> results = [];
+            var data = await Task.Run(
+                () => client.Query<TEntity>(filter, 1, null, cancellationToken).FirstOrDefault()
+                , cancellationToken);
+            return data is null ? null : mapper.Map<TDomain>(data);
+        }
 
-//            int count = 0;
-//            foreach (var page in response.AsPages(continuationToken))
-//            {
-//                count += page.Values.Count;
-//                continuationToken = page.ContinuationToken;
+        public async virtual Task<bool?> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default)
+        {
+            var entity = mapper.Map<TEntity>(domain);
+            try
+            {
+                await client.UpdateEntityAsync(entity, new ETag("*"), TableUpdateMode.Replace, cancellationToken);
+                return true;
+            }
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NoContent)
+            {
+                return false;
+            }
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            catch (Exception) // on sait jamais, faudra revoir ca un jour ....
+            {
+                return null;
+            }
+        }
+        public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-//                // check 
-//                if (count != options.Offset) continue;
+        public void Dispose()
+        {
 
-//                // act
-//                results.AddRange(page.Values);
-//            }
-
-//            return await Task.FromResult(new Paged<TDomain>(new PaginationOptions(options, count), results));
-//        }
-
-//        public async Task<TDomain?> GetByIdAsync(string id) => await Task.FromResult(client.Query<TDomain>(filter: $"PartitionKey eq '{id}'").FirstOrDefault());
-
-//        public async Task<TDomain> AddAsync(TDomain domain)
-//        {
-//            if (string.IsNullOrEmpty(entity.PartitionKey)) throw new ArgumentException("PartitionKey has to be set");
-//            if (string.IsNullOrEmpty(entity.RowKey)) throw new ArgumentException("RowKey has to be set");
-
-//            var json = JsonSerializer.Serialize(entity);
-//            Console.WriteLine("entity as json");
-//            Console.WriteLine(json);
-
-//            // Ajoutez des journaux pour vérifier les valeurs des propriétés de l'entité
-//            Console.WriteLine($"Adding entity with PartitionKey: {entity.PartitionKey}, RowKey: {entity.RowKey}");
-
-//            // Vérifiez les autres propriétés de l'entité si nécessaire
-//            foreach (var property in typeof(TDomain).GetProperties())
-//            {
-//                var value = property.GetValue(entity);
-//                Console.WriteLine($"{property.Name}: {value}");
-//            }
-
-//            var response = await client.AddEntityAsync(entity);
-
-//            var entry = await client.GetEntityAsync<TDomain>(entity.PartitionKey, (entity as ITableEntity).RowKey);
-//            return entry;
-//        }
-
-//        public async Task<TDomain> UpdateAsync(TDomain domain)
-//        {
-//            var response = await client.UpdateEntityAsync(entity, Azure.ETag.All);
-
-//            var entry = await client.GetEntityAsync<TDomain>(entity.PartitionKey, (entity as ITableEntity).RowKey);
-//            return entry;
-//        }
-
-//        public async Task<TDomain> DeleteAsync(TDomain domain)
-//        {
-//            await client.DeleteEntityAsync(entity);
-//            return entity;
-//        }
-
-//        public Task SaveAsync(CancellationToken cancellationToken = default)
-//        {
-//            // TableStorage is a NoSQL database, so there is no need to save changes, it is already done.
-//            return Task.CompletedTask;
-//        }
-
-//        #region implements IDisposable
-//        private bool _disposed = false;
-//        public void Dispose()
-//        {
-//            Dispose(true);
-//            GC.SuppressFinalize(this);
-//        }
-
-//        protected virtual void Dispose(bool disposing)
-//        {
-//            if (_disposed) return;
-
-//            if (disposing)
-//            {
-//                // Libérer les ressources managées
-//                // nothing to dispose
-//            }
-
-//            // Libérer les ressources non managées si nécessaire
-//            _disposed = true;
-//        }
-
-//        ~GenericRepository()
-//        {
-//            Dispose(false);
-//        }
-//        #endregion
-//    }
-//}
+            GC.SuppressFinalize(this);
+        }
+    }
+}
