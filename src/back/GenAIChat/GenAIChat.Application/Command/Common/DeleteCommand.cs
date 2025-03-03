@@ -13,7 +13,7 @@ namespace GenAIChat.Application.Command.Common
     {
         public async Task<bool?> Handle(DeleteCommand<TDomain> request, CancellationToken cancellationToken = default)
         {
-            if (!string.IsNullOrWhiteSpace(request.Domain.Id)) throw new Exception("Id should be set to request a deletion");
+            if (string.IsNullOrWhiteSpace(request.Domain.Id)) throw new Exception("Id should be set to request a deletion");
 
             TDomain item = await repository.GetByIdAsync(request.Domain.Id, cancellationToken)
                 ?? throw new Exception($"entity '{request.Domain.Id} of type '{nameof(TDomain)}' not found. The entity is not deleted.");
