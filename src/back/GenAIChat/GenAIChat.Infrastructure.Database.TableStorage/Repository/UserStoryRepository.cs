@@ -11,7 +11,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
     internal class UserStoryRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<TaskDomain> taskRepository) : GenericRepository<UserStoryDomain, UserStoryEntity>(service, "UserStorys", mapper)
     {
-        public async virtual Task<UserStoryDomain> AddAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<UserStoryDomain> AddAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<UserStoryDomain>(domain);
             clone.Id = Tools.GetNewId();
