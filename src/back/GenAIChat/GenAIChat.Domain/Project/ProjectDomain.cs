@@ -8,10 +8,10 @@ namespace GenAIChat.Domain.Project
     {
         public string Name { get; set; } = string.Empty;
 
-        public ICollection<DocumentDomain> Documents { get; protected set; } = [];
+        public ICollection<DocumentDomain> Documents { get; set; } = [];
 
         public string? SelectedGroupId { get; set; } = null;
 
-        public ICollection<UserStoryGroupDomain> Groups { get; protected set; } = [];
+        public ICollection<UserStoryGroupDomain> Groups { get; set; } = [];
     }
 }
