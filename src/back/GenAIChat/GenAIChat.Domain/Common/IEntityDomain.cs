@@ -16,7 +16,6 @@
     /// </summary>
     public abstract class EntityDomain : IEntityDomain
     {
-        public static string NewId() => Guid.NewGuid().ToString();
         public string Id { get; set; } = String.Empty;
         public DateTimeOffset? Timestamp { get; set; }
 

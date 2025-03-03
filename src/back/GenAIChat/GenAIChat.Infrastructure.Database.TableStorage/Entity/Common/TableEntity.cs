@@ -9,10 +9,10 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Entity.Common
         #region for mapping with IEntityDomain
         public string Id
         {
-            get => Tools.GetId(PartitionKey, RowKey);
+            get => TableStorageTools.GetId(PartitionKey, RowKey);
             set
             {
-                var (partitionKey, rowKey) = Tools.ExtractKeys(value);
+                var (partitionKey, rowKey) = TableStorageTools.ExtractKeys(value);
                 PartitionKey = partitionKey;
                 RowKey = rowKey;
             }
