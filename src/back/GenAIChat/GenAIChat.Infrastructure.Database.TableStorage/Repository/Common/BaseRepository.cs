@@ -15,13 +15,13 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Common
             client.CreateIfNotExistsAsync();
         }
 
-        public abstract Task<TDomain> AddAsync(TDomain domain);
-        public abstract Task<int> CountAsync(IFilter? filter = null);
-        public abstract Task<bool?> DeleteAsync(TDomain domain);
-        public abstract Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null);
-        public abstract Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null);
-        public abstract Task<TDomain?> GetByIdAsync(string id);
-        public abstract Task<bool?> UpdateAsync(TDomain domain);
+        public abstract Task<TDomain> AddAsync(TDomain domain, CancellationToken cancellationToken = default);
+        public abstract Task<int> CountAsync(IFilter? filter = null, CancellationToken cancellationToken = default);
+        public abstract Task<bool?> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default);
+        public abstract Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null, CancellationToken cancellationToken = default);
+        public abstract Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default);
+        public abstract Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+        public abstract Task<bool?> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default);
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public void Dispose()

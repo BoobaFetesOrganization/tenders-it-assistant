@@ -19,7 +19,7 @@
         }
         public PaginationOptions(PaginationOptions options, int? count = null) : this(options.Offset, options.Limit)
         {
-            Count = count;
+            Count = count is null ? options.Count : count;
         }
 
         public void SetCount(int count) => Count = count;

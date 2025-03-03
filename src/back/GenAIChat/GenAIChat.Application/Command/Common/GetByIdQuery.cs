@@ -12,6 +12,6 @@ namespace GenAIChat.Application.Command.Common
     public class GetByIdQueryHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<GetByIdQuery<TDomain>, TDomain?> where TDomain : class, IEntityDomain
     {
         public async Task<TDomain?> Handle(GetByIdQuery<TDomain> request, CancellationToken cancellationToken = default)
-            => await repository.GetByIdAsync(request.Id);
+            => await repository.GetByIdAsync(request.Id, cancellationToken);
     }
 }

@@ -3,17 +3,13 @@
     public class Paged<T> where T : class
     {
         public PaginationOptions Page { get; set; } = new PaginationOptions();
-        public IEnumerable<T> Data { get; set; } = Enumerable.Empty<T>();
+        public IEnumerable<T> Data { get; set; } = [];
 
         public Paged() { }
         public Paged(PaginationOptions options, IEnumerable<T>? data)
         {
-            Data = data ?? Enumerable.Empty<T>();
+            Data = data ?? [];
             Page = new PaginationOptions(options);
-        }
-        public Paged(PaginationOptions options, int count, IEnumerable<T>? data) : this(options, data)
-        {
-            Page.SetCount(count);
         }
     }
 }

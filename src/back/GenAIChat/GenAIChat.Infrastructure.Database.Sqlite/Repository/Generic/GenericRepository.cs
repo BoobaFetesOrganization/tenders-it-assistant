@@ -14,20 +14,20 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
         protected virtual IQueryable<TDomain> GetPropertiesForCollection(IQueryable<TDomain> query) => query;
         protected virtual IQueryable<TDomain> GetProperties(IQueryable<TDomain> query) => query;
 
-        public async Task<int> CountAsync(IFilter? filter = null) => await GetAllWhereAsQuery(filter).CountAsync();
+        public async Task<int> CountAsync(IFilter? filter = null, CancellationToken cancellationToken = default) => await GetAllWhereAsQuery(filter).CountAsync(cancellationToken);
 
-        public async Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null) => await GetAllWhereAsQuery(filter).ToListAsync();
+        public async Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null, CancellationToken cancellationToken = default) => await GetAllWhereAsQuery(filter).ToListAsync(cancellationToken);
 
-        public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null)
+        public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
         {
             // arrange
-            var countRequest = CountAsync(filter);
+            var countRequest = CountAsync(filter, cancellationToken);
             IQueryable<TDomain> query = GetAllWhereAsQuery(filter)
                 .Skip(options.Offset)
                 .Take(options.Limit);
 
             // act
-            var data = await query.ToArrayAsync();
+            var data = await query.ToArrayAsync(cancellationToken);
             var count = await countRequest;
             return new Paged<TDomain>(new PaginationOptions(options, count), data);
         }
@@ -41,20 +41,20 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             return query.AsNoTracking();
         }
 
-        public async Task<TDomain?> GetByIdAsync(string id) => await GetProperties(_dbSet.AsNoTracking()).FirstOrDefaultAsync(e => e.Id == id);
+        public async Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default) => await GetProperties(_dbSet.AsNoTracking()).FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        public async Task<TDomain> AddAsync(TDomain domain)
+        public async Task<TDomain> AddAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
             domain.SetNewTimeStamp();
 
-            await _dbSet.AddAsync(domain);
-            await SaveAsync();
+            await _dbSet.AddAsync(domain, cancellationToken);
+            await SaveAsync(cancellationToken);
 
             dbContext.Detach(domain);
             return domain;
         }
 
-        public async Task<bool?> UpdateAsync(TDomain domain)
+        public async Task<bool?> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
             TDomain actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
@@ -68,19 +68,19 @@ namespace GenAIChat.Infrastructure.Database.Sqlite.Repository.Generic
             actual.SetNewTimeStamp();
 
             _dbSet.Update(actual);
-            await SaveAsync();
+            await SaveAsync(cancellationToken);
 
             dbContext.Detach(actual);
             return true;
         }
 
-        public async Task<bool?> DeleteAsync(TDomain domain)
+        public async Task<bool?> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
             var actual = _dbSet.Find(domain.Id) ?? throw new InvalidOperationException($"entity not exists");
             if (actual.Timestamp != domain.Timestamp) throw new InvalidOperationException($"Timestamp is not up to date, expected : '{actual.Timestamp} but has '{domain.Timestamp}'");
 
             _dbSet.Remove(actual);
-            await SaveAsync();
+            await SaveAsync(cancellationToken);
             dbContext.Detach(actual);
 
             return true;

@@ -41,7 +41,7 @@ namespace GenAIChat.Presentation.API
             where TDestinationBase : class
             where TDestination : class
         {
-            SetMappingWithoutBaseFor<TSource, TDestination>(convertDestination, convertSource);
+            SetMappingWithoutBaseFor(convertDestination, convertSource);
             CreateMap<Paged<TSource>, Paged<TDestinationBase>>()
                 .ConvertUsing(new DomainToDtoPagedConverter<TSource, TDestinationBase>());
 

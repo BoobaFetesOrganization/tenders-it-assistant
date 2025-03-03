@@ -10,7 +10,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Entity.Common
 
 
         #region for mapping with IEntityDomain
-        public string Id { get => $"{PartitionKey}|{RowKey}"; }
+        public string Id { get => $"{PartitionKey}|{RowKey}"; set => SetId(value); }
         #endregion
 
         #region ITableEntity
@@ -24,17 +24,17 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Entity.Common
         protected BaseEntity(string id) => SetId(id);
         protected BaseEntity(string partitionKey, string rowKey) => SetKeys(partitionKey, rowKey);
 
-        public void SetNewKeys()
+        private void SetNewKeys()
         {
             PartitionKey = DefaultPartitionKey;
             RowKey = EntityDomain.NewId();
         }
-        public void SetKeys(string partitionKey, string rowKey)
+        private void SetKeys(string partitionKey, string rowKey)
         {
             PartitionKey = partitionKey;
             RowKey = rowKey;
         }
-        public void SetId(string id)
+        private void SetId(string id)
         {
             var parts = string.IsNullOrWhiteSpace(id) ? [] : id.Split("|");
             if (parts.Length < 2) SetNewKeys();
