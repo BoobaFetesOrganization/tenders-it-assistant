@@ -15,10 +15,10 @@ namespace GenAIChat.Application
         {
             // enable clone with Automapper
 
-            CreateMap<EntityDomain, EntityDomain>();
             CreateMap<ProjectDomain, ProjectDomain>();
             CreateMap<DocumentDomain, DocumentDomain>();
             CreateMap<DocumentMetadataDomain, DocumentMetadataDomain>();
+            CreateMap<UserStoryGroupDomain, UserStoryGroupDomain>();
             CreateMap<UserStoryRequestDomain, UserStoryRequestDomain>();
             CreateMap<UserStoryDomain, UserStoryDomain>();
             CreateMap<TaskDomain, TaskDomain>();

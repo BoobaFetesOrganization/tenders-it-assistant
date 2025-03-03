@@ -1,4 +1,5 @@
-﻿using GenAIChat.Application.Adapter.Api;
+﻿using AutoMapper;
+using GenAIChat.Application.Adapter.Api;
 using GenAIChat.Application.Command.Common;
 using GenAIChat.Application.Resources;
 using GenAIChat.Application.Usecase.Interface;
@@ -17,7 +18,7 @@ using System.Text.Json;
 namespace GenAIChat.Application.Usecase
 {
 #pragma warning disable CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
-    public class UserStoryGroupApplication(EmbeddedResource resources, IGenAiApiAdapter genAiAdapter, IMediator mediator) : ApplicationBase<UserStoryGroupDomain>(mediator), IUserStoryGroupApplication
+    public class UserStoryGroupApplication(EmbeddedResource resources, IGenAiApiAdapter genAiAdapter, IMediator mediator, IMapper mapper) : ApplicationBase<UserStoryGroupDomain>(mediator), IUserStoryGroupApplication
 #pragma warning restore CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
     {
         public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default) => CreateAsync(domain.ProjectId, cancellationToken);
@@ -29,7 +30,8 @@ namespace GenAIChat.Application.Usecase
             UserStoryGroupDomain group = await base.CreateAsync(new()
             {
                 ProjectId = projectId,
-                Request = (UserStoryRequestDomain)resources.UserStoryRequest.Clone()
+                Request = mapper.Map<UserStoryRequestDomain>(resources.UserStoryRequest),
+
             }, cancellationToken);
 
             try
@@ -61,15 +63,22 @@ namespace GenAIChat.Application.Usecase
             // act : update documents
             IEnumerable<DocumentDomain> documents = await RehydrateDocuments(group, actions, cancellationToken);
             group.Response = await SendRequestToGenAi(group, documents, cancellationToken);
-            GeminiResponse response = GeminiResponse.LoadFrom(group.Response);
+            await mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = group }, cancellationToken);
 
-            // set values of the group
+
+            // act : update stories
+            var itemToDeleteCount = group.UserStories.Count;
             group.ClearUserStories();
-            CreateGeneratedStories(group, response);
-            actions.Add(mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = group }, cancellationToken));
+            CreateGeneratedStories(group, GeminiResponse.LoadFrom(group.Response));
 
-            // wait resolutions of the actions
-            await Task.WhenAll(actions);
+            var i = 0;
+            foreach (var story in group.UserStories)
+            {
+                if (i < itemToDeleteCount)
+                    actions.Add(mediator.Send(new DeleteCommand<UserStoryDomain> { Domain = story }, cancellationToken));
+                else
+                    actions.AddRange(group.UserStories.Select(story => mediator.Send(new CreateCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
+            }
 
             // reset property SelectGroupId of the project
             ResetSelectedGroupOfTheProjectIfNeeded(project, group, actions, cancellationToken);
@@ -85,12 +94,19 @@ namespace GenAIChat.Application.Usecase
         {
             // upload files to the GenAI and store new Metadata
             var filter = new PropertyEqualsFilter(nameof(UserStoryGroupDomain.ProjectId), domain.ProjectId);
-            IEnumerable<DocumentDomain> documents = await mediator.Send(new GetAllQuery<DocumentDomain>() { Filter = filter }, cancellationToken);
-            if (!documents.Any()) throw new Exception("To generate user stories, at least one document is required");
 
+            // get minimal value to prevent to download all sub entities
+            IEnumerable<DocumentDomain> documentInfos = await mediator.Send(new GetAllQuery<DocumentDomain>() { Filter = filter }, cancellationToken);
+            if (!documentInfos.Any()) throw new Exception("To generate user stories, at least one document is required");
+
+            // get entities full filled
+            var temp = await Task.WhenAll(documentInfos.Select(doc => mediator.Send(new GetByIdQuery<DocumentDomain>() { Id = doc.Id }, cancellationToken)));
+            IEnumerable<DocumentDomain> documents = temp.Where(i => i is not null).Cast<DocumentDomain>();
+
+            // upload files to the GenAI and store new Metadata
             var uploads = await genAiAdapter.SendFilesAsync(documents, cancellationToken);
-
             actions.AddRange(uploads.Select(doc => mediator.Send(new UpdateCommand<DocumentDomain>() { Domain = doc }, cancellationToken)));
+
             return documents;
         }
 
