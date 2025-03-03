@@ -15,31 +15,22 @@ $var = @{
 }
 
 $azurite = @{
-    Path = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Azure Storage Emulator";
-    File = "azurite.exe";
+    FullFileName = (yarn global bin) + "\azurite.cmd"
 }
 
 # act
 try {
-    
+    # vérifie que azurite est installé avec yarn et le mete à jour
+    if ($null -eq (yarn global list | Select-String "azurite@")) {
+        yarn global add azurite
+    }
+    yarn global upgrade azurite
+
     if (-not (Test-Path $var.location)) {
         New-Item -ItemType Directory -Path $var.location
     }
     
-    [FileInfo]$executable = Join-Path -Path $azurite.Path -ChildPath $azurite.File
-    if (-not $executable.Exists) {
-        throw "The azurite executable not exists, install azure development tools from Visual Studio 2022"
-    }
-
-    
-    [ArrayList]$envVarPaths = [Environment]::GetEnvironmentVariable("PATH", "User") -split ';'
-    $userEnvPathsContainsAzuriteDirectory = ($envVarPaths | Where-Object { $_ -ieq $azurite.Path } | Select-Object -First 1) -ne $null
-    if (-not $userEnvPathsContainsAzuriteDirectory) {
-        $envVarPaths.Add($azurite.Path)
-        [Environment]::SetEnvironmentVariable("PATH", $envVarPaths -join ';', "User")
-    }
-
-    $arguments = [ArrayList]@()
+    $arguments = [ArrayList]@("azurite")
     foreach ($key in $var.Keys) {
         Write-Host "$key = $($var[$key])"
         switch ($key) {
@@ -54,10 +45,8 @@ try {
         }
     }
     
-    $azurite = Start-Process `
-        -FilePath $executable.FullName `
-        -ArgumentList ($arguments -join ' ') `
-        -PassThru 
+    $command = "$($azurite.FullFileName) $($arguments -join ' ')"
+    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", $command
 }
 catch {
     Write-Host "an error occured: $_"
