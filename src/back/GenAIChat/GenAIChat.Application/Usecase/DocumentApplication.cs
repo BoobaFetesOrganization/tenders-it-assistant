@@ -2,6 +2,7 @@
 using GenAIChat.Application.Command.Common;
 using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project;
 using MediatR;
 
@@ -16,26 +17,14 @@ namespace GenAIChat.Application.Usecase
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");
 
-            _ = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = domain.ProjectId }, cancellationToken)
-                ?? throw new Exception("Project not found");
-
-            DocumentDomain document = new()
-            {
-                Name = domain.Name,
-                Metadata = new()
-                {
-                    MimeType = domain.Metadata.MimeType,
-                    Length = domain.Metadata.Length
-                },
-                Content = domain.Content,
-                ProjectId = domain.ProjectId
-            };
+            var projectExists = await mediator.Send(new GetAllQuery<ProjectDomain>() { Filter = new PropertyEqualsFilter(nameof(ProjectDomain.Id), domain.ProjectId) }, cancellationToken);
+            if (!projectExists.Any()) throw new Exception("Project not found");
 
             // upload files to the GenAI and add the doc if successful
-            await genAiAdapter.SendFilesAsync([document], cancellationToken);
-            await mediator.Send(new CreateCommand<DocumentDomain>() { Domain = document }, cancellationToken);
+            await genAiAdapter.SendFilesAsync([domain], cancellationToken);
 
-            return document;
+            var result = await mediator.Send(new CreateCommand<DocumentDomain>() { Domain = domain }, cancellationToken);
+            return result;
         }
 
         public async override Task<bool?> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)

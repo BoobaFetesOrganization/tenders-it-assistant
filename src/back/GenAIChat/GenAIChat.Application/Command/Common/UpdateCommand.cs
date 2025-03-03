@@ -12,6 +12,10 @@ namespace GenAIChat.Application.Command.Common
     public class UpdateCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<UpdateCommand<TDomain>, bool?> where TDomain : class, IEntityDomain
     {
         public async Task<bool?> Handle(UpdateCommand<TDomain> request, CancellationToken cancellationToken = default)
-            => await repository.UpdateAsync(request.Domain, cancellationToken);
+        {
+            if (string.IsNullOrWhiteSpace(request.Domain.Id)) throw new Exception("Id should be set to request an update");
+
+            return await repository.UpdateAsync(request.Domain, cancellationToken);
+        }
     }
 }
