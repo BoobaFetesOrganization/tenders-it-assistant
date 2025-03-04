@@ -4,14 +4,14 @@ using MediatR;
 
 namespace GenAIChat.Application.Command.Common
 {
-    public class DeleteCommand<TDomain> : IRequest<bool?> where TDomain : class, IEntityDomain
+    public class DeleteCommand<TDomain> : IRequest<bool> where TDomain : class, IEntityDomain
     {
         public required TDomain Domain { get; init; }
     }
 
-    public class DeleteCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<DeleteCommand<TDomain>, bool?> where TDomain : class, IEntityDomain
+    public class DeleteCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<DeleteCommand<TDomain>, bool> where TDomain : class, IEntityDomain
     {
-        public async Task<bool?> Handle(DeleteCommand<TDomain> request, CancellationToken cancellationToken = default)
+        public async Task<bool> Handle(DeleteCommand<TDomain> request, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(request.Domain.Id)) throw new Exception("Id should be set to request a deletion");
 

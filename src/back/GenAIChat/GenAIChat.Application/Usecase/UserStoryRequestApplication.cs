@@ -8,9 +8,9 @@ namespace GenAIChat.Application.Usecase
 {
     public class UserStoryRequestApplication(IMediator mediator, IUserStoryGroupApplication userStoryGroupApplication) : ApplicationBase<UserStoryRequestDomain>(mediator), IApplication<UserStoryRequestDomain>
     {
-        public async override Task<bool?> UpdateAsync(UserStoryRequestDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> UpdateAsync(UserStoryRequestDomain domain, CancellationToken cancellationToken = default)
         {
-            await base.UpdateAsync(domain, cancellationToken);
+            if (!await base.UpdateAsync(domain, cancellationToken)) return false;
 
             var group = await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = domain.GroupId }, cancellationToken)
                 ?? throw new Exception($"Group '{domain.GroupId}' of the request '{domain.Id}' is not found");

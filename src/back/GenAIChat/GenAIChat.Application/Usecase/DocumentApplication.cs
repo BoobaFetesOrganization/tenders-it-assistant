@@ -8,9 +8,7 @@ using MediatR;
 
 namespace GenAIChat.Application.Usecase
 {
-#pragma warning disable CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
     public class DocumentApplication(IGenAiApiAdapter genAiAdapter, IMediator mediator) : ApplicationBase<DocumentDomain>(mediator), IApplication<DocumentDomain>
-#pragma warning restore CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
     {
         public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
@@ -27,7 +25,7 @@ namespace GenAIChat.Application.Usecase
             return result;
         }
 
-        public async override Task<bool?> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");

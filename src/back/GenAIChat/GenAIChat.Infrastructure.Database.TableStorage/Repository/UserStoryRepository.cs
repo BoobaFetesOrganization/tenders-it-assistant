@@ -1,36 +1,36 @@
 ﻿using AutoMapper;
 using Azure.Data.Tables;
-using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
+using GenAIChat.Infrastructure.Database.TableStorage.Extensions;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    internal class UserStoryRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<TaskDomain> taskRepository) : GenericRepository<UserStoryDomain, UserStoryEntity>(service, "UserStorys", mapper)
+    internal class UserStoryRepository(TableServiceClient service, IMapper mapper, IGenericRepository<TaskDomain, TaskEntity> taskRepository) : GenericRepository<UserStoryDomain, UserStoryEntity>(service, "UserStorys", mapper)
     {
         public async override Task<UserStoryDomain> AddAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<UserStoryDomain>(domain);
             clone.Id = TableStorageTools.GetNewId();
 
-            clone.Tasks = [.. await Task.WhenAll(domain.Tasks.Select(item =>
+            clone.Tasks = await Task.WhenAll(domain.Tasks.Select(item =>
             {
                 item.UserStoryId = clone.Id;
                 return taskRepository.AddAsync(item, cancellationToken);
-            }))];
+            }));
 
             return await base.AddAsync(clone, cancellationToken);
         }
 
-        public async override Task<bool?> DeleteAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> DeleteAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
         {
             // cascading deletion of all related entities
-            var actionResults = await Task.WhenAll([.. domain.Tasks.Select(item => taskRepository.DeleteAsync(item, cancellationToken))]);
+            var actionResults = await Task.WhenAll(domain.Tasks.Select(item => taskRepository.DeleteAsync(item, cancellationToken)));
 
-            if (!actionResults.All(x => x.HasValue && x.Value)) return false;
+            if (!actionResults.All(x => x)) return false;
             return await base.DeleteAsync(domain, cancellationToken);
         }
 
@@ -45,6 +45,20 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             result.Tasks = [.. await Task.WhenAll(tasks.Select(i => taskRepository.GetByIdAsync(i.Id, cancellationToken)))];
 
             return result;
+        }
+
+        public async override Task<bool> UpdateAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
+        {
+            var storedTasks = await taskRepository.GetAllAsync(new PropertyEqualsFilter(nameof(TaskEntity.UserStoryId), domain.Id), cancellationToken);
+
+            List<Task<bool>> actions = [base.UpdateAsync(domain, cancellationToken)];
+            actions.AddRange(domain.Tasks.ResolveOperationsWith(
+                storedTasks, taskRepository,
+                item => item.UserStoryId = domain.Id,
+                cancellationToken));
+
+            var actionResults = await Task.WhenAll(actions);
+            return actionResults.All(x => x);
         }
     }
 }

@@ -1,18 +1,18 @@
 ﻿using AutoMapper;
 using Azure.Data.Tables;
-using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
+using GenAIChat.Infrastructure.Database.TableStorage.Extensions;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    internal class ProjectRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<DocumentDomain> documentRepository, IRepositoryAdapter<UserStoryGroupDomain> groupRepository) : GenericRepository<ProjectDomain, ProjectEntity>(service, "Projects", mapper)
+    internal class ProjectRepository(TableServiceClient service, IMapper mapper, IGenericRepository<DocumentDomain, DocumentEntity> documentRepository, IGenericRepository<UserStoryGroupDomain, UserStoryGroupEntity> groupRepository) : GenericRepository<ProjectDomain, ProjectEntity>(service, "Projects", mapper)
     {
-        public async override Task<bool?> DeleteAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> DeleteAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
             // cascading deletion of all related entities
             var actionResults = await Task.WhenAll([
@@ -20,7 +20,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
                 ..domain.Groups.Select(item => groupRepository.DeleteAsync(item, cancellationToken))
                 ]);
 
-            if (!actionResults.All(x => x.HasValue && x.Value)) return false;
+            if (actionResults.All(x => x)) return false;
             return await base.DeleteAsync(domain, cancellationToken);
         }
 
@@ -37,6 +37,25 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             result.Groups = [.. await Task.WhenAll(groups.Select(i => groupRepository.GetByIdAsync(i.Id, cancellationToken)))];
 
             return result;
+        }
+
+        public async override Task<bool> UpdateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
+        {
+            IEnumerable<DocumentDomain> storedDocuments = await documentRepository.GetAllAsync(new PropertyEqualsFilter(nameof(DocumentEntity.ProjectId), domain.Id), cancellationToken);
+            IEnumerable<UserStoryGroupDomain> storedGroups = await groupRepository.GetAllAsync(new PropertyEqualsFilter(nameof(UserStoryGroupEntity.ProjectId), domain.Id), cancellationToken);
+
+            List<Task<bool>> actions = [base.UpdateAsync(domain, cancellationToken)];
+            actions.AddRange(domain.Documents.ResolveOperationsWith(
+                storedDocuments, documentRepository,
+                item => item.ProjectId = domain.Id,
+                cancellationToken));
+            actions.AddRange(domain.Groups.ResolveOperationsWith(
+                storedGroups, groupRepository,
+                item => item.ProjectId = domain.Id,
+                cancellationToken));
+
+            var actionResults = await Task.WhenAll(actions);
+            return actionResults.All(x => x);
         }
     }
 }

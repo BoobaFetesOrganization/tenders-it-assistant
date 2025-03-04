@@ -16,7 +16,7 @@ export const UserStoryGroup: FC = memo(() => {
     onSaveRequest,
     userstoryOpen,
     setUserstoryOpen,
-    onSaveUserStories,
+    onSave,
     generateLoading,
     onGenerate,
     validateLoading,
@@ -101,7 +101,7 @@ export const UserStoryGroup: FC = memo(() => {
               </Typography>
             </Grid2>
           </Grid2>
-          <CustomForm onSave={onSaveUserStories} onReset={reset}>
+          <CustomForm onSave={onSave} onReset={reset}>
             <Grid2
               container
               direction="column"

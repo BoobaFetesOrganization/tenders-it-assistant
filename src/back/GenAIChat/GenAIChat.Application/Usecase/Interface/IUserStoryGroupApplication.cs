@@ -11,6 +11,5 @@ namespace GenAIChat.Application.Usecase.Interface
         public Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? group, CancellationToken cancellationToken = default);
 
         public Task<UserStoryGroupDomain> ValidateCostsAsync(string projectId, string groupId, CancellationToken cancellationToken = default);
-
     }
 }

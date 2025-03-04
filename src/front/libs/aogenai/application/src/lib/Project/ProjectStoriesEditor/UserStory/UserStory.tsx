@@ -23,9 +23,8 @@ interface IUserStoryProps {
 export const UserStory: FC<IUserStoryProps> = memo(({ storyIndex }) => {
   const { story, task } = useUserStoryGroupData();
 
-  const { item, setItem, index } = useMemo(
+  const { item, setItem } = useMemo(
     () => ({
-      index: story.list().findIndex((_, index) => index === storyIndex) + 1,
       item: story.get(storyIndex),
       setItem: (entity: IUserStoryDto) => story.update({ storyIndex, entity }),
     }),
@@ -60,25 +59,26 @@ export const UserStory: FC<IUserStoryProps> = memo(({ storyIndex }) => {
         spacing={2}
         sx={{ margin: theme.spacing(2, 0) }}
       >
-        <Grid2 container flexGrow={0} alignItems="center" size={12}>
-          <IconButton onClick={onCollapseToggle}>
-            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
-          US {index}
-        </Grid2>
-        <Grid2>
-          <IconButton color="error" onClick={onRemoveStory}>
-            <RemoveIcon />
-          </IconButton>
-        </Grid2>
-        <Grid2 flex={1}>
-          <TextField
-            label="Name"
-            size="small"
-            value={item.name}
-            onChange={onPropertyChange({ item, setItem, property: 'name' })}
-            fullWidth
-          />
+        <Grid2 container flex={1} alignItems="center" spacing={1}>
+          <Grid2 flexGrow={0}>
+            <IconButton onClick={onCollapseToggle}>
+              {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          </Grid2>
+          <Grid2 flex={1}>
+            <TextField
+              label="Name"
+              size="small"
+              value={item.name}
+              onChange={onPropertyChange({ item, setItem, property: 'name' })}
+              fullWidth
+            />
+          </Grid2>
+          <Grid2 flexGrow={0}>
+            <IconButton color="error" onClick={onRemoveStory}>
+              <RemoveIcon />
+            </IconButton>
+          </Grid2>
         </Grid2>
         <Grid2>
           <TextField

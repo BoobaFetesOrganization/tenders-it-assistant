@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using Azure.Data.Tables;
-using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
+using GenAIChat.Infrastructure.Database.TableStorage.Extensions;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    internal class TaskRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<TaskCostDomain> taskcostRepository) : GenericRepository<TaskDomain, TaskEntity>(service, "Tasks", mapper)
+    internal class TaskRepository(TableServiceClient service, IMapper mapper, IGenericRepository<TaskCostDomain, TaskCostEntity> taskcostRepository) : GenericRepository<TaskDomain, TaskEntity>(service, "Tasks", mapper)
     {
         public async override Task<TaskDomain> AddAsync(TaskDomain domain, CancellationToken cancellationToken = default)
         {
@@ -23,12 +23,12 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 
             return await base.AddAsync(clone, cancellationToken);
         }
-        public async override Task<bool?> DeleteAsync(TaskDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> DeleteAsync(TaskDomain domain, CancellationToken cancellationToken = default)
         {
             // cascading deletion of all related entities
             var actionResults = await Task.WhenAll([.. domain.WorkingCosts.Select(item => taskcostRepository.DeleteAsync(item, cancellationToken))]);
 
-            if (!actionResults.All(x => x.HasValue && x.Value)) return false;
+            if (!actionResults.All(x => x)) return false;
             return await base.DeleteAsync(domain, cancellationToken);
         }
 
@@ -45,16 +45,17 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             return result;
         }
 
-        public async override Task<bool?> UpdateAsync(TaskDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> UpdateAsync(TaskDomain domain, CancellationToken cancellationToken = default)
         {
-            var clone = mapper.Map<TaskDomain>(domain);
-            clone.Id = TableStorageTools.GetNewId();
+            var storedCosts = await taskcostRepository.GetAllAsync(new PropertyEqualsFilter(nameof(TaskCostEntity.TaskId), domain.Id), cancellationToken);
 
-            foreach (var cost in clone.WorkingCosts) cost.TaskId = clone.Id;
+            List<Task<bool>> actions = [base.UpdateAsync(domain, cancellationToken)];
+            actions.AddRange(domain.WorkingCosts.ResolveOperationsWith(storedCosts, taskcostRepository,
+                item => item.TaskId = domain.Id,
+                cancellationToken));
 
-            await Task.WhenAll(clone.WorkingCosts.Select(item => taskcostRepository.UpdateAsync(item, cancellationToken)));
-
-            return await base.UpdateAsync(clone, cancellationToken);
+            var actionResults = await Task.WhenAll(actions);
+            return actionResults.All(x => x);
         }
     }
 }

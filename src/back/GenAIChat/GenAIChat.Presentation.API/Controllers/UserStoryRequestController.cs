@@ -26,7 +26,7 @@ namespace GenAIChat.Presentation.API.Controllers
         public async Task<IActionResult> UpdateAsync([FromBody] UserStoryRequestDto request, CancellationToken cancellationToken = default)
         {
             var result = await application.UpdateAsync(mapper.Map<UserStoryRequestDomain>(request), cancellationToken);
-            return result is null ? NoContent() : result.Value ? Ok() : NotFound();
+            return result ? Ok() : NotFound();
         }
     }
 }

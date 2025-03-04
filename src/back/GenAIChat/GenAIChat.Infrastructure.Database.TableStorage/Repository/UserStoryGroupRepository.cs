@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using Azure.Data.Tables;
-using GenAIChat.Application.Adapter.Database;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
+using GenAIChat.Infrastructure.Database.TableStorage.Extensions;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
-    internal class UserStoryGroupRepository(TableServiceClient service, IMapper mapper, IRepositoryAdapter<UserStoryRequestDomain> requestRepository, IRepositoryAdapter<UserStoryDomain> storyRepository) : GenericRepository<UserStoryGroupDomain, UserStoryGroupEntity>(service, "UserStoryGroups", mapper)
+    internal class UserStoryGroupRepository(TableServiceClient service, IMapper mapper, IGenericRepository<UserStoryRequestDomain, UserStoryRequestEntity> requestRepository, IGenericRepository<UserStoryDomain, UserStoryEntity> storyRepository) : GenericRepository<UserStoryGroupDomain, UserStoryGroupEntity>(service, "UserStoryGroups", mapper)
     {
         public async override Task<UserStoryGroupDomain> AddAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
         {
@@ -23,15 +23,16 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             return await base.AddAsync(clone, cancellationToken);
         }
 
-        public async override Task<bool?> DeleteAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
+        public async override Task<bool> DeleteAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
         {
             // cascading deletion of all related entities
-            List<Task<bool?>> actions = [.. domain.UserStories.Select(item => storyRepository.DeleteAsync(item, cancellationToken))];
-            if (domain.Request != null) actions.AddRange(requestRepository.DeleteAsync(domain.Request, cancellationToken));
-            var actionResults = await Task.WhenAll(actions);
+            List<Task<bool>> actions = [
+                base.DeleteAsync(domain, cancellationToken),
+                domain.Request is null ? Task.FromResult(true) : requestRepository.DeleteAsync(domain.Request, cancellationToken),
+                .. domain.UserStories.Select(item => storyRepository.DeleteAsync(item, cancellationToken))
+                ];
+            return (await Task.WhenAll(actions)).All(x => x);
 
-            if (!actionResults.All(x => x.HasValue && x.Value)) return false;
-            return await base.DeleteAsync(domain, cancellationToken);
         }
 
         public async override Task<UserStoryGroupDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
@@ -46,6 +47,23 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             result.UserStories = [.. await Task.WhenAll(stories.Select(i => storyRepository.GetByIdAsync(i.Id, cancellationToken)))];
 
             return result;
+        }
+
+        public async override Task<bool> UpdateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
+        {
+            var storedStories = await storyRepository.GetAllAsync(new PropertyEqualsFilter(nameof(UserStoryEntity.GroupId), domain.Id), cancellationToken);
+
+            List<Task<bool>> actions = [
+                base.UpdateAsync(domain, cancellationToken),
+                requestRepository.UpdateAsync(domain.Request, cancellationToken)
+                ];
+            actions.AddRange(domain.UserStories.ResolveOperationsWith(
+                storedStories, storyRepository,
+                item => item.GroupId = domain.Id,
+                cancellationToken));
+
+            var actionResults = await Task.WhenAll(actions);
+            return actionResults.All(x => x);
         }
     }
 }

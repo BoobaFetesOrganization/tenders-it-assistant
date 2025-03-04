@@ -10,8 +10,8 @@ namespace GenAIChat.Application.Adapter.Database
         Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default);
         Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
         Task<TDomain> AddAsync(TDomain domain, CancellationToken cancellationToken = default);
-        Task<bool?> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default);
-        Task<bool?> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default);
+        Task<bool> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default);
+        Task<bool> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default);
         Task SaveAsync(CancellationToken cancellationToken = default);
     }
 }
