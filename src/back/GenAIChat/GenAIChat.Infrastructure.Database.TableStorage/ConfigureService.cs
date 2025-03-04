@@ -7,11 +7,13 @@ using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
+using GenAIChat.Infrastructure.Database.TableStorage.Entity;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository;
+using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GenAIChat.Infrastructure.Database
+namespace GenAIChat.Infrastructure.Database.TableStorage
 {
     public static class ConfigureService
     {
@@ -42,6 +44,16 @@ namespace GenAIChat.Infrastructure.Database
 
         private static void AddRepositories(this IServiceCollection services)
         {
+            services.AddScoped<IGenericRepository<ProjectDomain, ProjectEntity>, ProjectRepository>();
+            services.AddScoped<IGenericRepository<DocumentDomain, DocumentEntity>, DocumentRepository>();
+            services.AddScoped<IGenericRepository<DocumentMetadataDomain, DocumentMetadataEntity>, DocumentMetadataRepository>();
+            services.AddScoped<IGenericRepository<UserStoryGroupDomain, UserStoryGroupEntity>, UserStoryGroupRepository>();
+            services.AddScoped<IGenericRepository<UserStoryRequestDomain, UserStoryRequestEntity>, UserStoryRequestRepository>();
+            services.AddScoped<IGenericRepository<UserStoryDomain, UserStoryEntity>, UserStoryRepository>();
+            services.AddScoped<IGenericRepository<TaskDomain, TaskEntity>, TaskRepository>();
+            services.AddScoped<IGenericRepository<TaskCostDomain, TaskCostEntity>, TaskCostRepository>();
+
+
             services.AddScoped<IRepositoryAdapter<ProjectDomain>, ProjectRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentDomain>, DocumentRepository>();
             services.AddScoped<IRepositoryAdapter<DocumentMetadataDomain>, DocumentMetadataRepository>();

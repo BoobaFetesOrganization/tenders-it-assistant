@@ -1,8 +1,8 @@
 import {
   useDeleteUserStoryGroup,
   useGenerateUserStoryGroup,
+  useUpdateUserStoryGroup,
   useUpdateUserStoryGroupRequest,
-  useUpdateUserStoryGroupUserStories,
   useValidateUserStoryGroup,
 } from '@aogenai/infra';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -26,11 +26,7 @@ export const useUserStoryGroupBehavior = () => {
       reset();
     },
   });
-  const [updateUserStories] = useUpdateUserStoryGroupUserStories({
-    onCompleted({ group }) {
-      reset(group);
-    },
-  });
+  const [update] = useUpdateUserStoryGroup();
   const [remove] = useDeleteUserStoryGroup({
     variables: { projectId: group.projectId, id: group.id },
     onCompleted({ group }) {
@@ -51,11 +47,11 @@ export const useUserStoryGroupBehavior = () => {
       },
     });
   }, [group, updateRequest]);
-  const onSaveUserStories = useCallback(() => {
-    updateUserStories({
+  const onSave = useCallback(() => {
+    update({
       variables: { projectId: group.projectId, input: group },
     });
-  }, [group, updateUserStories]);
+  }, [group, update]);
 
   const onRemove = useCallback(() => {
     remove({ variables: { projectId: group.projectId, id: group.id } });
@@ -80,7 +76,7 @@ export const useUserStoryGroupBehavior = () => {
       onSaveRequest,
       userstoryOpen,
       setUserstoryOpen,
-      onSaveUserStories,
+      onSave,
       generateLoading,
       onGenerate,
       validateLoading,
@@ -93,7 +89,7 @@ export const useUserStoryGroupBehavior = () => {
       onGenerate,
       onRemove,
       onSaveRequest,
-      onSaveUserStories,
+      onSave,
       onValidate,
       requestOpen,
       reset,

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Azure.Data.Tables;
-using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;

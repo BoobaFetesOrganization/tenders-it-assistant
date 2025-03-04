@@ -6,11 +6,19 @@ using GenAIChat.Application.Specifications;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity.Common;
+using GenAIChat.Infrastructure.Database.TableStorage.Extensions;
 using System.Net;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
 {
-    internal abstract class GenericRepository<TDomain, TEntity> : IRepositoryAdapter<TDomain>
+    internal interface IGenericRepository<TDomain, TEntity> : IRepositoryAdapter<TDomain>
+        where TDomain : class, IEntityDomain
+        where TEntity : BaseEntity, new()
+    {
+        public Task<TEntity?> GetEntityByIdAsync(string id, CancellationToken cancellationToken = default);
+
+    }
+    internal abstract class GenericRepository<TDomain, TEntity> : IGenericRepository<TDomain, TEntity>
         where TDomain : class, IEntityDomain
         where TEntity : BaseEntity, new()
     {
@@ -39,13 +47,12 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             return await Task.FromResult(count);
         }
 
-        public async virtual Task<bool?> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default)
+        public async virtual Task<bool> DeleteAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
             var entity = mapper.Map<TEntity>(domain);
             try
             {
                 await client.DeleteEntityAsync(entity.PartitionKey, entity.RowKey, default, cancellationToken);
-                return true;
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NoContent)
             {
@@ -53,12 +60,13 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
-                return null;
+                return false;
             }
             catch (Exception) // on sait jamais, faudra revoir ca un jour ....
             {
-                return null;
+                return false;
             }
+            return true;
         }
 
         public async virtual Task<IEnumerable<TDomain>> GetAllAsync(IFilter? filter = null, CancellationToken cancellationToken = default)
@@ -85,7 +93,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             });
         }
 
-        public async virtual Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        public async Task<TEntity?> GetEntityByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             var (partitionKey, rowKey) = TableStorageTools.ExtractKeys(id);
             var filter = new AndFilter(
@@ -96,15 +104,39 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             var data = await Task.Run(
                 () => client.Query<TEntity>(filter, 1, null, cancellationToken).FirstOrDefault()
                 , cancellationToken);
+
+            return data;
+        }
+        public async virtual Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+        {
+            var data = await GetEntityByIdAsync(id, cancellationToken);
             return data is null ? null : mapper.Map<TDomain>(data);
         }
 
-        public async virtual Task<bool?> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default)
+        private static readonly ICollection<string> UpdateIgnoredProperties = [nameof(ITableEntity.Timestamp), nameof(ITableEntity.ETag)];
+        public async virtual Task<bool> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
+            // ACT 1 : COMPARE DOMAIN AND DATABASE ENTITY TO DETERMINE IF AN UPDATE IS NECESSARY
             var entity = mapper.Map<TEntity>(domain);
+            var stored = await GetEntityByIdAsync(domain.Id, cancellationToken);
+
+            // if the entity does not exist, we consider the operation a failure
+            if (stored is null) return false;
+            
+            // if the two objects are identical, we consider the operation a success
+            if (entity.AreShallowSameAs(stored, UpdateIgnoredProperties)) return true;
+
+            // ACT 2 : UPDATE THE ENTITY AND PRESERVE THE ETAG
+
+            // affect new values but preserve the etag            
+            var etag = stored.ETag;
+            mapper.Map(entity, stored); // merge !
+            stored.ETag = etag; // restore etag
+
             try
             {
-                await client.UpdateEntityAsync(entity, new ETag("*"), TableUpdateMode.Replace, cancellationToken);
+                // NOTE : here we can try to use a batch operation, in a later version !
+                await client.UpdateEntityAsync(stored, stored.ETag, TableUpdateMode.Replace, cancellationToken);
                 return true;
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NoContent)
@@ -113,13 +145,14 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
-                return null;
+                return false;
             }
             catch (Exception) // on sait jamais, faudra revoir ca un jour ....
             {
-                return null;
+                return false;
             }
         }
+
         public Task SaveAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
         public void Dispose()
