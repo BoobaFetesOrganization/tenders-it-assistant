@@ -18,10 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenAIChat.Infrastructure.Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenAIChat.Infrastructure", "GenAIChat.Infrastructure\GenAIChat.Infrastructure.csproj", "{874BCD99-B774-4154-B8B5-BEAA4EFFA103}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenAIChat.Infrastructure.Database.Sqlite", "GenAIChat.Infrastructure.Database.Sqlite\GenAIChat.Infrastructure.Database.Sqlite.csproj", "{BCCFADE5-3B6E-42C9-9067-55749BFADDE3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenAIChat.Infrastructure.Database.Sqlite.Migrations", "GenAIChat.Infrastructure.Database.Sqlite.Migrations\GenAIChat.Infrastructure.Database.Sqlite.Migrations.csproj", "{6FAAD7B6-B570-462D-9CE7-2BEBA22EE330}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenAIChat.Infrastructure.Database.TableStorage", "GenAIChat.Infrastructure.Database.TableStorage\GenAIChat.Infrastructure.Database.TableStorage.csproj", "{0275382D-189D-4822-B514-E2CFEFA7A741}"
 EndProject
 Global
@@ -50,14 +46,6 @@ Global
 		{874BCD99-B774-4154-B8B5-BEAA4EFFA103}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{874BCD99-B774-4154-B8B5-BEAA4EFFA103}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{874BCD99-B774-4154-B8B5-BEAA4EFFA103}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BCCFADE5-3B6E-42C9-9067-55749BFADDE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BCCFADE5-3B6E-42C9-9067-55749BFADDE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BCCFADE5-3B6E-42C9-9067-55749BFADDE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BCCFADE5-3B6E-42C9-9067-55749BFADDE3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FAAD7B6-B570-462D-9CE7-2BEBA22EE330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FAAD7B6-B570-462D-9CE7-2BEBA22EE330}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FAAD7B6-B570-462D-9CE7-2BEBA22EE330}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FAAD7B6-B570-462D-9CE7-2BEBA22EE330}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0275382D-189D-4822-B514-E2CFEFA7A741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0275382D-189D-4822-B514-E2CFEFA7A741}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0275382D-189D-4822-B514-E2CFEFA7A741}.Release|Any CPU.ActiveCfg = Release|Any CPU
