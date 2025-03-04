@@ -14,11 +14,12 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
         public async override Task<TaskDomain> AddAsync(TaskDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<TaskDomain>(domain);
-            clone.Id = Tools.GetNewId();
+            clone.Id = TableStorageTools.GetNewId();
 
-            foreach (var cost in clone.WorkingCosts) cost.TaskId = clone.Id;
-
-            clone.WorkingCosts = [.. await Task.WhenAll(clone.WorkingCosts.Select(item => taskcostRepository.AddAsync(item, cancellationToken)))];
+            clone.WorkingCosts = [.. await Task.WhenAll(clone.WorkingCosts.Select(item => {
+                item.TaskId = clone.Id;
+                return taskcostRepository.AddAsync(item, cancellationToken);
+            }))];
 
             return await base.AddAsync(clone, cancellationToken);
         }
@@ -47,7 +48,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
         public async override Task<bool?> UpdateAsync(TaskDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<TaskDomain>(domain);
-            clone.Id = Tools.GetNewId();
+            clone.Id = TableStorageTools.GetNewId();
 
             foreach (var cost in clone.WorkingCosts) cost.TaskId = clone.Id;
 

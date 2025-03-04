@@ -22,9 +22,8 @@ export const useUserStoryGroupBehavior = () => {
   const total = useTotalCost(group);
 
   const [updateRequest] = useUpdateUserStoryGroupRequest({
-    onCompleted({ group }) {
-      reset(group);
-      generate({ variables: { projectId: group.projectId, id: group.id } });
+    onCompleted() {
+      reset();
     },
   });
   const [updateUserStories] = useUpdateUserStoryGroupUserStories({
@@ -44,7 +43,13 @@ export const useUserStoryGroupBehavior = () => {
   const [validate, { loading: validateLoading }] = useValidateUserStoryGroup();
 
   const onSaveRequest = useCallback(() => {
-    updateRequest({ variables: { projectId: group.projectId, input: group } });
+    updateRequest({
+      variables: {
+        projectId: group.projectId,
+        groupId: group.id,
+        input: group.request,
+      },
+    });
   }, [group, updateRequest]);
   const onSaveUserStories = useCallback(() => {
     updateUserStories({

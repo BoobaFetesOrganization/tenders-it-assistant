@@ -24,7 +24,7 @@ namespace GenAIChat.Application
             services.AddScoped<IApplication<DocumentDomain>, DocumentApplication>();
             services.AddScoped<IApplication<ProjectDomain>, ProjectApplication>();
             services.AddScoped<IUserStoryGroupApplication, UserStoryGroupApplication>();
-            services.AddScoped<IApplication<UserStoryRequestDomain>, ApplicationBase<UserStoryRequestDomain>>();
+            services.AddScoped<IApplication<UserStoryRequestDomain>, UserStoryRequestApplication>();
             services.AddScoped<IApplication<UserStoryDomain>, ApplicationBase<UserStoryDomain>>();
             services.AddScoped<IApplication<TaskDomain>, ApplicationBase<TaskDomain>>();
             services.AddScoped<IApplication<TaskCostDomain>, ApplicationBase<TaskCostDomain>>();

@@ -87,7 +87,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic
 
         public async virtual Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            var (partitionKey, rowKey) = Tools.ExtractKeys(id);
+            var (partitionKey, rowKey) = TableStorageTools.ExtractKeys(id);
             var filter = new AndFilter(
                 new PropertyEqualsFilter(nameof(ITableEntity.PartitionKey), partitionKey),
                 new PropertyEqualsFilter(nameof(ITableEntity.RowKey), rowKey)

@@ -1,13 +1,13 @@
 import { IEntityDomain, newEntityDomain } from '../../common';
 import {
-  IUserStoryPromptDto,
-  newUserStoryPromptDto,
-} from './IUserStoryPromptDto';
+  IUserStoryRequestDto,
+  newUserStoryRequestDto,
+} from './IUserStoryRequestDto';
 import { IUserStoryDto } from './userstory';
 
 export interface IUserStoryGroupDto extends IEntityDomain {
   projectId: string;
-  request: IUserStoryPromptDto;
+  request: IUserStoryRequestDto;
   response?: string;
   userStories: IUserStoryDto[];
 }
@@ -18,7 +18,7 @@ export function newUserStoryGroupDto(
   return {
     ...newEntityDomain(obj),
     projectId: obj?.projectId || '',
-    request: newUserStoryPromptDto(obj?.request),
+    request: newUserStoryRequestDto(obj?.request),
     response: undefined,
     userStories: obj?.userStories || [],
   };

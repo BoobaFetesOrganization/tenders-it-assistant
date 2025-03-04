@@ -32,7 +32,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
         public async override Task<DocumentDomain> AddAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<DocumentDomain>(domain);
-            clone.Id = Tools.GetNewId();
+            clone.Id = TableStorageTools.GetNewId();
             clone.Metadata.DocumentId = clone.Id;
 
             // create related entity metadata
@@ -61,9 +61,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
             }
 
             // create document
-            var result = await base.AddAsync(clone, cancellationToken);
-
-            return result;
+            return await base.AddAsync(clone, cancellationToken);
         }
 
         public async override Task<bool?> DeleteAsync(DocumentDomain domain, CancellationToken cancellationToken = default)

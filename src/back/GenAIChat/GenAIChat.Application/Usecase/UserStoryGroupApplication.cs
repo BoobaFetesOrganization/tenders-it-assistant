@@ -52,7 +52,7 @@ namespace GenAIChat.Application.Usecase
                await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken),
                cancellationToken);
 
-        private async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? _group, CancellationToken cancellationToken = default)
+        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? _group, CancellationToken cancellationToken = default)
         {
             var project = _project ?? throw new Exception("Project  not found");
             var group = _group ?? throw new Exception("Group not found");
@@ -67,18 +67,10 @@ namespace GenAIChat.Application.Usecase
 
 
             // act : update stories
-            var itemToDeleteCount = group.UserStories.Count;
+            actions.AddRange(group.UserStories.Select(story => mediator.Send(new DeleteCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
             group.ClearUserStories();
             CreateGeneratedStories(group, GeminiResponse.LoadFrom(group.Response));
-
-            var i = 0;
-            foreach (var story in group.UserStories)
-            {
-                if (i < itemToDeleteCount)
-                    actions.Add(mediator.Send(new DeleteCommand<UserStoryDomain> { Domain = story }, cancellationToken));
-                else
-                    actions.AddRange(group.UserStories.Select(story => mediator.Send(new CreateCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
-            }
+            actions.AddRange(group.UserStories.Select(story => mediator.Send(new CreateCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
 
             // reset property SelectGroupId of the project
             ResetSelectedGroupOfTheProjectIfNeeded(project, group, actions, cancellationToken);

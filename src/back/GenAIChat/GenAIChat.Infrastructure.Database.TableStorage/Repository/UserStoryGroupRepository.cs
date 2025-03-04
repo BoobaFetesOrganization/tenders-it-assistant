@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using Azure;
 using Azure.Data.Tables;
 using GenAIChat.Application.Adapter.Database;
-using GenAIChat.Domain.Document;
 using GenAIChat.Domain.Filter;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
 using GenAIChat.Infrastructure.Database.TableStorage.Entity;
 using GenAIChat.Infrastructure.Database.TableStorage.Repository.Generic;
-using System.Net;
 
 namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
 {
@@ -17,7 +14,7 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
         public async override Task<UserStoryGroupDomain> AddAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<UserStoryGroupDomain>(domain);
-            clone.Id = Tools.GetNewId();
+            clone.Id = TableStorageTools.GetNewId();
             clone.Request.GroupId = clone.Id;
 
             // create related entity metadata

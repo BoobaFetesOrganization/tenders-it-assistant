@@ -3,13 +3,14 @@ import { gql } from '@apollo/client';
 export const UpdateUserStoryGroupRequestMutation = gql`
   mutation UpdateUserStoryGroupRequest(
     $projectId: String!
-    $input: IUserStoryGroupDto!
+    $groupId: String!
+    $input: IUserStoryRequestDto!
   ) {
-    group(projectId: $projectId, input: $input)
+    request(projectId: $projectId, groupId: $groupId, input: $input)
       @rest(
-        type: "IUserStoryGroupDto"
+        type: "IUserStoryRequestDto"
         method: "PUT"
-        path: "/project/{args.projectId}/group/{args.input.id}/request"
+        path: "/project/{args.projectId}/group/{args.groupId}/request"
       ) {
       id
       projectId

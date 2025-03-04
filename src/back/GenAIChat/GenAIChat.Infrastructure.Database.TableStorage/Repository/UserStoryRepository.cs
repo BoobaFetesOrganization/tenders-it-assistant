@@ -14,12 +14,14 @@ namespace GenAIChat.Infrastructure.Database.TableStorage.Repository
         public async override Task<UserStoryDomain> AddAsync(UserStoryDomain domain, CancellationToken cancellationToken = default)
         {
             var clone = mapper.Map<UserStoryDomain>(domain);
-            clone.Id = Tools.GetNewId();
+            clone.Id = TableStorageTools.GetNewId();
 
-            foreach (var task in clone.Tasks) task.UserStoryId = clone.Id;
+            clone.Tasks = [.. await Task.WhenAll(domain.Tasks.Select(item =>
+            {
+                item.UserStoryId = clone.Id;
+                return taskRepository.AddAsync(item, cancellationToken);
+            }))];
 
-            clone.Tasks = [.. await Task.WhenAll(domain.Tasks.Select(item => taskRepository.AddAsync(item, cancellationToken)))];
-            
             return await base.AddAsync(clone, cancellationToken);
         }
 
