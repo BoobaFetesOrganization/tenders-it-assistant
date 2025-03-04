@@ -3,8 +3,8 @@ import { MutationHookOptions, useMutation } from '@apollo/client';
 import { DeleteUserStoryGroupMutation, GetUserStoryGroupsQuery } from './cqrs';
 
 interface DeleteUserStoryGroupRequest {
-  projectId: number;
-  id: number;
+  projectId: string;
+  id: string;
 }
 interface DeleteUserStoryGroupResponse {
   group: IUserStoryGroupDto;

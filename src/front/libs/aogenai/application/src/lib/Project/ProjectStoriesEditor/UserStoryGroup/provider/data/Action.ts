@@ -2,7 +2,7 @@ import {
   ITaskDto,
   IUserStoryDto,
   IUserStoryGroupDto,
-  IUserStoryPromptDto,
+  IUserStoryRequestDto,
 } from '@aogenai/domain';
 
 type ActionBase<T extends string, P = undefined> = P extends undefined
@@ -13,7 +13,7 @@ export type InitGroupAction = ActionBase<'group:init', IUserStoryGroupDto>;
 
 export type UpdateRequestAction = ActionBase<
   'request:update',
-  Partial<IUserStoryPromptDto>
+  Partial<IUserStoryRequestDto>
 >;
 
 export type CreateStoryAction = ActionBase<'story:create'>;

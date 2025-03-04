@@ -5,8 +5,8 @@ namespace GenAIChat.Application.Adapter.Api
 {
     public interface IGenAiApiAdapter
     {
-        Task<string> SendRequestAsync(GeminiRequest request);
+        Task<string> SendRequestAsync(GeminiRequest request, CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain> documents, Func<DocumentDomain,Task>? onSent = null);
+        Task<IEnumerable<DocumentDomain>> SendFilesAsync(IEnumerable<DocumentDomain> documents, CancellationToken cancellationToken = default);
     }
 }

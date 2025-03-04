@@ -3,7 +3,7 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GetProjectQuery } from './cqrs';
 
 interface Request {
-  id: number;
+  id: string;
 }
 interface Response {
   project: IProjectDto;

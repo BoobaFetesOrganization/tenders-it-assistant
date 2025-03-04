@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GenAIChat.Application.Usecase;
+using GenAIChat.Application.Usecase.Interface;
 using GenAIChat.Domain.Common;
 using GenAIChat.Domain.Project;
 using GenAIChat.Presentation.API.Controllers.Common;
@@ -12,31 +12,31 @@ namespace GenAIChat.Presentation.API.Controllers
     [EnableCors(PolicyName = ConfigureService.SpaCors)]
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectController(ProjectApplication application, IMapper mapper)
+    public class ProjectController(IApplication<ProjectDomain> application, IMapper mapper)
         : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllAsync([FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken, [FromQuery] int offset = PaginationOptions.DefaultOffset, [FromQuery] int limit = PaginationOptions.DefaultLimit)
         {
             var options = new PaginationOptions(offset, limit);
-            var result = await application.GetAllAsync(options);
+            var result = await application.GetAllPagedAsync(options, null, cancellationToken);
             return Ok(mapper.Map<Paged<ProjectBaseDto>>(result));
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            var result = await application.GetByIdAsync(id);
+            var result = await application.GetByIdAsync(id, cancellationToken);
             if (result is null) return NotFound();
             return Ok(mapper.Map<ProjectDto>(result));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ProjectBaseDto request)
+        public async Task<IActionResult> Create([FromBody] ProjectBaseDto request, CancellationToken cancellationToken = default)
         {
             try
             {
-                var result = await application.CreateAsync(mapper.Map<ProjectDomain>(request));
+                var result = await application.CreateAsync(mapper.Map<ProjectDomain>(request), cancellationToken);
                 return Created(string.Empty, mapper.Map<ProjectDto>(result));
             }
             catch (Exception ex)
@@ -46,15 +46,12 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpPut()]
-        public async Task<IActionResult> Update([FromBody] ProjectDto request)
+        public async Task<IActionResult> Update([FromBody] ProjectDto request, CancellationToken cancellationToken = default)
         {
             try
             {
-                var result = await application.UpdateAsync(mapper.Map<ProjectDomain>(request));
-
-                if (result is null) return NotFound();
-
-                return Ok(mapper.Map<ProjectDto>(result));
+                var result = await application.UpdateAsync(mapper.Map<ProjectDomain>(request), cancellationToken);
+                return result is null ? NoContent() : result.Value ? Ok() : NotFound();
             }
             catch (Exception ex)
             {
@@ -63,11 +60,10 @@ namespace GenAIChat.Presentation.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
-            var result = await application.DeleteAsync(id);
-            if (result is null) return NotFound();
-            return Ok(mapper.Map<ProjectDto>(result));
+            var result = await application.DeleteAsync(id, cancellationToken);
+            return result is null ? NoContent() : result.Value ? Ok() : NotFound();
         }
     }
 }

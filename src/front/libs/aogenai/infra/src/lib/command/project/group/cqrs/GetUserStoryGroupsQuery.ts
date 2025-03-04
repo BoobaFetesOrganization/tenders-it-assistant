@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GetUserStoryGroupsQuery = gql`
-  query GetUserStoryGroups($projectId: Int!, $limit: Int!, $offset: Int!) {
+  query GetUserStoryGroups($projectId: String!, $limit: Int!, $offset: Int!) {
     groups(projectId: $projectId, limit: $limit, offset: $offset)
       @rest(
         type: "[IUserStoryGroupBaseDto]"

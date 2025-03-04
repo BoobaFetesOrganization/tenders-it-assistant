@@ -15,7 +15,7 @@ namespace GenAIChat.Domain.Gemini.GeminiCommon
         public GeminiContentFilePartData? FileData { get; set; } = null;
 
         public GeminiContentPart() { }
-        public GeminiContentPart(string prompt) { Text = prompt; }
+        public GeminiContentPart(string request) { Text = request; }
         public GeminiContentPart(string mimeType, string fileUri) { FileData = new GeminiContentFilePartData(mimeType, fileUri); }
     }
 }

@@ -1,10 +1,22 @@
-﻿using GenAIChat.Domain.Common;
+﻿using GenAIChat.Application.Adapter.Database;
+using GenAIChat.Domain.Common;
 using MediatR;
 
 namespace GenAIChat.Application.Command.Common
 {
-    public class CreateCommand<TEntity> : IRequest<TEntity> where TEntity : class, IEntityDomain
+    public class CreateCommand<TDomain> : IRequest<TDomain> where TDomain : class, IEntityDomain
     {
-        public required TEntity Entity { get; init; }
+        public required TDomain Domain { get; init; }
+    }
+
+    public class CreateCommandHandler<TDomain>(IRepositoryAdapter<TDomain> repository) : IRequestHandler<CreateCommand<TDomain>, TDomain> where TDomain : class, IEntityDomain
+    {
+        public async Task<TDomain> Handle(CreateCommand<TDomain> request, CancellationToken cancellationToken = default)
+        {
+            if (!string.IsNullOrWhiteSpace(request.Domain.Id)) throw new Exception("Id should not be set to request a creation");
+            if (request.Domain.Timestamp is not null) throw new Exception("Timestamp should not be set to request a creation");
+
+            return await repository.AddAsync(request.Domain, cancellationToken);
+        }
     }
 }

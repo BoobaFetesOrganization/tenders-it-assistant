@@ -1,10 +1,12 @@
 export interface IEntityDomain {
-  id: number;
+  id: string;
+  timestamp?: Date;
 }
 
 export function newEntityDomain(obj?: Partial<IEntityDomain>): IEntityDomain {
   return {
-    id: obj?.id || 0,
+    id: obj?.id || '',
+    timestamp: obj?.timestamp || undefined,
   };
 }
 

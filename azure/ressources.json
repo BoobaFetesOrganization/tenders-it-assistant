@@ -33,6 +33,18 @@
         "branch": "main",
         "repoUrl": "https://github.com/BoobaFetes/gemini-chat"
       }
+    },
+    {
+      "kind": "storage account",
+      "name": "geminichatstoragedb",
+      "ressourceGroup": "gemini-chat-rg",
+      "sku": "Standard_LRS",
+      "azure-kind": "StorageV2"
+    },
+    {
+      "kind": "storage table",
+      "name": "geminichatstoragedbTable",
+      "account": "geminichatstoragedb"
     }
   ]
 }

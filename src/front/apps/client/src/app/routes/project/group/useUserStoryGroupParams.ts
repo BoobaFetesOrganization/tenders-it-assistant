@@ -6,5 +6,5 @@ export function useUserStoryGroupParams(): IUserStoryGroupParams {
     projectId: string;
     groupId: string;
   }>();
-  return { projectId: projectId ? +projectId : 0, id: groupId ? +groupId : 0 };
+  return { projectId: projectId ? projectId : '', id: groupId ? groupId : '' };
 }

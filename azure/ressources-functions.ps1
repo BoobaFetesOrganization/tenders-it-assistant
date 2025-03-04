@@ -40,7 +40,9 @@ function Set-RessourceGroup(
         $cmd += " -l $($location)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString $tags)"
         $result = Invoke-Expression $cmd | Out-Null
-        Write-Host "Ressource group $($settings.ressourceGroup.name) created in location $location"
+        if (-not $?) {
+            throw "Ressource group creation fails"
+        }
     }  
     return $result     
 }
@@ -70,10 +72,13 @@ function Set-AppService-Plan(
         $cmd += " --sku $($ressource.sku)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $result = Invoke-Expression $cmd
-        Write-Host "App service plan $($ressource.name) created in location $location"  
+        if (-not $?) {
+            throw "App service plan creation fails"
+        }
     }
     return $result
 }
+
 function Get-WebApp(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $ressource
@@ -98,7 +103,60 @@ function Set-WebApp(
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $cmd += " --https-only"
         $result = Invoke-Expression $cmd
-        Write-Host "Web app $($ressource.name) created in location $($settings.location)"
+        if (-not $?) {
+            throw "Web app creation fails"
+        }
+    }
+    return $result;
+}
+
+function Get-Storage-Account(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $ressource
+) {
+    return (az storage account show -n $ressource.name -g $ressource.ressourceGroup)
+}
+function Set-Storage-Account(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $ressource, 
+    [Parameter()]
+    [object[]] $tags
+) {
+    $result = $ressource | Get-Storage-Account
+    if ($result -eq $null) {
+        $cmd = "az storage account create"
+        $cmd += " -n $($ressource.name)"
+        $cmd += " -g $($ressource.ressourceGroup)"
+        $cmd += " --sku $($ressource.sku)"
+        $cmd += " --kind $($ressource."azure-kind")"
+        $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
+        $result = Invoke-Expression $cmd
+        if (-not $?) {
+            throw "storage account creation fails"
+        }
+    }
+    return $result;
+}
+
+
+function Set-Storage-Table(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $ressource, 
+    [Parameter(Mandatory = $true)]
+    [string] $location, 
+    [Parameter()]
+    [object[]] $tags
+) {
+    $tableStorage = (az storage table exists -n $ressource.name --account-name $ressource.account) | ConvertFrom-Json
+    if ($tableStorage.exists) {
+        $cmd = "az storage table create"
+        $cmd += " -n $($ressource.name)"
+        $cmd += " --account-name $($ressource.account)"
+        $cmd += " --auth-mode login"
+        $result = Invoke-Expression $cmd
+        if (-not $?) {
+            throw "storage table creation fails"
+        }
     }
     return $result;
 }

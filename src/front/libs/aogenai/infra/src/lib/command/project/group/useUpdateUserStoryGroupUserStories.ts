@@ -4,7 +4,7 @@ import { GetUserStoryGroupQuery } from './cqrs';
 import { UpdateUserStoryGroupUserStoriesMutation } from './cqrs/UpdateUserStoryGroupUserStoriesMutation';
 
 interface Request {
-  projectId: number;
+  projectId: string;
   input: IUserStoryGroupDto;
 }
 interface Response {

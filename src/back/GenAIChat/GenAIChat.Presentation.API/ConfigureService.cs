@@ -7,17 +7,22 @@ namespace GenAIChat.Presentation.API
     public static class ConfigureService
     {
         public const string SpaCors = "SpaCors";
-        public static void AddGenAiChatPresentationApi(this IServiceCollection services, IConfiguration configuration)
+
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
+
+        public static void AddGenAiChatPresentationApi(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
+            writeLine?.Invoke("configure Presentation : Web Api services");
+            
             // register AutoMapper to scan all assemblies in the current domain
             services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
 
             // register the configuration for the CORS policy
-            Console.WriteLine("Persenter.API : Conviguration : Cors:");
+            writeLine?.Invoke("Persenter.API : Conviguration : Cors:");
             CorsConfiguration corsConfig = configuration.GetSection("Cors:SpaCors").Get<CorsConfiguration>()
                 ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": {\r\n    \"SpaCors\": {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"http://localhost:3000\", \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\", \"OPTIONS\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  }\r\n}");
 
-            Console.WriteLine(JsonSerializer.Serialize(corsConfig, new JsonSerializerOptions { WriteIndented = true }));
+            Console.WriteLine(JsonSerializer.Serialize(corsConfig, JsonSerializerOptions));
 
             services.AddCors(options =>
             {

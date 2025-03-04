@@ -15,10 +15,10 @@ namespace GenAIChat.Domain.Gemini
         [JsonPropertyName("modelVersion")]
         public string ModelVersion { get; set; } = string.Empty;
 
-        public static GeminiResponse LoadFrom(string response)
+        public static GeminiResponse LoadFrom(string? jsonResponse)
         {
-            return JsonSerializer.Deserialize<GeminiResponse>(response)
-                ?? throw new JsonException("Error while converting the response");
+            var json = jsonResponse ?? throw new ArgumentNullException(nameof(jsonResponse), "Gemini reponse should be set");
+            return JsonSerializer.Deserialize<GeminiResponse>(json) ?? throw new JsonException("Error while converting the response");
         }
     }
 }

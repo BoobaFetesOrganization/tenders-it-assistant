@@ -7,8 +7,8 @@ import {
 import { GenerateUserStoryGroupMutation, GetUserStoryGroupQuery } from './cqrs';
 
 interface Request {
-  projectId: number;
-  id: number;
+  projectId: string;
+  id: string;
 }
 interface RequestInternal extends Request {
   input: object;
@@ -23,8 +23,8 @@ export const useGenerateUserStoryGroup = (
   useMutation<Response, RequestInternal>(GenerateUserStoryGroupMutation, {
     ...options,
     variables: {
-      projectId: options?.variables?.projectId ?? 0,
-      id: options?.variables?.id ?? 0,
+      projectId: options?.variables?.projectId ?? '',
+      id: options?.variables?.id ?? '',
       input: {},
     },
     refetchQueries: [GetUserStoryGroupQuery],

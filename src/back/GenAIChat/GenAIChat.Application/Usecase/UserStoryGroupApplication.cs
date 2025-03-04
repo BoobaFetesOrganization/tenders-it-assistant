@@ -1,101 +1,211 @@
-﻿using GenAIChat.Application.Adapter.Database;
+﻿using AutoMapper;
+using GenAIChat.Application.Adapter.Api;
 using GenAIChat.Application.Command.Common;
-using GenAIChat.Application.Command.Project.Group;
 using GenAIChat.Application.Resources;
-using GenAIChat.Application.Usecase.Common;
+using GenAIChat.Application.Usecase.Interface;
+using GenAIChat.Domain.Document;
+using GenAIChat.Domain.Filter;
+using GenAIChat.Domain.Gemini;
+using GenAIChat.Domain.Gemini.GeminiCommon;
 using GenAIChat.Domain.Project;
 using GenAIChat.Domain.Project.Group;
 using GenAIChat.Domain.Project.Group.UserStory;
+using GenAIChat.Domain.Project.Group.UserStory.Task.Cost;
 using MediatR;
+using System.Text;
+using System.Text.Json;
 
 namespace GenAIChat.Application.Usecase
 {
-    public class UserStoryGroupApplication : ApplicationBase<UserStoryGroupDomain>
+#pragma warning disable CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
+    public class UserStoryGroupApplication(EmbeddedResource resources, IGenAiApiAdapter genAiAdapter, IMediator mediator, IMapper mapper) : ApplicationBase<UserStoryGroupDomain>(mediator), IUserStoryGroupApplication
+#pragma warning restore CS9107 // Un paramètre est capturé dans l’état du type englobant et sa valeur est également passée au constructeur de base. La valeur peut également être capturée par la classe de base.
     {
-        private readonly IMediator _mediator;
-        private readonly ProjectApplication _projectApplication;
-        private readonly IGenAiUnitOfWorkAdapter _unitOfWork;
-        private readonly EmbeddedResource _resource;
+        public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default) => CreateAsync(domain.ProjectId, cancellationToken);
 
-        public UserStoryGroupApplication(IMediator mediator, IGenAiUnitOfWorkAdapter unitOfWork, ProjectApplication projectApplication, EmbeddedResource resource) : base(mediator, unitOfWork)
+        public async Task<UserStoryGroupDomain> CreateAsync(string projectId, CancellationToken cancellationToken = default)
         {
-            _mediator = mediator;
-            _unitOfWork = unitOfWork;
-            _projectApplication = projectApplication;
-            _resource = resource;
-        }
+            var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken) ?? throw new Exception("Project not found");
 
-        public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain entity)
-        {
-            throw new Exception("Use CreateAsync(int projectId) instead, because a group needs to be initialized from the server only");
-        }
-
-        public async Task<UserStoryGroupDomain> CreateAsync(int projectId)
-        {
-            UserStoryPromptDomain prompt = new(_resource.UserStoryPrompt);
-            UserStoryGroupDomain domain = new(prompt) { ProjectId = projectId };
-
-            var result = await base.CreateAsync(domain);
-            if (result.Id > 0)
+            UserStoryGroupDomain group = await base.CreateAsync(new()
             {
-                try
-                {
-                    var item = await _mediator.Send(new UserStoryGroupGenerateCommand { Entity = result });
-                    await _unitOfWork.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    // silent catch, because it's not required to get the generation of user stories done right now...
-                    Console.WriteLine(ex.Message);
-                }
+                ProjectId = projectId,
+                Request = mapper.Map<UserStoryRequestDomain>(resources.UserStoryRequest),
+
+            }, cancellationToken);
+
+            try
+            {
+                var item = await GenerateUserStoriesAsync(project, group, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // silent catch, because it's not required to get the generation of user stories done right now..
+                Console.WriteLine(ex.Message);
             }
 
-            return result;
+            return (await GetByIdAsync(group.Id, cancellationToken)) ?? throw new Exception("new item not found !");
         }
 
-        public async Task<UserStoryGroupDomain?> UpdateRequestAsync(int id, UserStoryPromptDomain request)
-        {
-            UserStoryGroupDomain group = await GetByIdAsync(id) ?? throw new Exception("UserStoryGroup not found");
+        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(string projectId, string groupId, CancellationToken cancellationToken = default) => await GenerateUserStoriesAsync(
+               await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken),
+               await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken),
+               cancellationToken);
 
-            group.Request = request;
-            group.Response = null;
+        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? _group, CancellationToken cancellationToken = default)
+        {
+            var project = _project ?? throw new Exception("Project  not found");
+            var group = _group ?? throw new Exception("Group not found");
+
+            // actions
+            List<Task> actions = [];
+
+            // act : update documents
+            IEnumerable<DocumentDomain> documents = await RehydrateDocuments(group, actions, cancellationToken);
+            group.Response = await SendRequestToGenAi(group, documents, cancellationToken);
+            await mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = group }, cancellationToken);
+
+
+            // act : update stories
+            actions.AddRange(group.UserStories.Select(story => mediator.Send(new DeleteCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
             group.ClearUserStories();
+            CreateGeneratedStories(group, GeminiResponse.LoadFrom(group.Response));
+            actions.AddRange(group.UserStories.Select(story => mediator.Send(new CreateCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
 
-            return await base.UpdateAsync(group);
+            // reset property SelectGroupId of the project
+            ResetSelectedGroupOfTheProjectIfNeeded(project, group, actions, cancellationToken);
+
+            // wait resolutions of the actions
+            await Task.WhenAll(actions);
+
+            return await GetByIdAsync(group.Id, cancellationToken) ?? throw new Exception($"Group '{group.Id}' not found after user stories generation");
+        }
+        #region GenerateUsertoriesAsync helpers
+
+        private async Task<IEnumerable<DocumentDomain>> RehydrateDocuments(UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken = default)
+        {
+            // upload files to the GenAI and store new Metadata
+            var filter = new PropertyEqualsFilter(nameof(UserStoryGroupDomain.ProjectId), domain.ProjectId);
+
+            // get minimal value to prevent to download all sub entities
+            IEnumerable<DocumentDomain> documentInfos = await mediator.Send(new GetAllQuery<DocumentDomain>() { Filter = filter }, cancellationToken);
+            if (!documentInfos.Any()) throw new Exception("To generate user stories, at least one document is required");
+
+            // get entities full filled
+            var temp = await Task.WhenAll(documentInfos.Select(doc => mediator.Send(new GetByIdQuery<DocumentDomain>() { Id = doc.Id }, cancellationToken)));
+            IEnumerable<DocumentDomain> documents = temp.Where(i => i is not null).Cast<DocumentDomain>();
+
+            // upload files to the GenAI and store new Metadata
+            var uploads = await genAiAdapter.SendFilesAsync(documents, cancellationToken);
+            actions.AddRange(uploads.Select(doc => mediator.Send(new UpdateCommand<DocumentDomain>() { Domain = doc }, cancellationToken)));
+
+            return documents;
         }
 
-        public async Task<UserStoryGroupDomain?> UpdateUserStoriesAsync(int id, ICollection<UserStoryDomain> userStories)
+        private async Task<string> SendRequestToGenAi(UserStoryGroupDomain domain, IEnumerable<DocumentDomain> documents, CancellationToken cancellationToken = default)
         {
-            UserStoryGroupDomain group = await GetByIdAsync(id) ?? throw new Exception("UserStoryGroup not found");
+            GeminiContent content = new();
+            content.AddPart(ConvertRequestDomainToGeminiContent(domain.Request));
+            if (documents is not null) content.AddParts(documents.Select(document => new GeminiContentPart(document.Metadata.MimeType, document.Metadata.Uri)));
 
-            group.UserStories = userStories;
+            GeminiRequest data = new();
+            data.AddContent(content);
 
-            return await base.UpdateAsync(group);
-        }
-
-        public async Task<UserStoryGroupDomain?> GenerateAsync(int projectId, int id)
-        {
-            var group = await GetByIdAsync(id);
-            if (group is null || group.ProjectId != projectId) return null;
-
-            var item = await _mediator.Send(new UserStoryGroupGenerateCommand { Entity = group });
-            if (item is not null)
+            data.SetGenerationConfig(new()
             {
-                var project = await _projectApplication.GetByIdAsync(projectId)
-                    ?? throw new Exception("Le projet avec l'ID spécifié n'a pas été trouvé.");
+                MimeType = "application/json",
+                Schema = resources.UserStoryRequestSchema ?? throw new Exception("User story schema for the result of the Gemini api is not found, check the resources.")
+            });
 
-                project.SelectedGroup = null;
-                var result = await _mediator.Send(new UpdateCommand<ProjectDomain> { Entity = project });
-            }
-            await _unitOfWork.SaveChangesAsync();
-            return item;
+            return await genAiAdapter.SendRequestAsync(data, cancellationToken);
         }
+        #region SendRequestToGenAi(...) helpers
 
-        public async Task<UserStoryGroupDomain> Validate(int projectId, int groupId)
+        private static GeminiContentPart ConvertRequestDomainToGeminiContent(UserStoryRequestDomain domain)
         {
-            var item = await _mediator.Send(new UserStoryGroupValidateCommand { ProjectId = projectId, GroupId = groupId });
-            await _unitOfWork.SaveChangesAsync();
-            return item;
+            StringBuilder sb = new();
+            void append(string key, string value)
+            {
+                sb.Append($"{key}:");
+                sb.Append($"{value}{Environment.NewLine}");
+            }
+
+            append(nameof(domain.Context), domain.Context);
+            append(nameof(domain.Personas), domain.Personas);
+            append(nameof(domain.Tasks), domain.Tasks);
+
+            return new(sb.ToString());
         }
+
+        private static void CreateGeneratedStories(UserStoryGroupDomain domain, GeminiResponse response)
+        {
+            // check constraints
+            var responseResult = response.Candidates.FirstOrDefault(i => i.Content.Role == "model")?.Content?.Parts.Last()
+                ?? throw new InvalidOperationException("Error while getting the response text from the payload");
+
+            var text = responseResult.Text
+                ?? throw new InvalidOperationException("Error while getting the text result from the payload");
+
+            // act: extract users stories from the GenAI response and set tasks costs
+            var userStories = JsonSerializer.Deserialize<ICollection<UserStoryDomain>>(text) ?? [];
+            foreach (var task in userStories.SelectMany(us => us.Tasks))
+            {
+                task.AddGeminiCost(task.Cost);
+                task.Cost = 0;
+            }
+            // act: set user stories to the group and create them
+            domain.AddManyStory(userStories);
+        }
+
+        private void ResetSelectedGroupOfTheProjectIfNeeded(ProjectDomain project, UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken = default)
+        {
+            // when the selected group of the project is generated (or regenerated),
+            // the selection must be unset
+
+            if (project.SelectedGroupId is null || project.SelectedGroupId != domain.Id) return;
+
+            project.SelectedGroupId = null;
+            actions.Add(mediator.Send(new UpdateCommand<ProjectDomain> { Domain = project }, cancellationToken));
+        }
+
+        #endregion
+
+        #endregion
+
+        public async Task<UserStoryGroupDomain> ValidateCostsAsync(string projectId, string groupId, CancellationToken cancellationToken = default)
+        {
+            var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken) ?? throw new Exception("Project not found");
+            var group = await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken) ?? throw new Exception("Group not found");
+
+            // revert previous selected group
+            var selectedGroup = project.Groups.FirstOrDefault(x => x.Id == project.SelectedGroupId);
+            if (selectedGroup is not null) ResetTaskCost(selectedGroup);
+
+            // set cost for selected group
+            project.SelectedGroupId = group.Id;
+            OverrideWithDefaultCost(group);
+            await UpdateAsync(group, cancellationToken);
+
+            return (await GetByIdAsync(groupId, cancellationToken)) ?? throw new Exception("new item not found !");
+        }
+        #region ValidateCostsAsync helpers
+        private static void ResetTaskCost(UserStoryGroupDomain item)
+        {
+            foreach (var story in item.UserStories)
+                foreach (var task in story.Tasks)
+                    task.Cost = 0;
+        }
+        private static void OverrideWithDefaultCost(UserStoryGroupDomain item)
+        {
+            foreach (var story in item.UserStories)
+                foreach (var task in story.Tasks)
+                {
+                    // si on accepte par default la valeur de l'IA
+                    var gemini = task.WorkingCosts.FirstOrDefault(cost => cost.Kind == TaskCostKind.Gemini);
+                    if (task.Cost < 1 && gemini != null)
+                        task.Cost = gemini.Cost;
+                }
+        }
+        #endregion
     }
 }

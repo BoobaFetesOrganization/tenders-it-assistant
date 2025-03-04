@@ -4,7 +4,7 @@ import { FC, memo, useCallback, useState } from 'react';
 import { IProjectItemProps, ProjectItem } from './Item';
 
 interface IEditProps extends Pick<IProjectItemProps, 'onUserStoryEditorCLick'> {
-  id: number;
+  id: string;
   onSaved?: (item: IProjectDto) => void;
   onDeleted?: (item: IProjectDto) => void;
   onDocumentDonwloaded?: (document: IDocumentDto) => void;

@@ -3,8 +3,8 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GetDocumentQuery } from './cqrs';
 
 interface Request {
-  projectId: number;
-  id: number;
+  projectId: string;
+  id: string;
 }
 interface Response {
   document: IDocumentDto;

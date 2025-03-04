@@ -1,0 +1,21 @@
+﻿{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "Name": { "type": "string" },
+      "Tasks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "Name": { "type": "string" },
+            "Cost": { "type": "number" }
+          },
+          "required": ["Name", "Cost"]
+        }
+      }
+    },
+    "required": ["Name", "Tasks"]
+  }
+}

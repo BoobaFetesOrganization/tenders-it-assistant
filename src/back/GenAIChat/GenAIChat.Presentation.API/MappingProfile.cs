@@ -14,54 +14,55 @@ namespace GenAIChat.Presentation.API
     {
         public MappingProfile()
         {
-            SetMappingFor<ProjectDomain, ProjectBaseDto, ProjectDto>();
+            // project
+            CreateMap<ProjectDomain, ProjectDto>();
+            CreateMap<ProjectDto, ProjectDomain>();
+            CreateMap<ProjectDomain, ProjectBaseDto>();
+            CreateMap<ProjectBaseDto, ProjectDomain>();
+            CreateMap<Paged<ProjectDomain>, Paged<ProjectBaseDto>>()
+                .ConvertUsing(new DomainToDtoPagedConverter<ProjectDomain, ProjectBaseDto>());
 
-            SetMappingFor<DocumentDomain, DocumentBaseDto, DocumentDto>(
-                convertDestination: map => map
-                    .ForPath(dest => dest.MimeType, opt => opt.MapFrom(src => src.Metadata.MimeType)),
-                convertSource: map => map
-                    .ForPath(dest => dest.Metadata.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                );
+            // document
+            CreateMap<DocumentDomain, DocumentDto>()
+                .ForPath(dest => dest.MimeType, opt => opt.MapFrom(src => src.Metadata.MimeType));
+            CreateMap<DocumentDto, DocumentDomain>()
+                    .ForPath(dest => dest.Metadata.MimeType, opt => opt.MapFrom(src => src.MimeType));
+            CreateMap<DocumentDomain, DocumentBaseDto>();
+            CreateMap<DocumentBaseDto, DocumentDomain>();
+            CreateMap<Paged<DocumentDomain>, Paged<DocumentBaseDto>>()
+                .ConvertUsing(new DomainToDtoPagedConverter<DocumentDomain, DocumentBaseDto>());
 
-            SetMappingFor<UserStoryGroupDomain, UserStoryGroupBaseDto, UserStoryGroupDto>();
-            SetMappingWithoutBaseFor<UserStoryPromptDomain, UserStoryPromptDto>();
+            // user story group
+            CreateMap<UserStoryGroupDomain, UserStoryGroupDto>();
+            CreateMap<UserStoryGroupDto, UserStoryGroupDomain>();
+            CreateMap<UserStoryGroupDomain, UserStoryGroupBaseDto>();
+            CreateMap<UserStoryGroupBaseDto, UserStoryGroupDomain>();
+            CreateMap<Paged<UserStoryGroupDomain>, Paged<UserStoryGroupBaseDto>>()
+                .ConvertUsing(new DomainToDtoPagedConverter<UserStoryGroupDomain, UserStoryGroupBaseDto>());
 
-            SetMappingFor<UserStoryDomain, UserStoryBaseDto, UserStoryDto>();
+            // user story request
+            CreateMap<UserStoryRequestDomain, UserStoryRequestDto>();
+            CreateMap<UserStoryRequestDto, UserStoryRequestDomain>();
 
-            SetMappingFor<TaskDomain, TaskBaseDto, TaskDto>();
-            SetMappingWithoutBaseFor<TaskCostDomain, TaskCostDto>();
-        }
+            // user story
+            CreateMap<UserStoryDomain, UserStoryDto>();
+            CreateMap<UserStoryDto, UserStoryDomain>();
+            CreateMap<UserStoryDomain, UserStoryBaseDto>();
+            CreateMap<UserStoryBaseDto, UserStoryDomain>();
+            CreateMap<Paged<UserStoryDomain>, Paged<UserStoryBaseDto>>()
+                .ConvertUsing(new DomainToDtoPagedConverter<UserStoryDomain, UserStoryBaseDto>());
 
+            // task
+            CreateMap<TaskDomain, TaskDto>();
+            CreateMap<TaskDto, TaskDomain>();
+            CreateMap<TaskDomain, TaskBaseDto>();
+            CreateMap<TaskBaseDto, TaskDomain>();
+            CreateMap<Paged<TaskDomain>, Paged<TaskBaseDto>>()
+                .ConvertUsing(new DomainToDtoPagedConverter<TaskDomain, TaskBaseDto>());
 
-        public void SetMappingFor<TSource, TDestinationBase, TDestination>(
-            Action<IMappingExpression<TSource, TDestination>>? convertDestination = null,
-            Action<IMappingExpression<TDestination, TSource>>? convertSource = null
-            )
-            where TSource : class, IEntityDomain
-            where TDestinationBase : class
-            where TDestination : class
-        {
-            SetMappingWithoutBaseFor<TSource, TDestination>(convertDestination, convertSource);
-            CreateMap<Paged<TSource>, Paged<TDestinationBase>>()
-                .ConvertUsing(new DomainToDtoPagedConverter<TSource, TDestinationBase>());
-
-            CreateMap<TSource, TDestinationBase>();
-            CreateMap<TDestinationBase, TSource>();
-        }
-
-
-        public void SetMappingWithoutBaseFor<TSource, TDestination>(
-            Action<IMappingExpression<TSource, TDestination>>? convertDestination = null,
-            Action<IMappingExpression<TDestination, TSource>>? convertSource = null
-            )
-            where TSource : class, IEntityDomain
-            where TDestination : class
-        {
-            var destinationMapExpression = CreateMap<TSource, TDestination>();
-            convertDestination?.Invoke(destinationMapExpression);
-
-            var sourceMapExpression= CreateMap<TDestination, TSource>();
-            convertSource?.Invoke(sourceMapExpression);
+            // task cost
+            CreateMap<TaskCostDomain, TaskCostDto>();
+            CreateMap<TaskCostDto, TaskCostDomain>();
         }
 
         public class DomainToDtoPagedConverter<TSource, TDestination> : ITypeConverter<Paged<TSource>, Paged<TDestination>>

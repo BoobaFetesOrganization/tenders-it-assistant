@@ -2,7 +2,7 @@ import { IEntityDomain, newEntityBaseDto } from '../../common';
 import { IUserStoryBaseDto } from './userstory';
 
 export interface IUserStoryGroupBaseDto extends IEntityDomain {
-  projectId: number;
+  projectId: string;
   userStories: IUserStoryBaseDto[];
 }
 
@@ -11,7 +11,7 @@ export function newUserStoryGroupBaseDto(
 ): IUserStoryGroupBaseDto {
   return {
     ...newEntityBaseDto(obj),
-    projectId: obj?.projectId || 0,
+    projectId: obj?.projectId || '',
     userStories: obj?.userStories || [],
   };
 }

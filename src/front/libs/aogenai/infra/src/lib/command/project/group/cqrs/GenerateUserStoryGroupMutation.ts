@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 export const GenerateUserStoryGroupMutation = gql`
   mutation GenerateUserStoryGroup(
-    $projectId: Int!
-    $id: Int!
+    $projectId: String!
+    $id: String!
     $input: IUserStoryGroupDto!
   ) {
     group(projectId: $projectId, id: $id, input: $input)

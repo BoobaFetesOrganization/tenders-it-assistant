@@ -26,8 +26,8 @@ const UserStoryGroupContext = createContext<IUserStoryGroupContext>(
 export const useUserStoryGroupContext = () => useContext(UserStoryGroupContext);
 
 export interface IUserStoryGroupProviderProps {
-  projectId: number;
-  groupId: number;
+  projectId: string;
+  groupId: string;
   onDeleted?: (group: IUserStoryGroupDto) => void;
 }
 export const UserStoryGroupProvider: FC<

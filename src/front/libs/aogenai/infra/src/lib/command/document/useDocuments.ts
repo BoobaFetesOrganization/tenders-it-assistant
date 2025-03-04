@@ -4,7 +4,7 @@ import { getInfraSettings } from '../../settings';
 import { GetDocumentsQuery } from './cqrs';
 
 export interface UseDocumentRequest {
-  projectId: number;
+  projectId: string;
   limit: number;
   offset: number;
 }
@@ -19,11 +19,11 @@ export const useDocuments = (
 
   return useQuery<Response, UseDocumentRequest>(GetDocumentsQuery, {
     ...options,
-    skip: !options?.variables?.projectId || options.variables.projectId < 0,
+    skip: !options?.variables?.projectId,
     variables: {
       offset: 0,
       limit: maxLimit,
-      projectId: 0,
+      projectId: '',
       ...options?.variables,
     },
   });

@@ -11,7 +11,7 @@ import { Loading } from '../../common';
 import { UserStoryGroup } from './UserStoryGroup';
 
 interface IProjectStoriesEditorProps {
-  projectId: number;
+  projectId: string;
 }
 export const ProjectStoriesEditor: FC<IProjectStoriesEditorProps> = memo(
   ({ projectId }) => {

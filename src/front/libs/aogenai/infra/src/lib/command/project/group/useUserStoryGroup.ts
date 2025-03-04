@@ -3,8 +3,8 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GetUserStoryGroupQuery } from './cqrs';
 
 interface Request {
-  projectId: number;
-  id: number;
+  projectId: string;
+  id: string;
 }
 interface Response {
   group: IUserStoryGroupDto;

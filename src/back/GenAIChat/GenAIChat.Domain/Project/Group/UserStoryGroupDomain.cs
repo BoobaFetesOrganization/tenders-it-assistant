@@ -4,12 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GenAIChat.Domain.Project.Group
 {
-
-    public class UserStoryGroupDomain : IEntityDomain
+    public class UserStoryGroupDomain : EntityDomain
     {
-        public int Id { get; set; }
-
-        public UserStoryPromptDomain Request { get; set; } = new UserStoryPromptDomain();
+        public UserStoryRequestDomain Request { get; set; } = new UserStoryRequestDomain();
         public string? Response { get; set; } = null;
 
         [NotMapped]
@@ -18,39 +15,22 @@ namespace GenAIChat.Domain.Project.Group
         public ICollection<UserStoryDomain> UserStories { get; set; } = [];
 
         #region  navigation properties
-        public int ProjectId { get; set; }
+        public string ProjectId { get; set; } = string.Empty;
         #endregion
-
-        public UserStoryGroupDomain() { }
-
-        public UserStoryGroupDomain(UserStoryGroupDomain group)
-        {
-            Id = group.Id;
-            Request = new UserStoryPromptDomain(group.Request);
-            Response = group.Response;
-            UserStories = [.. group.UserStories];
-            ProjectId = group.ProjectId;
-        }
-
-        public UserStoryGroupDomain(UserStoryPromptDomain prompt)
-        {
-            Request = new UserStoryPromptDomain(prompt);
-        }
 
         public void ClearUserStories() => UserStories.Clear();
 
-        public void SetUserStory(IEnumerable<UserStoryDomain>? stories)
+        public void AddManyStory(IEnumerable<UserStoryDomain>? stories)
         {
-            UserStories.Clear();
             if (stories is null) return;
-            foreach (var story in stories) AddUserStory(story);
+            foreach (var story in stories) AddStory(story);
         }
-        public void AddUserStory(UserStoryDomain userStory)
+        public void AddStory(UserStoryDomain userStory)
         {
             userStory.GroupId = Id;
             UserStories.Add(userStory);
         }
-        public bool RemoveUserStory(UserStoryDomain userStory)
+        public bool RemoveStory(UserStoryDomain userStory)
         {
             return UserStories.Remove(userStory);
         }
