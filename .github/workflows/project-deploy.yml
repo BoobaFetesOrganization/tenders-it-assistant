@@ -16,7 +16,7 @@ jobs:
       working-directory: "src/front"
 
   back:
-    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@main
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-add-secrets
     with:
       artifact-name: web-api
       version: "9.0.x"
