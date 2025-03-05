@@ -19,6 +19,11 @@ on:
         description: "The path to the working directory"
         type: string
         required: true
+    secrets:
+      AZURE_STORAGE_CONNECTIONSTRING:
+        required: true
+      GOOGLE_GEMINI_APIKEY:
+        required: true
 
 permissions:
   contents: read
@@ -39,8 +44,8 @@ jobs:
 
       - name: set secrets for appsettings.json
         run: |
-          sed -i 's/"accountstorage": ".*"/"accountstorage": "replaced ${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' ${{ inputs.working-directory }}/appsettings.json
-          sed -i 's/"Gemini_ApiKey": ".*"/"Gemini_ApiKey": "replaced ${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"accountstorage": ".*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"Gemini_ApiKey": ".*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
           cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: Set up dotnet dependency caching for faster builds
