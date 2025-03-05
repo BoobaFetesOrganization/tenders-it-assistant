@@ -6,8 +6,8 @@ name: PR-build-back
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches: ["*"]
+  # pull_request:
+  #   branches: ["*"]
 
 env:
   artifact-name: "PR-web-api"

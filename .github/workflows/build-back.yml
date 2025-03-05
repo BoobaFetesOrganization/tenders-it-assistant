@@ -5,6 +5,8 @@
 name: build-back
 
 on:
+  pull_request:
+    branches: ["*"]
   workflow_call:
     inputs:
       artifact-name:
@@ -37,6 +39,12 @@ jobs:
         with:
           dotnet-version: ${{ inputs.version }}
 
+      - name: set secrets for appsettings.json
+        run: |
+          sed -i 's/"accountstorage": ".*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i "s/"Gemini_ApiKey": ".*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g" ${{ inputs.working-directory }}/appsettings.json
+          cat ${{ inputs.working-directory }}/appsettings.json
+
       - name: Set up dotnet dependency caching for faster builds
         uses: actions/cache@v3
         with:
@@ -56,14 +64,6 @@ jobs:
       - name: test
         run: dotnet test --no-build --verbosity normal
         working-directory: ${{ inputs.working-directory }}
-
-      - name: set secrets for appsettings.json
-        run: |
-          sed -i 's/"accountstorage": ".*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' appsettings.json
-          sed -i "s/"Gemini_ApiKey": ".*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g" appsettings.json
-
-      - name: Afficher le contenu de appsettings.json (facultatif)
-        run: cat appsettings.json
 
       - name: publish
         run: dotnet publish -c Release -o ./artefact
