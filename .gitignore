@@ -1,3 +1,4 @@
 /azure/ressources/**/*
 azure/localhost/azurite.log
 azure/localhost/azurite/**/*
+.secrets
