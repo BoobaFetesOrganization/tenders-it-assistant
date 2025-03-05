@@ -57,6 +57,14 @@ jobs:
         run: dotnet test --no-build --verbosity normal
         working-directory: ${{ inputs.working-directory }}
 
+      - name: set secrets for appsettings.json
+        run: |
+          sed -i 's/"accountstorage": ".*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' appsettings.json
+          sed -i "s/"Gemini_ApiKey": ".*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g" appsettings.json
+
+      - name: Afficher le contenu de appsettings.json (facultatif)
+        run: cat appsettings.json
+
       - name: publish
         run: dotnet publish -c Release -o ./artefact
         working-directory: ${{ inputs.working-directory }}

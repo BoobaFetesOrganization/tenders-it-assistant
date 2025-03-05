@@ -1,8 +1,21 @@
-﻿namespace GenAIChat.Infrastructure.Api.Gemini.Configuation
+﻿using Microsoft.Extensions.Configuration;
+
+namespace GenAIChat.Infrastructure.Api.Gemini.Configuation
 {
     public class GeminiApiConfiguration
     {
-        public string Version { get; set; } = "gemini-1.5-flash or somthing else";
-        public string ApiKey { get; set; } = "YOUR_API_KEY : read gemini documentation to create your api key";
+        public GeminiApiConfiguration(IConfiguration configuration)
+        {
+            var aiConfig = configuration.GetSection("AI")
+                ?? throw new Exception("AI Section not found in the configuration");
+
+            Version = aiConfig.GetValue<string>("Gemini_Version")
+                ?? throw new Exception("Gemini_Version property not found in AI Section in the configuration");
+            ApiKey = aiConfig.GetValue<string>("Gemini_ApiKey")
+                ?? throw new Exception("Gemini_ApiKey property not found in AI Section in the configuration");
+
+        }
+        public string Version { get; private set; } = string.Empty;
+        public string ApiKey { get; private set; } = string.Empty;
     }
 }
