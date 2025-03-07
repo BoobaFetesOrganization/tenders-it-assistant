@@ -16,7 +16,7 @@ namespace GenAIChat.Infrastructure.Api.Gemini
 
             // app settings configuration 
             writeLine?.Invoke("Infrastructure.Api.Gemini : Configuration : 'AI:Gemini' :");
-            var geminiApiConfig = configuration.GetSection("AI:Gemini").Get<GeminiApiConfiguration>()
+            var geminiApiConfig = new GeminiApiConfiguration(configuration)
                 ?? throw new InvalidOperationException("AI:Gemini section is missing or invalid in appsettings.json, it should be { \"AI\": { \"Gemini\": { \"Version\": \"something\", \"ApiKey\": \"something\" } }}");
 
             writeLine?.Invoke(JsonSerializer.Serialize(geminiApiConfig, JsonSerializerOptions));

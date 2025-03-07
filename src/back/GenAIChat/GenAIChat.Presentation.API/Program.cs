@@ -9,6 +9,9 @@ using GenAIChat.Presentation.API.Configuation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// handle the user secrets for local development only, see 'scripts/set-dev-secrets.ps1'
+builder.Configuration.AddUserSecrets<Program>();
+
 // Add services to the container.
 builder.Services.AddGenAiChatInfrastructureDatabase(builder.Configuration, Console.WriteLine);
 builder.Services.AddGenAiChatInfrastructureApiGemini(builder.Configuration, addHttpClientCb: () =>
