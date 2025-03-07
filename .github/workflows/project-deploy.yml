@@ -6,27 +6,16 @@ on:
     branches: ["main"]
 
 jobs:
-  front:
-    uses: BoobaFetes/gemini-chat/.github/workflows/build-front.yml@main
-    with:
-      artifact-name: web-client
-      version: "latest"
-      working-directory: "src/front"
-
-  back:
-    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@feat-add-secrets
-    with:
-      artifact-name: web-api
-      version: "9.0.x"
-      working-directory: "src/back/GenAIChat/GenAIChat.Presentation.API"
+  build:
+    uses: ./.github/workflows/project-build.yml
     secrets: inherit
 
   azure:
-    needs: [front, back]
-    uses: BoobaFetes/gemini-chat/.github/workflows/deploy-on-azure.yml@main
+    needs: [build]
+    uses: ./.github/workflows/deploy-on-azure.yml
     with:
-      artifact-back-name: web-api
-      artifact-front-name: web-client
+      artifact-back-name: web-api--${{ github.head_ref }}
+      artifact-front-name: web-client--${{ github.head_ref }}
       azure-webapp-name: "gemini-chat-web-app"
       azure-webapp-package-path: "."
     secrets: inherit
