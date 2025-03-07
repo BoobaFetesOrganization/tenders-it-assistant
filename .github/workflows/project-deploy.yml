@@ -1,15 +1,7 @@
 name: project-deploy
 
 on:
-  pull_request:
-    branches: ["*"]
   workflow_dispatch:
-    inputs:
-      branch-name:
-        description: "Nom de la branche à utiliser"
-        required: true
-        type: string
-        default: "main"
   push:
     branches: ["main"]
 
