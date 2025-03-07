@@ -4,7 +4,7 @@
   "tags": [
     {
       "name": "project",
-      "value": "gemini-chat"
+      "value": "tenders-it-assistant"
     },
     {
       "name": "for",
@@ -14,37 +14,37 @@
   "ressources": [
     {
       "kind": "ressource group",
-      "name": "gemini-chat-rg"
+      "name": "tenders-it-assistant-rg"
     },
     {
       "kind": "appservice plan",
-      "name": "gemini-chat-app-service-plan",
-      "ressourceGroup": "gemini-chat-rg",
+      "name": "tenders-it-assistant-app-service-plan",
+      "ressourceGroup": "tenders-it-assistant-rg",
       "sku": "F1"
     },
     {
       "kind": "webapp",
-      "name": "gemini-chat-web-app",
-      "plan": "gemini-chat-app-service-plan",
-      "ressourceGroup": "gemini-chat-rg",
+      "name": "tenders-it-assistant-web-app",
+      "plan": "tenders-it-assistant-app-service-plan",
+      "ressourceGroup": "tenders-it-assistant-rg",
       "runtime": "dotnet:9",
       "deployment": {
         "source": "github",
         "branch": "main",
-        "repoUrl": "https://github.com/BoobaFetes/gemini-chat"
+        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
       }
     },
     {
       "kind": "storage account",
-      "name": "geminichatstoragedb",
-      "ressourceGroup": "gemini-chat-rg",
+      "name": "tendersassiststoragedb",
+      "ressourceGroup": "tenders-it-assistant-rg",
       "sku": "Standard_LRS",
       "azure-kind": "StorageV2"
     },
     {
       "kind": "storage table",
-      "name": "geminichatstoragedbTable",
-      "account": "geminichatstoragedb"
+      "name": "tendersassiststoragedbTable",
+      "account": "tendersassiststoragedb"
     }
   ]
 }
