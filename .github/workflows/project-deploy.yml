@@ -14,8 +14,8 @@ jobs:
     needs: [build]
     uses: ./.github/workflows/deploy-on-azure.yml
     with:
-      artifact-back-name: web-api-${{ github.ref }}-${{ github.head_ref }}
-      artifact-front-name: web-client-${{ github.ref }}-${{ github.head_ref }}
+      artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+      artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
       azure-webapp-name: "gemini-chat-web-app"
       azure-webapp-package-path: "."
     secrets: inherit
