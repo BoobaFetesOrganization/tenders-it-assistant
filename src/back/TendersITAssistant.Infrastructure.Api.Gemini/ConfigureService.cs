@@ -10,7 +10,7 @@ namespace TendersITAssistant.Infrastructure.Api.Gemini
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
-        public static void AddGenAiChatInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb, Action<string>? writeLine = null)
+        public static void AddInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("configure Infrastructure : Api : Gemini Api services");
 

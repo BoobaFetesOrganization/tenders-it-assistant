@@ -13,16 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
 
 // Add services to the container.
-builder.Services.AddGenAiChatInfrastructureDatabase(builder.Configuration, Console.WriteLine);
-builder.Services.AddGenAiChatInfrastructureApiGemini(builder.Configuration, addHttpClientCb: () =>
+builder.Services.AddInfrastructureDatabase(builder.Configuration, Console.WriteLine);
+builder.Services.AddInfrastructureApiGemini(builder.Configuration, addHttpClientCb: () =>
 {
     // services configuration
     builder.Services.AddHttpClient<GeminiGenerateContentService>();
     builder.Services.AddHttpClient<GeminiFileService>();
 }, Console.WriteLine);
-builder.Services.AddGenAiChatInfrastructure(Console.WriteLine);
-builder.Services.AddGenAiChatApplication(Console.WriteLine);
-builder.Services.AddGenAiChatPresentationApi(builder.Configuration, Console.WriteLine);
+builder.Services.AddInfrastructure(Console.WriteLine);
+builder.Services.AddApplication(Console.WriteLine);
+builder.Services.AddPresentationApi(builder.Configuration, Console.WriteLine);
 
 
 // Add services to the container
@@ -63,7 +63,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseGenAiChatPresentationApi();
+app.UsePresentationApi();
 app.UseAuthorization();
 app.MapControllers();
 

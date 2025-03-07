@@ -9,7 +9,7 @@ namespace TendersITAssistant.Presentation.API
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
-        public static void AddGenAiChatPresentationApi(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
+        public static void AddPresentationApi(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("configure Presentation : Web Api services");
 
@@ -34,7 +34,7 @@ namespace TendersITAssistant.Presentation.API
             });
         }
 
-        public static void UseGenAiChatPresentationApi(this IApplicationBuilder builder)
+        public static void UsePresentationApi(this IApplicationBuilder builder)
         {
             builder.UseCors(SpaCors);
         }

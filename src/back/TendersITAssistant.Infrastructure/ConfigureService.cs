@@ -5,7 +5,7 @@ namespace TendersITAssistant.Infrastructure
 {
     public static class ConfigureService
     {
-        public static void AddGenAiChatInfrastructure(this IServiceCollection services, Action<string>? writeLine = null)
+        public static void AddInfrastructure(this IServiceCollection services, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("configure Infrastructure : FileSystem services");
 

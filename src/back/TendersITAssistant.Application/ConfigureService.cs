@@ -13,7 +13,7 @@ namespace TendersITAssistant.Application
 {
     public static class ConfigureService
     {
-        public static void AddGenAiChatApplication(this IServiceCollection services, Action<string>? writeLine = null)
+        public static void AddApplication(this IServiceCollection services, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("configure Application : usecases services");
 

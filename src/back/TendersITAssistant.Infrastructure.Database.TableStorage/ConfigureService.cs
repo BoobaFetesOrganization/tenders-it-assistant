@@ -17,7 +17,7 @@ namespace TendersITAssistant.Infrastructure.Database.TableStorage
 {
     public static class ConfigureService
     {
-        public static void AddGenAiChatInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
+        public static void AddInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
         {
             writeLine?.Invoke("configure Infrastructure : database : TableStorage services");
 
