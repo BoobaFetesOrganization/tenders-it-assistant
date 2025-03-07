@@ -7,7 +7,6 @@ name: project-build
 on:
   pull_request:
     branches: ["*"]
-  workflow_dispatch:
   workflow_call:
     secrets:
       AZURE_STORAGE_CONNECTIONSTRING:
