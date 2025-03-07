@@ -21,14 +21,14 @@ jobs:
   front:
     uses: ./.github/workflows/build-front.yml
     with:
-      artifact-name: "web-client--${{ github.head_ref }}"
+      artifact-name: "web-client-${{ github.ref }}-${{ github.head_ref }}"
       version: "latest"
       working-directory: "src/front"
 
   back:
     uses: ./.github/workflows/build-back.yml
     with:
-      artifact-name: "web-api--${{ github.head_ref }}"
+      artifact-name: "web-api-${{ github.ref }}-${{ github.head_ref }}"
       version: "9.0.x"
       working-directory: "src/back/GenAIChat/GenAIChat.Presentation.API"
     secrets: inherit
