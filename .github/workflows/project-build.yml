@@ -36,15 +36,16 @@ jobs:
     steps:
       - name: Set branch output
         run: echo "branch=${{ github.event.inputs.branch-name || github.ref_name }}" >> $GITHUB_OUTPUT
+
   front:
-    uses: BoobaFetes/gemini-chat/.github/workflows/build-front.yml@${{ needs.determine-branch.outputs.branch }}
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-front.yml@${{needs.determine-branch.outputs.branch}}
     with:
       artifact-name: "web-client"
       version: "latest"
       working-directory: "src/front"
 
   back:
-    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@${{ needs.determine-branch.outputs.branch }}
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@${{needs.determine-branch.outputs.branch}}
     with:
       artifact-name: "web-api"
       version: "9.0.x"
