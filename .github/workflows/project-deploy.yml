@@ -6,12 +6,12 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  project:
     uses: ./.github/workflows/project-build.yml
     secrets: inherit
 
   azure:
-    needs: [build]
+    needs: [project]
     uses: ./.github/workflows/deploy-on-azure.yml
     with:
       artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
