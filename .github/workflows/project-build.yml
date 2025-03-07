@@ -1,0 +1,45 @@
+# This workflow will build a .NET and a webpack projects and is made from "Deploy a .NET Core app to an Azure Web App" template
+# see templates here: https://github.com/BoobaFetes/gemini-chat/actions/new
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: project-build
+
+on:
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: "Nom de la branche à utiliser"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      branch-name:
+        description: "Nom de la branche à utiliser"
+        required: true
+        type: string
+    secrets:
+      AZURE_STORAGE_CONNECTIONSTRING:
+        required: true
+      GOOGLE_GEMINI_APIKEY:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  front:
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-front.yml@${{ github.event.inputs.branch-name || github.ref_name }}
+    with:
+      artifact-name: "web-client"
+      version: "latest"
+      working-directory: "src/front"
+
+  back:
+    uses: BoobaFetes/gemini-chat/.github/workflows/build-back.yml@${{ github.event.inputs.branch-name || github.ref_name }}
+    with:
+      artifact-name: "web-api"
+      version: "9.0.x"
+      working-directory: "src/back/GenAIChat/GenAIChat.Presentation.API"
+    secrets: inherit
