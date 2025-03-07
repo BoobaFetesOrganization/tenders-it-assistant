@@ -1,4 +1,4 @@
-import { ProjectCollection } from '@aogenai/application';
+import { ProjectCollection } from '@tenders-it-assistant/application';
 import { FC, memo } from 'react';
 import { useNavigate } from 'react-router';
 import { routeMapping } from './routeMapping';

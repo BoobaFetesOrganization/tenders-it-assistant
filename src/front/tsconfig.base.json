@@ -15,9 +15,15 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@aogenai/application": ["libs/aogenai/application/src/index.ts"],
-      "@aogenai/domain": ["libs/aogenai/domain/src/index.ts"],
-      "@aogenai/infra": ["libs/aogenai/infra/src/index.ts"]
+      "@tenders-it-assistant/application": [
+        "libs/tenders-it-assistant/application/src/index.ts"
+      ],
+      "@tenders-it-assistant/domain": [
+        "libs/tenders-it-assistant/domain/src/index.ts"
+      ],
+      "@tenders-it-assistant/infra": [
+        "libs/tenders-it-assistant/infra/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

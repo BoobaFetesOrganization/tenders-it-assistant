@@ -1,6 +1,6 @@
-import { DashBoard } from '@aogenai/application';
-import { IProjectBaseDto, IProjectDto } from '@aogenai/domain';
-import { useDeleteProject } from '@aogenai/infra';
+import { DashBoard } from '@tenders-it-assistant/application';
+import { IProjectBaseDto, IProjectDto } from '@tenders-it-assistant/domain';
+import { useDeleteProject } from '@tenders-it-assistant/infra';
 import { FC, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { projectRouteMapping } from './project';

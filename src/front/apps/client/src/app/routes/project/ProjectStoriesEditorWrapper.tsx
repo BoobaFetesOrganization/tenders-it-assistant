@@ -1,4 +1,4 @@
-import { ProjectStoriesEditor } from '@aogenai/application';
+import { ProjectStoriesEditor } from '@tenders-it-assistant/application';
 import { FC, memo } from 'react';
 import { useProjectParams } from './useProjectParams';
 

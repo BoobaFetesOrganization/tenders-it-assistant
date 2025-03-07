@@ -2,8 +2,8 @@ import {
   DocumentConverter,
   ProjectCreate,
   ProjectEdit,
-} from '@aogenai/application';
-import { IDocumentDto, IProjectDto } from '@aogenai/domain';
+} from '@tenders-it-assistant/application';
+import { IDocumentDto, IProjectDto } from '@tenders-it-assistant/domain';
 import { saveAs } from 'file-saver';
 import { FC, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
