@@ -19,6 +19,14 @@ permissions:
   contents: read
 
 jobs:
+  check-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: artifact names
+        run: |
+          echo "github.ref_name=${{github.ref_name}}"
+          echo "github.head_ref=${{github.head_ref}}"
+          echo "branch-name=${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
   front:
     uses: ./.github/workflows/build-front.yml
     with:
