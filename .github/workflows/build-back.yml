@@ -44,8 +44,9 @@ jobs:
 
       - name: set secrets for appsettings.json
         run: |
-          sed -i 's/"accountstorage": ".*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' ${{ inputs.working-directory }}/appsettings.json
-          sed -i 's/"Gemini_ApiKey": ".*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          cat ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"accountstorage": "[^"]*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"Gemini_ApiKey": "[^"]*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
           cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: Set up dotnet dependency caching for faster builds
