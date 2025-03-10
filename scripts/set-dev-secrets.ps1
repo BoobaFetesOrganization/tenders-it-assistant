@@ -13,7 +13,7 @@ if (-not $secrets) {
     exit
 }
 
-$projectPath = [DirectoryInfo](Join-Path $projectRoot "src\back\GenAIChat\GenAIChat.Presentation.API")
+$projectPath = [DirectoryInfo](Join-Path $projectRoot "src\back\TendersITAssistant.Presentation.API")
 if (-not $projectPath.Exists) {
     Write-Host "Project path not found: $projectPath"
     exit
@@ -22,7 +22,7 @@ if (-not $projectPath.Exists) {
 
 
 # Initialize user-secrets if not already done
-[xml]$csprojContent = Get-Content "$($projectPath)/GenAIChat.Presentation.API.csproj"
+[xml]$csprojContent = Get-Content "$($projectPath)/TendersITAssistant.Presentation.API.csproj"
 if (-not $csprojContent.Project.PropertyGroup.UserSecretsId) {
     Write-Host "prepare project '$($projectPath.FullName)' to receive secrets" -ForegroundColor Yellow
     dotnet user-secrets init --project $projectPath

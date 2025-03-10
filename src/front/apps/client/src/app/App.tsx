@@ -1,7 +1,7 @@
-import { theme } from '@aogenai/application';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { styled } from '@mui/material/styles';
+import { theme } from '@tenders-it-assistant/application';
 import { memo } from 'react';
 import { BrowserRouter } from 'react-router';
 import { SearchAppBar } from './HeaderBar';

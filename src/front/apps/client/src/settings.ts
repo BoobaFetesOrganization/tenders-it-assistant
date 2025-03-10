@@ -1,4 +1,4 @@
-import { IInfraSettings, setInfraSettings } from '@aogenai/infra';
+import { IInfraSettings, setInfraSettings } from '@tenders-it-assistant/infra';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-empty-interface
 export interface IAppSettings {}

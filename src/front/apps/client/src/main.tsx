@@ -1,5 +1,5 @@
-import { getClient, getInfraSettings } from '@aogenai/infra';
 import { ApolloProvider } from '@apollo/client';
+import { getClient, getInfraSettings } from '@tenders-it-assistant/infra';
 import * as ReactDOM from 'react-dom/client';
 import { App } from './app';
 import './settings';

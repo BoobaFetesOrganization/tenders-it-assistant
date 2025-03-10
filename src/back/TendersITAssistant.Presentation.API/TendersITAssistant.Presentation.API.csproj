@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d179d8f1-adfc-4040-a287-989a72924b4d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ContainerPort Include="8081" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TendersITAssistant.Application\TendersITAssistant.Application.csproj" />
+    <ProjectReference Include="..\TendersITAssistant.Domain\TendersITAssistant.Domain.csproj" />
+    <ProjectReference Include="..\TendersITAssistant.Infrastructure.Api.Gemini\TendersITAssistant.Infrastructure.Api.Gemini.csproj" />
+    <ProjectReference Include="..\TendersITAssistant.Infrastructure.Database.TableStorage\TendersITAssistant.Infrastructure.Database.TableStorage.csproj" />
+    <ProjectReference Include="..\TendersITAssistant.Infrastructure\TendersITAssistant.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\.gitkeep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

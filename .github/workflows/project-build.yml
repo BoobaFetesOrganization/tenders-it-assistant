@@ -30,5 +30,5 @@ jobs:
     with:
       artifact-name: "web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
       version: "9.0.x"
-      working-directory: "src/back/GenAIChat/GenAIChat.Presentation.API"
+      working-directory: "src/back/TendersITAssistant.Presentation.API"
     secrets: inherit

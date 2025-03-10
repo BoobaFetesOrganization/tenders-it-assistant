@@ -1,0 +1,32 @@
+{
+  "name": "domain",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/tenders-it-assistant/domain/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "tags": ["domain"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/tenders-it-assistant/domain",
+        "main": "libs/tenders-it-assistant/domain/src/index.ts",
+        "tsConfig": "libs/tenders-it-assistant/domain/tsconfig.lib.json",
+        "assets": ["libs/tenders-it-assistant/domain/*.md"]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}
