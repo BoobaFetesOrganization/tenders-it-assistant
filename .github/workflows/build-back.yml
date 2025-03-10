@@ -42,14 +42,17 @@ jobs:
         with:
           dotnet-version: ${{ inputs.version }}
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: set secrets for appsettings.json - accountstorage
         run: |
-          sed -i 's/"accountstorage": "[^"]*"/"accountstorage": "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          jq --arg connection_string "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}" '.accountstorage = $connection_string' ${{ inputs.working-directory }}/appsettings.json > temp.json && mv temp.json ${{ inputs.working-directory }}/appsettings.json
           cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: set secrets for appsettings.json - Gemini_ApiKey
         run: |
-          sed -i 's/"Gemini_ApiKey": "[^"]*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          jq --arg api_key "${{ secrets.GOOGLE_GEMINI_APIKEY }}" '.Gemini_ApiKey = $api_key' ${{ inputs.working-directory }}/appsettings.json > temp.json && mv temp.json ${{ inputs.working-directory }}/appsettings.json
           cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: Set up dotnet dependency caching for faster builds
