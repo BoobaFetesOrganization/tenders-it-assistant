@@ -47,9 +47,9 @@ on:
         required: true
       AZURE_TENANT_ID:
         required: true
-      AZURE_PRINCIPAL_ID:
+      AZURE_CLIENT_ID:
         required: true
-      AZURE_PRINCIPAL_SECRET:
+      AZURE_CLIENT_SECRET:
         required: true
       AZURE_WEBAPP_PUBLISH_PROFILE:
         required: true
@@ -67,6 +67,16 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: '{
+            "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+            "tenantId":"${{ secrets.AZURE_TENANT_ID }}",
+            "clientId":"${{ secrets.AZURE_CLIENT_ID }}",
+            "clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}"
+            }'
+
       - name: setup tools
         run: sudo apt-get update && sudo apt-get install -y jq && sudo apt-get install -y moreutils
 
@@ -91,11 +101,6 @@ jobs:
         with:
           name: azure-package
           path: .
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: '{"subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }},"clientId":"${{ secrets.AZURE_PRINCIPAL_ID }}","clientSecret":"${{ secrets.AZURE_PRINCIPAL_SECRET }}""}'
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
