@@ -1,17 +1,23 @@
-﻿using TendersITAssistant.Application.Command.Common;
+﻿using MediatR;
+using Serilog;
+using TendersITAssistant.Application.Command.Common;
+using TendersITAssistant.Application.Extensions;
+using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Common;
 using TendersITAssistant.Domain.Filter;
-using MediatR;
-using TendersITAssistant.Application.Usecase.Interface;
 
 namespace TendersITAssistant.Application.Usecase
 {
-    public class ApplicationBase<TDomain>(IMediator mediator) : IApplication<TDomain> where TDomain : EntityDomain, new()
+    public class ApplicationBase<TDomain>(IMediator mediator, ILogger logger) : IApplication<TDomain> where TDomain : EntityDomain, new()
     {
         protected readonly IMediator mediator = mediator;
+        protected readonly ILogger logger = logger.ForApplicationContext<TDomain>();
 
         public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
-            => await mediator.Send(new GetAllPagedQuery<TDomain> { Options = options, Filter = filter }, cancellationToken);
+        {
+            logger.Debug("something occurs");
+            return await mediator.Send(new GetAllPagedQuery<TDomain> { Options = options, Filter = filter }, cancellationToken);
+        }
 
         public async Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
             => await mediator.Send(new GetByIdQuery<TDomain> { Id = id }, cancellationToken);

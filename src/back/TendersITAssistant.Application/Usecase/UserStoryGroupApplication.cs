@@ -1,5 +1,12 @@
 ﻿using AutoMapper;
+using MediatR;
+using Serilog;
+using System.Text;
+using System.Text.Json;
+using TendersITAssistant.Application.Adapter.Api;
 using TendersITAssistant.Application.Command.Common;
+using TendersITAssistant.Application.Resources;
+using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Document;
 using TendersITAssistant.Domain.Filter;
 using TendersITAssistant.Domain.Gemini;
@@ -8,16 +15,10 @@ using TendersITAssistant.Domain.Project;
 using TendersITAssistant.Domain.Project.Group;
 using TendersITAssistant.Domain.Project.Group.UserStory;
 using TendersITAssistant.Domain.Project.Group.UserStory.Task.Cost;
-using MediatR;
-using System.Text;
-using System.Text.Json;
-using TendersITAssistant.Application.Adapter.Api;
-using TendersITAssistant.Application.Resources;
-using TendersITAssistant.Application.Usecase.Interface;
 
 namespace TendersITAssistant.Application.Usecase
 {
-    public class UserStoryGroupApplication(EmbeddedResource resources, IGenAiApiAdapter genAiAdapter, IMediator mediator, IMapper mapper) : ApplicationBase<UserStoryGroupDomain>(mediator), IUserStoryGroupApplication
+    public class UserStoryGroupApplication(EmbeddedResource resources, IGenAiApiAdapter genAiAdapter, IMediator mediator, IMapper mapper, ILogger logger) : ApplicationBase<UserStoryGroupDomain>(mediator, logger), IUserStoryGroupApplication
     {
         public override Task<UserStoryGroupDomain> CreateAsync(UserStoryGroupDomain domain, CancellationToken cancellationToken = default) => CreateAsync(domain.ProjectId, cancellationToken);
 

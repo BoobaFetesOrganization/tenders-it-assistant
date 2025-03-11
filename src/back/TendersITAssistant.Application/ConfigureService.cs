@@ -1,21 +1,22 @@
-﻿using TendersITAssistant.Domain.Document;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using TendersITAssistant.Application.Resources;
+using TendersITAssistant.Application.Usecase;
+using TendersITAssistant.Application.Usecase.Interface;
+using TendersITAssistant.Domain.Document;
 using TendersITAssistant.Domain.Project;
 using TendersITAssistant.Domain.Project.Group;
 using TendersITAssistant.Domain.Project.Group.UserStory;
 using TendersITAssistant.Domain.Project.Group.UserStory.Task;
 using TendersITAssistant.Domain.Project.Group.UserStory.Task.Cost;
-using Microsoft.Extensions.DependencyInjection;
-using TendersITAssistant.Application.Resources;
-using TendersITAssistant.Application.Usecase;
-using TendersITAssistant.Application.Usecase.Interface;
 
 namespace TendersITAssistant.Application
 {
     public static class ConfigureService
     {
-        public static void AddApplication(this IServiceCollection services, Action<string>? writeLine = null)
+        public static void AddApplication(this IServiceCollection services, ILogger logger)
         {
-            writeLine?.Invoke("configure Application : usecases services");
+            logger.Information("configure Application : usecases services");
 
             // resource registration
             services.AddSingleton<EmbeddedResource>();

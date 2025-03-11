@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using TendersITAssistant.Presentation.API.Configuation;
+using ILogger = Serilog.ILogger;
 
 namespace TendersITAssistant.Presentation.API
 {
@@ -9,15 +10,15 @@ namespace TendersITAssistant.Presentation.API
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
-        public static void AddPresentationApi(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
+        public static void AddPresentationApi(this IServiceCollection services, IConfiguration configuration, ILogger logger)
         {
-            writeLine?.Invoke("configure Presentation : Web Api services");
+            logger.Information("configure Presentation : Web Api services");
 
             // register AutoMapper to scan all assemblies in the current domain
             services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
 
             // register the configuration for the CORS policy
-            writeLine?.Invoke("Persenter.API : Conviguration : Cors:");
+            logger.Information("Persenter.API : Configuration : Cors:");
             CorsConfiguration corsConfig = configuration.GetSection("Cors:SpaCors").Get<CorsConfiguration>()
                 ?? throw new InvalidOperationException("Cors section is missing or invalid in appsettings.json, it should be {\r\n  \"Cors\": {\r\n    \"SpaCors\": {\r\n      \"Name\": \"SpaCors\",\r\n      \"Origins\": [ \"http://localhost:3000\", \"https://localhost:3000\" ],\r\n      \"AllowedVerbs\": [ \"GET\", \"POST\", \"PUT\", \"DELETE\", \"OPTIONS\" ],\r\n      \"AllowedHeaders\": [ \"*\" ]\r\n    }\r\n  }\r\n}");
 

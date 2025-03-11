@@ -1,12 +1,13 @@
-﻿using TendersITAssistant.Application.Command.Common;
+﻿using MediatR;
+using Serilog;
+using TendersITAssistant.Application.Command.Common;
+using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Project;
 using TendersITAssistant.Domain.Project.Group;
-using MediatR;
-using TendersITAssistant.Application.Usecase.Interface;
 
 namespace TendersITAssistant.Application.Usecase
 {
-    public class UserStoryRequestApplication(IMediator mediator, IUserStoryGroupApplication userStoryGroupApplication) : ApplicationBase<UserStoryRequestDomain>(mediator), IApplication<UserStoryRequestDomain>
+    public class UserStoryRequestApplication(IMediator mediator, IUserStoryGroupApplication userStoryGroupApplication, ILogger logger) : ApplicationBase<UserStoryRequestDomain>(mediator, logger), IApplication<UserStoryRequestDomain>
     {
         public async override Task<bool> UpdateAsync(UserStoryRequestDomain domain, CancellationToken cancellationToken = default)
         {

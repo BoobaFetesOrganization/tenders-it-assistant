@@ -12,26 +12,27 @@ using TendersITAssistant.Infrastructure.Database.TableStorage.Repository;
 using TendersITAssistant.Infrastructure.Database.TableStorage.Repository.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace TendersITAssistant.Infrastructure.Database.TableStorage
 {
     public static class ConfigureService
     {
-        public static void AddInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine = null)
+        public static void AddInfrastructureDatabase(this IServiceCollection services, IConfiguration configuration, ILogger logger)
         {
-            writeLine?.Invoke("configure Infrastructure : database : TableStorage services");
+            logger.Information("configure Infrastructure : database : TableStorage services");
 
             // register AutoMapper to scan all assemblies in the current domain
             services.AddAutoMapper(cfg => cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
 
-            services.AddDatabase(configuration, writeLine);
+            services.AddDatabase(configuration, logger);
             services.AddRepositories();
         }
 
-        private static void AddDatabase(this IServiceCollection services, IConfiguration configuration, Action<string>? writeLine)
+        private static void AddDatabase(this IServiceCollection services, IConfiguration configuration, ILogger logger)
         {
             var databaseProvider = configuration.GetValue<string>("DatabaseProvider") ?? throw new InvalidOperationException("The DatabaseProvider property is not set in the appsettings.json");
-            writeLine?.Invoke($"use connection string named '{databaseProvider}'");
+            logger.Information($"use connection string named '{databaseProvider}'");
             var connectionString = configuration.GetConnectionString(databaseProvider) ?? throw new InvalidOperationException("The DatabaseProvider property's value is not found in the ConnectionStrings section");
             if (string.IsNullOrEmpty(connectionString)) throw new InvalidOperationException("The connection string cannot be null or empty.");
 
