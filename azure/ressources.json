@@ -45,6 +45,21 @@
       "kind": "storage table",
       "name": "tendersassiststoragedbTable",
       "account": "tendersassiststoragedb"
+    },
+    {
+      "kind": "log analytics workspace",
+      "name": "tenders-it-assistant-log-analytics",
+      "ressourceGroup": "tenders-it-assistant-rg",
+      "sku": "PerGB2018"
+    },
+    {
+      "kind": "log analytics workspace table",
+      "name": "WebAppLogs",
+      "workspaceName": "tenders-it-assistant-log-analytics",
+      "ressourceGroup": "tenders-it-assistant-rg",
+      "plan": "Basic",
+      "retentionTime": 4,
+      "totalRetentionTime": 8
     }
   ]
 }
