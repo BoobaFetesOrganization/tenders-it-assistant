@@ -1,70 +1,28 @@
-$resourceFunctionRoot = $PSScriptRoot
+$resourcesCommandRoot = $PSScriptRoot
+. $resourcesCommandRoot\resources-lib-azure.ps1
+. $resourcesCommandRoot\resources-lib-file.ps1
 
-function New-Resource-File(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource
-) {
-    $fullfileName = "$resourceFunctionRoot\resources\$($resource.name).json"
-    $resource | ConvertTo-Json | Out-File -FilePath $fullfileName -Force
-    Write-Host "resource '$($resource.name)' stored in '$fullfileName'" -ForegroundColor Green
-}
-function New-Resource-File-Service-Principal(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $servicePrincipal,
-    [Parameter(Mandatory = $true)]
-    [object] $resource
-) {
-    $fullfileName = "$resourceFunctionRoot\resources\$($resource.name)--service-principal--$($sp.name).json"
-    $servicePrincipal | ConvertTo-Json | Out-File -FilePath $fullfileName -Force
-    Write-Host "credentials (service principal) '$($servicePrincipal.name)' stored in '$fullfileName'" -ForegroundColor Yellow
-}
+function Login() {
+    # disable the subscription selector feature once logged in
+    az config set core.login_experience_v2=off
+    # enable dynamic install
+    az config set extension.use_dynamic_install=yes_without_prompt
+    
+    # login with device code
+    $subscription = az login --use-device-code | ConvertFrom-Json | Select-Object -First 1
 
-function Invoke-Az-Command(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [string] $cmd,    
-    [Parameter(Mandatory = $true)]
-    [string] $name, 
-    [Parameter(Mandatory = $true)]
-    [string] $ErrorFile
-) {
-    Invoke-Expression $cmd 2>$ErrorFile | Out-Null
-    $hasError = Test-Path $ErrorFile
-    if ($hasError) {
-        $cmdError = Get-Content $ErrorFile
-        Write-Host "resource '$name' creation fails" -ForegroundColor Red
-        Write-Host ""
-        Write-Host " > Command : " -ForegroundColor Red
-        Write-Host $cmd -ForegroundColor Red
-        Write-Host ""
-        Write-Host " > Error : " -ForegroundColor Red
-        Write-Host $cmdError -ForegroundColor Red
-        throw "resource '$name' creation fails. see above error message"
-    }
-    Write-Host "resource '$name' created" -ForegroundColor Green
-}
+    if ($subscription -is [array]) { $subscription = $subscription[0] }
+    if (-not $subscription) { throw "Login failed" }
+    Write-Host "login success" -ForegroundColor Yellow
 
-function Get-Tags-AsKeyValue( 
-    [Parameter(Mandatory = $true)]
-    [object[]] $tags
-) {
-    $result = @()
-    foreach ($tag in $tags) {
-        $result += "$($tag.name)=$($($tag.value))" # Ajoute un espace après chaque tag
-    }
-    return $result
-}
-function Get-Tags-AsKeyValue-ToString( 
-    [Parameter(Mandatory = $true)]
-    [object[]] $tags
-) {
-    return (Get-Tags-AsKeyValue $tags) -join " "
+    return $subscription
 }
 
 function Get-Subscription(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [string] $name
 ) {
-    return (az account show -n $name) | ConvertFrom-Json
+    return (az account show -n $name 2>$null) | ConvertFrom-Json
 }
 
 function Set-Subscription(
@@ -77,7 +35,7 @@ function Get-RessourceGroup(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource
 ) {
-    return (az group show -n $resource.name) | ConvertFrom-Json
+    return (az group show -n $resource.name 2>$null) | ConvertFrom-Json
 }
 
 function Set-RessourceGroup(
@@ -97,13 +55,12 @@ function Set-RessourceGroup(
         $cmd += " -n $($resource.name)"
         $cmd += " -l $($location)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
-
-    $resource | Get-RessourceGroup | New-Resource-File
+    $result | Get-RessourceGroup | New-Resource-File
 }
 
 function Get-AppService-Plan(
@@ -132,13 +89,16 @@ function Set-AppService-Plan(
         $cmd += " -l $($location)"
         $cmd += " --sku $($resource.sku)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile -testFalsePositiveAct { 
+            $errorContent = Get-Content $ErrorFile
+            return $errorContent[10] -match "CryptographyDeprecationWarning" 
+        }
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-AppService-Plan | New-Resource-File
+    $result | Get-AppService-Plan | New-Resource-File
 }
 
 function Get-WebApp(
@@ -164,25 +124,25 @@ function Set-WebApp(
         $cmd += " -r $($resource.runtime)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $cmd += " --https-only"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile -testFalsePositiveAct { 
+            $errorContent = Get-Content $ErrorFile
+            return $errorContent[10] -match "CryptographyDeprecationWarning" 
+        }
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-WebApp | New-Resource-File
+    $result | Get-WebApp | New-Resource-File
 
-    $resource.deployment.servicePrincipal | Set-ServicePrincipal -ErrorFile $ErrorFile -resource $resource.name
-
-    # configure login and password for gituhb actions
-
+    $resource.servicePrincipal | Set-ServicePrincipal -resource $resource
 }
 
 function Get-Storage-Account(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource
 ) {
-    return (az storage account show -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json
+    return (az storage account show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
 }
 function Set-Storage-Account(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -200,13 +160,13 @@ function Set-Storage-Account(
         $cmd += " --sku $($resource.sku)"
         $cmd += " --kind $($resource."azure-kind")"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-Storage-Account | New-Resource-File
+    $result | Get-Storage-Account | New-Resource-File
 }
 
 
@@ -219,12 +179,12 @@ function Set-Storage-Table(
     [string] $ErrorFile
 ) {
     $tableStorage = (az storage table exists -n $resource.name --account-name $resource.account 2>$null) | ConvertFrom-Json
-    if ($tableStorage.exists) {
+    if (-not $tableStorage.exists) {
         $cmd = "az storage table create"
         $cmd += " -n $($resource.name)"
         $cmd += " --account-name $($resource.account)"
         $cmd += " --auth-mode login"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
@@ -235,7 +195,7 @@ function Get-Log-Analytics-Workspace(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource
 ) {
-    return (az monitor log-analytics workspace show -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json
+    return (az monitor log-analytics workspace show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
 }
 function Set-Log-Analytics-Workspace(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -255,15 +215,15 @@ function Set-Log-Analytics-Workspace(
         $cmd += " --sku $($resource.sku)"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-Log-Analytics-Workspace | New-Resource-File
+    $result | Get-Log-Analytics-Workspace | New-Resource-File
 
-    $resource.servicePrincipal | Set-ServicePrincipal -ErrorFile $ErrorFile -OutputFile "$($resource.name)--service-pincipal.json"
+    $resource.servicePrincipal | Set-ServicePrincipal -resource $resource
 }
 
 function Get-Monitor-DataCollection-Endpoint(
@@ -291,13 +251,13 @@ function Set-Monitor-DataCollection-Endpoint(
         $cmd += " --kind $($resource."azure-kind")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-Monitor-DataCollection-Endpoint | New-Resource-File
+    $result | Get-Monitor-DataCollection-Endpoint | New-Resource-File
 }
 
 function Get-Monitor-DataCollection-Rule(
@@ -331,13 +291,13 @@ function Set-Monitor-DataCollection-Rule(
         $cmd += " --kind $($resource."azure-kind")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-Monitor-DataCollection-Rule | New-Resource-File
+    $result | Get-Monitor-DataCollection-Rule | New-Resource-File
 }
 
 function Get-Log-Analytics-Workspace-Table(
@@ -361,42 +321,11 @@ function Set-Log-Analytics-Workspace-Table(
         $cmd += " --plan $($resource.plan)"
         $cmd += " --retention-time $($resource.retentionTime)"
         $cmd += " --total-retention-time $($resource.totalRetentionTime)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $resource | Get-Log-Analytics-Workspace-Table | New-Resource-File
-}
-
-function Get-ServicePrincipal(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [string] $name
-) {
-    return $null#(az ad sp show --id "http://$name" 2>$null) | ConvertFrom-Json
-}
-
-function Set-ServicePrincipal(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [string] $name,
-    [Parameter(Mandatory = $true)]
-    [object] $resource
-) {
-    $fullfileName = "$resourceFunctionRoot\resources\$($resource.name)--service-pincipal.json"
-    $result = $name | Get-ServicePrincipal
-    if ($null -eq $result) {
-        $sp = az ad sp create-for-rbac --name $name --skip-assignment | ConvertFrom-Json
-        Write-Host "Service principal '$name' created and saved to $OutputFile" -ForegroundColor Green
-    }
-    else {
-        $sp = @{
-            appId        = $result.appId
-            tenant       = $result.appOwnerTenantId
-            subscription = (az account show | ConvertFrom-Json).id
-        }
-        $sp.secret = (az ad sp credential reset --name $name | ConvertFrom-Json).password
-        Write-Host "Service principal '$name' already exists" -ForegroundColor Yellow
-    }
-    $sp | New-Resource-File-Service-Principal -resource $resource
+    $result | Get-Log-Analytics-Workspace-Table | New-Resource-File
 }
