@@ -1,0 +1,81 @@
+{
+  "subscription": "subscription-pay-as-you-go",
+  "location": "francecentral",
+  "tags": [
+    {
+      "name": "project",
+      "value": "tenders-it-assistant"
+    },
+    {
+      "name": "for",
+      "value": "devoteam"
+    }
+  ],
+  "resources": [
+    {
+      "kind": "resource group",
+      "name": "tenders-it-assistant-rg"
+    },
+    {
+      "kind": "appservice plan",
+      "name": "tenders-it-assistant-app-service-plan",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "sku": "F1"
+    },
+    {
+      "kind": "webapp",
+      "name": "tenders-it-assistant-web-app",
+      "plan": "tenders-it-assistant-app-service-plan",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "runtime": "dotnet:9",
+      "deployment": {
+        "source": "github",
+        "branch": "main",
+        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
+      },
+      "servicePrincipal": "tenders-it-assistant-web-app-deploy-sp"
+    },
+    {
+      "kind": "storage account",
+      "name": "tendersassiststorage",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "sku": "Standard_LRS",
+      "azure-kind": "StorageV2"
+    },
+    {
+      "kind": "storage table",
+      "name": "database",
+      "account": "tendersassiststorage"
+    },
+    {
+      "kind": "log analytics workspace",
+      "name": "tenders-it-assistant-log-analytics",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "sku": "PerGB2018",
+      "servicePrincipal": "tenders-it-assistant-log-analytics-sp"
+    },
+    {
+      "kind": "monitor data-collection endpoint",
+      "name": "DCE-WebAppLogs",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "public-network-access": "Enabled",
+      "azure-kind": "Linux"
+    },
+    {
+      "kind": "monitor data-collection rule",
+      "name": "DCR-WebAppLogs",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "endpoint": "DCE-WebAppLogs",
+      "azure-kind": "Linux"
+    },
+    {
+      "kind": "log analytics workspace table",
+      "name": "WebAppLogs",
+      "workspaceName": "tenders-it-assistant-log-analytics",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "plan": "Basic",
+      "retentionTime": 4,
+      "totalRetentionTime": 8
+    }
+  ]
+}

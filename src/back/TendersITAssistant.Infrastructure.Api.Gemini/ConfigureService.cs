@@ -3,6 +3,7 @@ using TendersITAssistant.Infrastructure.Api.Gemini.Configuation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Serilog;
 
 namespace TendersITAssistant.Infrastructure.Api.Gemini
 {
@@ -10,16 +11,16 @@ namespace TendersITAssistant.Infrastructure.Api.Gemini
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
-        public static void AddInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb, Action<string>? writeLine = null)
+        public static void AddInfrastructureApiGemini(this IServiceCollection services, IConfiguration configuration, Action addHttpClientCb, ILogger logger)
         {
-            writeLine?.Invoke("configure Infrastructure : Api : Gemini Api services");
+            logger.Information("configure Infrastructure : Api : Gemini Api services");
 
             // app settings configuration 
-            writeLine?.Invoke("Infrastructure.Api.Gemini : Configuration : 'AI:Gemini' :");
+            logger.Information("Infrastructure.Api.Gemini : Configuration : 'AI:Gemini' :");
             var geminiApiConfig = new GeminiApiConfiguration(configuration)
                 ?? throw new InvalidOperationException("AI:Gemini section is missing or invalid in appsettings.json, it should be { \"AI\": { \"Gemini\": { \"Version\": \"something\", \"ApiKey\": \"something\" } }}");
 
-            writeLine?.Invoke(JsonSerializer.Serialize(geminiApiConfig, JsonSerializerOptions));
+            logger.Information(JsonSerializer.Serialize(geminiApiConfig, JsonSerializerOptions));
 
             services.AddSingleton(geminiApiConfig);
 

@@ -1,14 +1,15 @@
-﻿using TendersITAssistant.Application.Command.Common;
+﻿using MediatR;
+using Serilog;
+using TendersITAssistant.Application.Adapter.Api;
+using TendersITAssistant.Application.Command.Common;
+using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Document;
 using TendersITAssistant.Domain.Filter;
 using TendersITAssistant.Domain.Project;
-using MediatR;
-using TendersITAssistant.Application.Adapter.Api;
-using TendersITAssistant.Application.Usecase.Interface;
 
 namespace TendersITAssistant.Application.Usecase
 {
-    public class DocumentApplication(IGenAiApiAdapter genAiAdapter, IMediator mediator) : ApplicationBase<DocumentDomain>(mediator), IApplication<DocumentDomain>
+    public class DocumentApplication(IGenAiApiAdapter genAiAdapter, IMediator mediator, ILogger logger) : ApplicationBase<DocumentDomain>(mediator, logger), IApplication<DocumentDomain>
     {
         public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
