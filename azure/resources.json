@@ -56,14 +56,14 @@
     },
     {
       "kind": "monitor data-collection endpoint",
-      "name": "DCE-WebAppLogs",
+      "name": "tenders-it-assistant-dce",
       "resourceGroup": "tenders-it-assistant-rg",
       "public-network-access": "Enabled",
       "azure-kind": "Linux"
     },
     {
       "kind": "monitor data-collection rule",
-      "name": "DCR-WebAppLogs",
+      "name": "tenders-it-assistant-dcr",
       "resourceGroup": "tenders-it-assistant-rg",
       "endpoint": "DCE-WebAppLogs",
       "azure-kind": "Linux"

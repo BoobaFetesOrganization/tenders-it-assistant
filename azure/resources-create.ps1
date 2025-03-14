@@ -48,9 +48,9 @@ try {
             "log analytics workspace" { 
                 $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
-            # ne fonctionne pas encore =>  "monitor data-collection endpoint" {
-            # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore =>  }
+            "monitor data-collection endpoint" {
+                $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }
             # ne fonctionne pas encore =>  "monitor data-collection rule" {
             # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Rule -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             # ne fonctionne pas encore =>  }
