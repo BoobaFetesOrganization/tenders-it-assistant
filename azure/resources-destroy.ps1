@@ -32,6 +32,16 @@ try {
             az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
         }
     }
+
+    # ACT : delete Monitor resources : dcr 
+    if (Test-User-Acceptance "Do you want to proceed with deleting the monitor data collection rules?") {
+        $settings.resources `
+        | Where-Object { $_.kind -eq "monitor data-collection rule" } `
+        | Foreach-Object {
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
+            az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
+        }
+    }
     
     # ACT : delete resources    
     if (Test-User-Acceptance "Do you want to proceed with deleting the resources?") {
