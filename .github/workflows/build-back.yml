@@ -20,6 +20,12 @@ on:
         type: string
         required: true
     secrets:
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_WEBAPP_LOG_ID:
+        required: true
+      AZURE_WEBAPP_LOG_SECRET:
+        required: true
       AZURE_STORAGE_CONNECTIONSTRING:
         required: true
       GOOGLE_GEMINI_APIKEY:
@@ -47,6 +53,9 @@ jobs:
           escaped_connection_string=$(echo "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}" | sed 's/[&/=\\;$"]/\\&/g')
           sed -i "s/\"accountstorage\": \"[^\"]*\"/\"accountstorage\": \"$escaped_connection_string\"/g" ${{ inputs.working-directory }}/appsettings.json
           sed -i 's/"Gemini_ApiKey": "[^"]*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"\"{AZURE_TENANT_ID}\"/\"${{ secrets.AZURE_TENANT_ID }}\""/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"\"{AZURE_WEBAPP_LOG_ID}\"/\"${{ secrets.AZURE_WEBAPP_LOG_ID }}\""/g' ${{ inputs.working-directory }}/appsettings.json
+          sed -i 's/"\"{AZURE_WEBAPP_LOG_SECRET}\"/\"${{ secrets.AZURE_WEBAPP_LOG_SECRET }}\""/g' ${{ inputs.working-directory }}/appsettings.json
           cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: Set up dotnet dependency caching for faster builds
