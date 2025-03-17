@@ -62,20 +62,51 @@
       "azure-kind": "Linux"
     },
     {
-      "kind": "monitor data-collection rule",
-      "name": "tenders-it-assistant-dcr",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "endpoint": "DCE-WebAppLogs",
-      "azure-kind": "Linux"
-    },
-    {
       "kind": "log analytics workspace table",
-      "name": "WebAppLogs",
+      "name": "WebApp_CL",
       "workspaceName": "tenders-it-assistant-log-analytics",
       "resourceGroup": "tenders-it-assistant-rg",
-      "plan": "Basic",
-      "retentionTime": 4,
-      "totalRetentionTime": 8
+      "columnsFile": "./templates/log-analytics--table-columns.txt",
+      "plan": "Analytics"
+    },
+    {
+      "kind": "monitor data-collection rule",
+      "name": "tenders-it-assistant-WebAppLogs-dcr",
+      "template": {
+        "file": "./templates/log-analytics--dcr.json",
+        "mapping": [
+          {
+            "placeholder": "<location>",
+            "path": "location"
+          },
+          {
+            "placeholder": "<rule_name>",
+            "path": "resources[kind='monitor data-collection rule'].name"
+          },
+          {
+            "placeholder": "<table_name>",
+            "path": "resources[kind='log analytics workspace table'].name"
+          },
+          {
+            "placeholder": "<workspace_id>",
+            "path": "$ref|workspace.id"
+          },
+          {
+            "placeholder": "<workspace_name>",
+            "path": "$ref|workspace.name"
+          },
+          {
+            "placeholder": "<workspace_customerId>",
+            "path": "$ref|workspace.customerId"
+          },
+          {
+            "placeholder": "<endpoint_id>",
+            "path": "$ref|endpoint.id"
+          }
+        ]
+      },
+      "resourceGroup": "tenders-it-assistant-rg",
+      "endpoint": "tenders-it-assistant-dce"
     }
   ]
 }

@@ -1,3 +1,6 @@
+using namespace System.IO;
+using namespace System.Collections;
+
 $resourcesCommandRoot = $PSScriptRoot
 . $resourcesCommandRoot\resources-lib-azure.ps1
 . $resourcesCommandRoot\resources-lib-file.ps1
@@ -215,15 +218,15 @@ function Set-Log-Analytics-Workspace(
         $cmd += " --sku $($resource.sku)"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile         
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
     $result | Get-Log-Analytics-Workspace | New-Resource-File
-
     $resource.servicePrincipal | Set-ServicePrincipal -resource $resource
+    return $result
 }
 
 function Get-Monitor-DataCollection-Endpoint(
@@ -251,53 +254,14 @@ function Set-Monitor-DataCollection-Endpoint(
         $cmd += " --kind $($resource."azure-kind")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile         
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
     $result | Get-Monitor-DataCollection-Endpoint | New-Resource-File
-}
-
-function Get-Monitor-DataCollection-Rule(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource
-) {
-    return (az monitor data-collection rule show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
-}
-function Set-Monitor-DataCollection-Rule(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource, 
-    [Parameter(Mandatory = $true)]
-    [string] $dcrId, 
-    [Parameter(Mandatory = $true)]
-    [string] $location, 
-    [Parameter()]
-    [object[]] $tags,    
-    [Parameter(Mandatory = $true)]
-    [string] $ErrorFile
-) {    
-    $result = $resource | Get-Monitor-DataCollection-Rule
-    if ($null -eq $result) {
-        $endpoint = @{name = $resource.endpoint; resourceGroup = $resource.resourceGroup } | Get-Monitor-DataCollection-endpoint
-        if ($null -eq $endpoint -or [string]::IsNullOrEmpty($endpoint.id)) {
-            Write-Host "endpoint '$($resource.endpoint)' (rg='$($resource.resourceGroup)') not found, Data collection rules not created" -ForegroundColor Yellow
-        }
-        $cmd = "az monitor data-collection rule create"
-        $cmd += " -n $($resource.name)"
-        $cmd += " -g $($resource.resourceGroup)"
-        $cmd += " --data-collection-endpoint-id $($endpoint.id)"
-        $cmd += " --kind $($resource."azure-kind")"
-        $cmd += " -l $location"
-        $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
-    }
-    else {
-        Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
-    }
-
-    $result | Get-Monitor-DataCollection-Rule | New-Resource-File
+    return $result
 }
 
 function Get-Log-Analytics-Workspace-Table(
@@ -314,18 +278,79 @@ function Set-Log-Analytics-Workspace-Table(
 ) {    
     $result = $resource | Get-Log-Analytics-Workspace-Table
     if ($null -eq $result) {
+        $file = [FileInfo]"$resourcesCommandRoot\$($resource.columnsFile)"
+        if (-not $file.Exists) {
+            throw "file '$file' not found"
+        }
+        $columns = (Get-Content -Path $file.FullName) -join " "
         $cmd = "az monitor log-analytics workspace table create"
         $cmd += " -n $($resource.name)"
         $cmd += " -g $($resource.resourceGroup)"
         $cmd += " --workspace-name $($resource.workspaceName)"
         $cmd += " --plan $($resource.plan)"
-        $cmd += " --retention-time $($resource.retentionTime)"
-        $cmd += " --total-retention-time $($resource.totalRetentionTime)"
+        $cmd += " --columns $($columns)"
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+        $resource | Get-Log-Analytics-Workspace-Table | New-Resource-File
+    }
+    else {
+        Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
+        $result | Get-Log-Analytics-Workspace-Table | New-Resource-File
+    }
+}
+
+function Get-Monitor-DataCollection-Rule(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    return (az monitor data-collection rule show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
+}
+function Set-Monitor-DataCollection-Rule(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [string] $location, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references, 
+    [Parameter()]
+    [object[]] $tags,    
+    [Parameter(Mandatory = $true)]
+    [string] $ErrorFile
+) {    
+    $result = $resource | Get-Monitor-DataCollection-Rule
+    if ($null -eq $result) {
+        $file = [FileInfo]"$resourcesCommandRoot\$($resource.template.file)"
+        if (-not $file.Exists) {
+            throw "file '$file' not found"
+        }
+        
+        $ruleFile = [FileInfo]"$resourcesCommandRoot\resources\$($resource.name).json"
+        $rules = (Get-Content -Path $file.FullName) -join " "
+        $rules > $ruleFile.FullName
+        foreach ($map in $resource.template.mapping) {
+            if ($map.path) { 
+                $value = Get-Value-From -path $map.path -getReferenceFunc {
+                    param([string] $path)
+                    return $references.$path
+                }
+            }
+            else { 
+                $value = $map.value 
+            }
+            $rules = $rules -replace $map.placeholder, $value
+            $rules > $ruleFile.FullName
+        }
+
+        $cmd = "az monitor data-collection rule create"
+        $cmd += " -n $($resource.name)"
+        $cmd += " -g $($resource.resourceGroup)"
+        $cmd += " -l $location"
+        $cmd += " --rule-file ""$($ruleFile.FullName)"""
+        $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | Get-Log-Analytics-Workspace-Table | New-Resource-File
+    $result | Get-Monitor-DataCollection-Rule | New-Resource-File
 }

@@ -27,36 +27,41 @@ try {
     $subscription | New-Resource-File
 
     # ACT
+    $references = [hashtable]@{
+        subscription = $subscription
+        endpoint     = $null;
+        workspace    = $null 
+    }
     foreach ($resource in $settings.resources) {
         if ($resource.disabled) { continue }
         switch ($resource.kind) {
-            "resource group" { 
-                $resource | Set-RessourceGroup -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            }
-            "appservice plan" { 
-                $resource | Set-AppService-Plan -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            }
-            "webapp" { 
-                $resource | Set-WebApp -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            }       
-            "storage account" { 
-                $resource | Set-Storage-Account -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            }
-            "storage table" { 
-                $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            }
+            # debug "resource group" { 
+            # debug     $resource | Set-RessourceGroup -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            # debug }
+            # debug "appservice plan" { 
+            # debug     $resource | Set-AppService-Plan -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            # debug }
+            # debug "webapp" { 
+            # debug     $resource | Set-WebApp -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            # debug }       
+            # debug "storage account" { 
+            # debug     $resource | Set-Storage-Account -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            # debug }
+            # debug "storage table" { 
+            # debug     $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            # debug }
             "log analytics workspace" { 
-                $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $references.workspace = $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
             }
             "monitor data-collection endpoint" {
-                $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $references.endpoint = $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
             }
-            # ne fonctionne pas encore =>  "monitor data-collection rule" {
-            # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Rule -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore =>  }
-            # ne fonctionne pas encore => "log analytics workspace table" { 
-            # ne fonctionne pas encore =>     $resource | Set-Log-Analytics-Workspace-Table -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore => }
+            "log analytics workspace table" { 
+                $resource | Set-Log-Analytics-Workspace-Table -ErrorFile $ErrorFile | Out-Null
+            }
+            "monitor data-collection rule" {
+                $resource | Set-Monitor-DataCollection-Rule -location $settings.location -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null                
+            }
             Default {}
         }
     }

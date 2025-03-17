@@ -1,5 +1,4 @@
 ﻿using Serilog;
-using Serilog.Events;
 using TendersITAssistant.Presentation.API.Middlewares;
 
 namespace TendersITAssistant.Presentation.API
@@ -18,14 +17,7 @@ namespace TendersITAssistant.Presentation.API
         {
             logger.Information("Add serilog to the services");
 
-            services.AddSerilog((services, loggerConfiguration) =>
-            {
-                loggerConfiguration
-                    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
-                    .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
-                    .ReadFrom.Configuration(configuration);
-            });
+            services.AddSerilog((services, loggerConfiguration) => loggerConfiguration.ReadFrom.Configuration(configuration));
         }
 
         public static void UseSerilog(this IApplicationBuilder app, Serilog.ILogger logger)
@@ -38,15 +30,19 @@ namespace TendersITAssistant.Presentation.API
             app.UseSerilogRequestLogging(options =>
             {
                 // Customize the message template
-                options.MessageTemplate = "{RequestFullPath}\r\n > verb : {RequestMethod}\r\n > status : {StatusCode}\r\n > elapsed (ms) : {Elapsed:0.0000}\r\n > response : {ResponseBody}";
+                options.MessageTemplate = "{StatusCode} -- {RequestMethod} -- {RequestPath} -- {Elapsed:0.0000}";
+
+                options.IncludeQueryInRequestPath = true;
 
                 // Attach additional properties to the request completion event
                 options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
                 {
-                    //NOTE : {ResponseBody} is set by the ResponseBodyReaderMiddleware
-                    diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? "not set");
-                    var requestFullPath = $"{httpContext.Request.Scheme}://{httpContext.Request.Path}{httpContext.Request.QueryString}";
-                    diagnosticContext.Set("RequestFullPath", requestFullPath);
+                    // request metadata
+                    diagnosticContext.Set("Host", httpContext.Request.Host.Value ?? "");
+                    diagnosticContext.Set("Scheme", httpContext.Request.Scheme);
+
+                    // response metadata
+                    //NOTE : {Data} and {MimeType} are set by the ResponseBodyReaderMiddleware
                 };
             });
 

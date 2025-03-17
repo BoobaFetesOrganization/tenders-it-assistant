@@ -38,12 +38,13 @@ namespace TendersITAssistant.Presentation.API.Middlewares
                 memory.Seek(0, SeekOrigin.Begin);
 
                 var tempBody = JsonSerializer.Deserialize<object>(new StreamReader(memory).ReadToEnd());
-                var formattedResponseBody = JsonSerializer.Serialize(tempBody, new JsonSerializerOptions { WriteIndented = true });
-                diagnosticContext.Set("ResponseBody", $"{contentType}\r\n{formattedResponseBody}");
+                var formattedResponseBody = JsonSerializer.Serialize(tempBody, new JsonSerializerOptions { WriteIndented = false });
+                diagnosticContext.Set("MimeType", contentType);
+                diagnosticContext.Set("Data", formattedResponseBody);
             }
-            else
+            else if (contentType is not null || !string.IsNullOrWhiteSpace(contentType))
             {
-                diagnosticContext.Set("ResponseBody", contentType ?? "no content type");
+                diagnosticContext.Set("MimeType", contentType);
             }
         }
     }

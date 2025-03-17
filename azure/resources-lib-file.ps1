@@ -15,8 +15,13 @@ function Clear-Resources-Files {
         -Recurse -Force 
 }
 
+
+$script:settings = $null
 function Get-Settings {
-    get-content -path "$($resourcesLibFileRoot)\resources.json" -Raw | ConvertFrom-Json
+    if ($null -eq $script:settings) {
+        $script:settings = Get-Content -path "$($resourcesLibFileRoot)\resources.json" -Raw | ConvertFrom-Json
+    }
+    return $script:settings
 }
 
 function New-Resource-File(
@@ -28,16 +33,38 @@ function New-Resource-File(
     $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $fullfileName -Force
     Write-Host " > stored in '.$file'"
 }
+
+function Get-Service-Principal-FileName-From-Azure(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $servicePrincipal
+) {
+    return $servicePrincipal.displayName | Get-Service-Principal-FileName-Internal
+}
+function Get-Service-Principal-FileName-From-Settings(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    return $resource.name | Get-Service-Principal-FileName-Internal
+}
+function Get-Service-Principal-FileName-Internal(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [string] $name
+) {
+    $short = "\resources\$name--service-principal.json"
+    return @{
+        short = $short
+        full  = Join-Path $resourcesLibFileRoot $short
+    }
+}
 function New-Resource-File-Service-Principal(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $servicePrincipal,
     [Parameter(Mandatory = $true)]
     [object] $resource
 ) {
-    $file = "\resources\$($resource.name)--service-principal.json"
-    $fullfileName = Join-Path $resourcesLibFileRoot $file
-    $servicePrincipal | ConvertTo-Json | Format-Json | Out-File -FilePath $fullfileName -Force
-    Write-Host "service principal '$($servicePrincipal.displayName)' stored in '.$file'"
+    $spFile = $servicePrincipal | Get-Service-Principal-FileName-From-Azure
+    $servicePrincipal | ConvertTo-Json | Format-Json | Out-File -FilePath $spFile.full -Force
+    Write-Host "service principal '$($servicePrincipal.displayName)' stored in '.$($spFile.short)'"
 }
 
 # code found at : https://stackoverflow.com/questions/56322993/proper-formating-of-json-using-powershell
@@ -124,4 +151,49 @@ function Format-Json {
 
     if ($AsArray) { return , [string[]]($result -split '\r?\n') }
     $result
+}
+
+function Get-Value-From(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [string] $path,
+    [scriptblock] $getReferenceFunc
+) {
+
+    return Get-Settings | Get-Value -path $path -getReferenceFunc $getReferenceFunc
+}
+    
+function Get-Value(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $reference,
+    [Parameter(Mandatory = $true)]
+    [string] $path,
+    [scriptblock] $getReferenceFunc
+) {
+
+
+    $ref = $reference
+    $paths = $path.Split(".")
+    foreach ($p in $paths) {
+        if ($p.StartsWith('$ref|') ) {
+            $value = $p.Substring('$ref|'.Length)
+            if (-not $getReferenceFunc) {
+                throw 'getReferenceFunc is mandatory when using ''$path'' with $ref| argument'
+            }
+            $ref = $getReferenceFunc.Invoke($value) | select-object -first 1
+            continue
+        }
+        elseif ($p -match "(?<property>.*)\[(?<filter_property>.*)='(?<filter_value>.*)'\]") {
+            $property = $matches['property']
+            $filter_property = $matches['filter_property']
+            $filter_value = $matches['filter_value']
+            $ref = $ref.$property | Where-Object { $_.$filter_property -eq $filter_value }
+            if ($ref -is [array]) {
+                throw "'$p' has an invalid filter, because ther is more than one element"
+            }
+            continue
+        }
+        
+        $ref = $ref.$p
+    }
+    return $ref
 }
