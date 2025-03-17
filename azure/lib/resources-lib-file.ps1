@@ -1,5 +1,7 @@
 $resourcesLibFileRoot = $PSScriptRoot
 
+$baseDir = ([DirectoryInfo]"$resourcesLibFileRoot\..").FullName
+
 function Clear-Error-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [string] $ErrorFile
@@ -10,8 +12,8 @@ function Clear-Error-File(
 }
 
 function Clear-Resources-Files {
-    Remove-Item -Path "$($resourcesLibFileRoot)\resources\*" `
-        -Exclude ".gitkeep", "*--service-principal.json" `
+    Remove-Item -Path "$baseDir\resources\*" `
+        -Exclude ".gitkeep", "*--service-principal.json", "*--keep.json" `
         -Recurse -Force 
 }
 
@@ -19,7 +21,7 @@ function Clear-Resources-Files {
 $script:settings = $null
 function Get-Settings {
     if ($null -eq $script:settings) {
-        $script:settings = Get-Content -path "$($resourcesLibFileRoot)\resources.json" -Raw | ConvertFrom-Json
+        $script:settings = Get-Content -path "$baseDir\resources.json" -Raw | ConvertFrom-Json
     }
     return $script:settings
 }
@@ -29,7 +31,7 @@ function New-Resource-File(
     [object] $resource
 ) {
     $file = "\resources\$($resource.name).json"
-    $fullfileName = Join-Path $resourcesLibFileRoot $file
+    $fullfileName = Join-Path $baseDir $file
     $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $fullfileName -Force
     Write-Host " > stored in '.$file'"
 }
@@ -53,7 +55,7 @@ function Get-Service-Principal-FileName-Internal(
     $short = "\resources\$name--service-principal.json"
     return @{
         short = $short
-        full  = Join-Path $resourcesLibFileRoot $short
+        full  = Join-Path $baseDir $short
     }
 }
 function New-Resource-File-Service-Principal(

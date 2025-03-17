@@ -1,5 +1,5 @@
 $scriptRoot = $PSScriptRoot
-. $scriptRoot\..\..\resources-lib-file.ps1
+. $scriptRoot\..\..\lib\resources-lib-file.ps1
 
 # set the output directory
 $outputDir = "$scriptRoot\output"

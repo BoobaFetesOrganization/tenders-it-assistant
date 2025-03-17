@@ -8,14 +8,9 @@ namespace TendersITAssistant.Presentation.API.Middlewares
         public static IApplicationBuilder UseResponseBodyReaderMiddleware(this IApplicationBuilder builder) => builder.UseMiddleware<ResponseBodyReaderMiddleware>();
     }
 
-    public class ResponseBodyReaderMiddleware
+    public class ResponseBodyReaderMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate next;
-
-        public ResponseBodyReaderMiddleware(RequestDelegate next)
-        {
-            this.next = next;
-        }
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = false };
 
         public async Task InvokeAsync(HttpContext context, IDiagnosticContext diagnosticContext)
         {
@@ -38,7 +33,7 @@ namespace TendersITAssistant.Presentation.API.Middlewares
                 memory.Seek(0, SeekOrigin.Begin);
 
                 var tempBody = JsonSerializer.Deserialize<object>(new StreamReader(memory).ReadToEnd());
-                var formattedResponseBody = JsonSerializer.Serialize(tempBody, new JsonSerializerOptions { WriteIndented = false });
+                var formattedResponseBody = JsonSerializer.Serialize(tempBody, JsonSerializerOptions);
                 diagnosticContext.Set("MimeType", contentType);
                 diagnosticContext.Set("Data", formattedResponseBody);
             }

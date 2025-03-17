@@ -14,7 +14,17 @@
   "resources": [
     {
       "kind": "resource group",
-      "name": "tenders-it-assistant-rg"
+      "name": "tenders-it-assistant-rg",
+      "servicePrincipals": [
+        {
+          "name": "tenders-it-assistant-web-app-deploy-sp",
+          "role": "Contributor"
+        },
+        {
+          "name": "tenders-it-assistant-log-analytics-sp",
+          "role": "Log Analytics Contributor"
+        }
+      ]
     },
     {
       "kind": "appservice plan",
@@ -32,8 +42,7 @@
         "source": "github",
         "branch": "main",
         "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
-      },
-      "servicePrincipal": "tenders-it-assistant-web-app-deploy-sp"
+      }
     },
     {
       "kind": "storage account",
@@ -51,15 +60,13 @@
       "kind": "log analytics workspace",
       "name": "tenders-it-assistant-log-analytics",
       "resourceGroup": "tenders-it-assistant-rg",
-      "sku": "PerGB2018",
-      "servicePrincipal": "tenders-it-assistant-log-analytics-sp"
+      "sku": "PerGB2018"
     },
     {
       "kind": "monitor data-collection endpoint",
       "name": "tenders-it-assistant-dce",
       "resourceGroup": "tenders-it-assistant-rg",
-      "public-network-access": "Enabled",
-      "azure-kind": "Linux"
+      "public-network-access": "Enabled"
     },
     {
       "kind": "log analytics workspace table",
@@ -76,32 +83,36 @@
         "file": "./templates/log-analytics--dcr.json",
         "mapping": [
           {
-            "placeholder": "<location>",
-            "path": "location"
-          },
-          {
             "placeholder": "<rule_name>",
             "path": "resources[kind='monitor data-collection rule'].name"
           },
           {
-            "placeholder": "<table_name>",
-            "path": "resources[kind='log analytics workspace table'].name"
+            "placeholder": "<location>",
+            "path": "location"
+          },
+          {
+            "placeholder": "<endpoint_id>",
+            "path": "$ref|endpoint.id"
+          },
+          {
+            "placeholder": "<datasource_name>",
+            "value": "WebApp-ds"
           },
           {
             "placeholder": "<workspace_id>",
             "path": "$ref|workspace.id"
           },
           {
-            "placeholder": "<workspace_name>",
-            "path": "$ref|workspace.name"
-          },
-          {
             "placeholder": "<workspace_customerId>",
             "path": "$ref|workspace.customerId"
           },
           {
-            "placeholder": "<endpoint_id>",
-            "path": "$ref|endpoint.id"
+            "placeholder": "<workspace_name>",
+            "path": "$ref|workspace.name"
+          },
+          {
+            "placeholder": "<table_name>",
+            "path": "resources[kind='log analytics workspace table'].name"
           }
         ]
       },

@@ -1,5 +1,5 @@
 $scriptRoot = $PSScriptRoot
-. $scriptRoot\resources-lib-commands.ps1
+. $scriptRoot\lib\resources-lib-commands.ps1
 
 
 #clean error file
@@ -35,21 +35,21 @@ try {
     foreach ($resource in $settings.resources) {
         if ($resource.disabled) { continue }
         switch ($resource.kind) {
-            # debug "resource group" { 
-            # debug     $resource | Set-RessourceGroup -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # debug }
-            # debug "appservice plan" { 
-            # debug     $resource | Set-AppService-Plan -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # debug }
-            # debug "webapp" { 
-            # debug     $resource | Set-WebApp -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # debug }       
-            # debug "storage account" { 
-            # debug     $resource | Set-Storage-Account -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # debug }
-            # debug "storage table" { 
-            # debug     $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # debug }
+            "resource group" { 
+                $resource | Set-RessourceGroup -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }
+            "appservice plan" { 
+                $resource | Set-AppService-Plan -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }
+            "webapp" { 
+                $resource | Set-WebApp -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }       
+            "storage account" { 
+                $resource | Set-Storage-Account -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }
+            "storage table" { 
+                $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }
             "log analytics workspace" { 
                 $references.workspace = $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
             }

@@ -288,7 +288,6 @@ function Set-Monitor-DataCollection-Endpoint(
         $cmd += " -n $($resource.name)"
         $cmd += " -g $($resource.resourceGroup)"
         $cmd += " --public-network-access $($resource."public-network-access")"
-        $cmd += " --kind $($resource."azure-kind")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
@@ -328,7 +327,6 @@ function Set-Monitor-DataCollection-Rule(
         $cmd += " -n $($resource.name)"
         $cmd += " -g $($resource.resourceGroup)"
         $cmd += " --data-collection-endpoint-id $($endpoint.id)"
-        $cmd += " --kind $($resource."azure-kind")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile

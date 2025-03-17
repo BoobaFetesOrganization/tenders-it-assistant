@@ -2,67 +2,11 @@
   "type": "Microsoft.Insights/dataCollectionRules",
   "name": "<rule_name>",
   "location": "<location>",
+  "kind": "Direct",
   "properties": {
-    "dataFlows": [
-      {
-        "streams": ["Custom-<table_name>"],
-        "transformKql": "source",
-        "destinations": ["<workspace_name>"],
-        "outputStream": "Custom-<table_name>"
-      }
-    ],
-    "destinations": {
-      "logAnalytics": [
-        {
-          "workspaceResourceId": "<workspace_id>",
-          "workspaceId": "<workspace_customerId>",
-          "name": "<workspace_name>"
-        }
-      ]
-    },
-    "dataSources": {
-      "Custom-<table_name>": [
-        {
-          "name": "<table_name>-ds",
-          "properties": {
-            "format": "json",
-            "parsers": [
-              {
-                "name": "<table_name>-ds-parser",
-                "json": {
-                  "timeKeys": ["TimeGenerated"],
-                  "fields": [
-                    { "name": "TimeGenerated", "type": "datetime" },
-                    { "name": "ThreadId", "type": "int" },
-                    { "name": "RawData", "type": "string" },
-                    { "name": "RequestId", "type": "string" },
-                    { "name": "Context", "type": "string" },
-                    { "name": "MimeType", "type": "string" },
-                    { "name": "ConnectionId", "type": "string" },
-                    { "name": "Level", "type": "string" },
-                    { "name": "Host", "type": "string" },
-                    { "name": "Elapsed", "type": "string" },
-                    { "name": "MachineName", "type": "string" },
-                    { "name": "Message", "type": "string" },
-                    { "name": "Status", "type": "string" },
-                    { "name": "Scheme", "type": "string" },
-                    { "name": "Method", "type": "string" },
-                    { "name": "ActionName", "type": "string" },
-                    { "name": "RequestPath", "type": "string" },
-                    { "name": "ActionId", "type": "string" },
-                    { "name": "Data", "type": "string" },
-                    { "name": "ExceptionDetail", "type": "string" },
-                    { "name": "EventId", "type": "dynamic" }
-                  ]
-                }
-              }
-            ]
-          }
-        }
-      ]
-    },
+    "dataCollectionEndpointId": "<endpoint_id>",
     "streamDeclarations": {
-      "Custom-<table_name>": {
+      "Custom-<datasource_name>": {
         "columns": [
           { "name": "TimeGenerated", "type": "datetime" },
           { "name": "ThreadId", "type": "int" },
@@ -88,6 +32,22 @@
         ]
       }
     },
-    "dataCollectionEndpointId": "<endpoint_id>"
+    "destinations": {
+      "logAnalytics": [
+        {
+          "workspaceResourceId": "<workspace_id>",
+          "workspaceId": "<workspace_customerId>",
+          "name": "<workspace_name>"
+        }
+      ]
+    },
+    "dataFlows": [
+      {
+        "streams": ["Custom-<datasource_name>"],
+        "transformKql": "source",
+        "destinations": ["<workspace_name>"],
+        "outputStream": "Custom-<table_name>"
+      }
+    ]
   }
 }

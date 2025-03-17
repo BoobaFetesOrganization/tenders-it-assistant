@@ -5,11 +5,17 @@ $resourcesCommandRoot = $PSScriptRoot
 . $resourcesCommandRoot\resources-lib-azure.ps1
 . $resourcesCommandRoot\resources-lib-file.ps1
 
+$baseDir = ([DirectoryInfo]"$resourcesCommandRoot\..").FullName
+
 function Login() {
+    # upgrade az, there is some troubles when using dce and dcr (with the version : 2022-04-01)
+    az config set auto-upgrade.enable=yes *>$null
+    # equivalent to : az upgrade --yes *>$null
+
     # disable the subscription selector feature once logged in
-    az config set core.login_experience_v2=off
+    az config set core.login_experience_v2=off *>$null
     # enable dynamic install
-    az config set extension.use_dynamic_install=yes_without_prompt
+    az config set extension.use_dynamic_install=yes_without_prompt *>$null
     
     # login with device code
     $subscription = az login --use-device-code | ConvertFrom-Json | Select-Object -First 1
@@ -64,6 +70,17 @@ function Set-RessourceGroup(
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
     $result | Get-RessourceGroup | New-Resource-File
+
+    $spList = $resource.servicePrincipals
+    if ($null -eq $spList -or -not($spList -is [array])) { 
+        $spList = @() 
+    }
+        
+    foreach ($sp in $spList) {
+        $sp | Set-ServicePrincipal -scopes $result.id
+    }
+
+    return $result
 }
 
 function Get-AppService-Plan(
@@ -92,10 +109,7 @@ function Set-AppService-Plan(
         $cmd += " -l $($location)"
         $cmd += " --sku $($resource.sku)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile -testFalsePositiveAct { 
-            $errorContent = Get-Content $ErrorFile
-            return $errorContent[10] -match "CryptographyDeprecationWarning" 
-        }
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
@@ -127,18 +141,13 @@ function Set-WebApp(
         $cmd += " -r $($resource.runtime)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $cmd += " --https-only"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile -testFalsePositiveAct { 
-            $errorContent = Get-Content $ErrorFile
-            return $errorContent[10] -match "CryptographyDeprecationWarning" 
-        }
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
     $result | Get-WebApp | New-Resource-File
-
-    $resource.servicePrincipal | Set-ServicePrincipal -resource $resource
 }
 
 function Get-Storage-Account(
@@ -218,14 +227,13 @@ function Set-Log-Analytics-Workspace(
         $cmd += " --sku $($resource.sku)"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile         
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
     $result | Get-Log-Analytics-Workspace | New-Resource-File
-    $resource.servicePrincipal | Set-ServicePrincipal -resource $resource
     return $result
 }
 
@@ -251,10 +259,9 @@ function Set-Monitor-DataCollection-Endpoint(
         $cmd += " -n $($resource.name)"
         $cmd += " -g $($resource.resourceGroup)"
         $cmd += " --public-network-access $($resource."public-network-access")"
-        $cmd += " --kind $($resource."azure-kind")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile         
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
@@ -278,7 +285,7 @@ function Set-Log-Analytics-Workspace-Table(
 ) {    
     $result = $resource | Get-Log-Analytics-Workspace-Table
     if ($null -eq $result) {
-        $file = [FileInfo]"$resourcesCommandRoot\$($resource.columnsFile)"
+        $file = [FileInfo]"$baseDir\$($resource.columnsFile)"
         if (-not $file.Exists) {
             throw "file '$file' not found"
         }
@@ -294,7 +301,7 @@ function Set-Log-Analytics-Workspace-Table(
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
-        $result | Get-Log-Analytics-Workspace-Table | New-Resource-File
+        $result | New-Resource-File
     }
 }
 
@@ -312,33 +319,13 @@ function Set-Monitor-DataCollection-Rule(
     [Parameter(Mandatory = $true)]
     [Hashtable] $references, 
     [Parameter()]
-    [object[]] $tags,    
+    [object[]] $tags,
     [Parameter(Mandatory = $true)]
     [string] $ErrorFile
-) {    
+) {
     $result = $resource | Get-Monitor-DataCollection-Rule
     if ($null -eq $result) {
-        $file = [FileInfo]"$resourcesCommandRoot\$($resource.template.file)"
-        if (-not $file.Exists) {
-            throw "file '$file' not found"
-        }
-        
-        $ruleFile = [FileInfo]"$resourcesCommandRoot\resources\$($resource.name).json"
-        $rules = (Get-Content -Path $file.FullName) -join " "
-        $rules > $ruleFile.FullName
-        foreach ($map in $resource.template.mapping) {
-            if ($map.path) { 
-                $value = Get-Value-From -path $map.path -getReferenceFunc {
-                    param([string] $path)
-                    return $references.$path
-                }
-            }
-            else { 
-                $value = $map.value 
-            }
-            $rules = $rules -replace $map.placeholder, $value
-            $rules > $ruleFile.FullName
-        }
+        $ruleFile = $resource | Set-Rule-File -references $references        
 
         $cmd = "az monitor data-collection rule create"
         $cmd += " -n $($resource.name)"
@@ -346,11 +333,43 @@ function Set-Monitor-DataCollection-Rule(
         $cmd += " -l $location"
         $cmd += " --rule-file ""$($ruleFile.FullName)"""
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
+        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
     $result | Get-Monitor-DataCollection-Rule | New-Resource-File
+}
+
+function Set-Rule-File(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references
+) {
+    $file = [FileInfo]"$baseDir\$($resource.template.file)"
+    if (-not $file.Exists) {
+        throw "file '$file' not found"
+    }
+        
+    $ruleFile = [FileInfo]"$baseDir\resources\$($resource.name)-sent--keep.json"    
+    if ($ruleFile.Exists) { $ruleFile.Delete() }
+    $rules = (Get-Content -Path $file.FullName) -join " "
+    $rules > $ruleFile.FullName
+    foreach ($map in $resource.template.mapping) {
+        if ($map.path) { 
+            $value = Get-Value-From -path $map.path -getReferenceFunc {
+                param([string] $path)
+                return $references.$path
+            }
+        }
+        else { 
+            $value = $map.value 
+        }
+        $rules = $rules -replace $map.placeholder, $value
+        $rules > $ruleFile.FullName
+    }
+
+    return $ruleFile
 }
