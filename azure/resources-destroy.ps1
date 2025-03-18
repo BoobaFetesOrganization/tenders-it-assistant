@@ -23,37 +23,6 @@ try {
     $subscription = $settings.subscription | Get-Subscription
     Write-Host "subscription : `n$($subscription | ConvertTo-Json | Format-Json)"
 
-    $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
-
-    if ($null -eq $resourceGroup) {    
-        Write-Host "resource group not found." -ForegroundColor Yellow
-    }
-    elseif (Test-User-Acceptance "Do you want to proceed with deleting the resources?") {
-        # ACT : delete Monitor resources : dcr 
-        if (Test-User-Acceptance "Do you want to proceed with deleting the monitor data collection rules?") {
-            $settings.resources `
-            | Where-Object { $_.kind -eq "monitor data-collection rule" } `
-            | Foreach-Object {
-                Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
-                az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
-            }
-        }
-
-        # ACT : delete Monitor resources : dce 
-        if (Test-User-Acceptance "Do you want to proceed with deleting the monitor endpoints?") {
-            $settings.resources `
-            | Where-Object { $_.kind -eq "monitor data-collection endpoint" } `
-            | Foreach-Object {
-                Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
-                az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
-            }
-        }
-    
-        # ACT : delete resources    
-        Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Yellow
-        az group delete -n $resourceGroup.name --yes
-    }    
-    
     # ACT : delete service principals    
     if (Test-User-Acceptance "Do you want to proceed with deleting the service principals?") {
         $settings.resources | Where-Object { $_.servicePrincipals -is [array] } `
@@ -69,6 +38,35 @@ try {
             }
         } 
     }
+
+    $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
+    if ($null -eq $resourceGroup) {    
+        Write-Host "resource group not found." -ForegroundColor Yellow
+    }
+
+    # ACT : delete Monitor resources : dcr 
+    if (Test-User-Acceptance "Do you want to proceed with deleting the monitor data collection rules?") {
+        $settings.resources `
+        | Where-Object { $_.kind -eq "monitor data-collection rule" } `
+        | Foreach-Object {
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
+            az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
+        }
+    }
+
+    # ACT : delete Monitor resources : dce 
+    if (Test-User-Acceptance "Do you want to proceed with deleting the monitor endpoints?") {
+        $settings.resources `
+        | Where-Object { $_.kind -eq "monitor data-collection endpoint" } `
+        | Foreach-Object {
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
+            az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
+        }
+    }
+    
+    # ACT : delete resources    
+    Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Yellow
+    az group delete -n $resourceGroup.name --yes    
 }
 catch {
     Write-Error $Error[0]
