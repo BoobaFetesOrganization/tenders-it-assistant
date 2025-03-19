@@ -1,5 +1,5 @@
 $scriptRoot = $PSScriptRoot
-. $scriptRoot\resources-lib-commands.ps1
+. $scriptRoot\lib\resources-lib-commands.ps1
 
 
 #clean error file
@@ -27,6 +27,11 @@ try {
     $subscription | New-Resource-File
 
     # ACT
+    $references = [hashtable]@{
+        subscription = $subscription
+        endpoint     = $null;
+        workspace    = $null 
+    }
     foreach ($resource in $settings.resources) {
         if ($resource.disabled) { continue }
         switch ($resource.kind) {
@@ -46,17 +51,17 @@ try {
                 $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "log analytics workspace" { 
-                $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $references.workspace = $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
             }
-            # ne fonctionne pas encore =>  "monitor data-collection endpoint" {
-            # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore =>  }
-            # ne fonctionne pas encore =>  "monitor data-collection rule" {
-            # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Rule -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore =>  }
-            # ne fonctionne pas encore => "log analytics workspace table" { 
-            # ne fonctionne pas encore =>     $resource | Set-Log-Analytics-Workspace-Table -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore => }
+            "monitor data-collection endpoint" {
+                $references.endpoint = $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
+            }
+            "log analytics workspace table" { 
+                $resource | Set-Log-Analytics-Workspace-Table -ErrorFile $ErrorFile | Out-Null
+            }
+            "monitor data-collection rule" {
+                $resource | Set-Monitor-DataCollection-Rule -location $settings.location -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null                
+            }
             Default {}
         }
     }

@@ -20,6 +20,12 @@ on:
         type: string
         required: true
     secrets:
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_WEBAPP_LOG_ID:
+        required: true
+      AZURE_WEBAPP_LOG_SECRET:
+        required: true
       AZURE_STORAGE_CONNECTIONSTRING:
         required: true
       GOOGLE_GEMINI_APIKEY:
@@ -44,9 +50,12 @@ jobs:
 
       - name: set secrets for appsettings.json
         run: |
-          escaped_connection_string=$(echo "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}" | sed 's/[&/=\\;$"]/\\&/g')
-          sed -i "s/\"accountstorage\": \"[^\"]*\"/\"accountstorage\": \"$escaped_connection_string\"/g" ${{ inputs.working-directory }}/appsettings.json
-          sed -i 's/"Gemini_ApiKey": "[^"]*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
+          dotnet user-secret init
+          dotnet user-secrets set "ConnectionStrings:accountstorage" "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}"
+          dotnet user-secrets set "AI:Gemini_ApiKey" "${{ secrets.GOOGLE_GEMINI_APIKEY }}"
+          dotnet user-secrets set "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:tenantId" "${{ secrets.AZURE_TENANT_ID }}"
+          dotnet user-secrets set "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientId" "${{ secrets.AZURE_WEBAPP_LOG_ID }}"
+          dotnet user-secrets set "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientSecret" "${{ secrets.AZURE_WEBAPP_LOG_SECRET }}"
           cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: Set up dotnet dependency caching for faster builds
