@@ -9,6 +9,12 @@ on:
     branches: ["*"]
   workflow_call:
     secrets:
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_WEBAPP_LOG_ID:
+        required: true
+      AZURE_WEBAPP_LOG_SECRET:
+        required: true
       AZURE_STORAGE_CONNECTIONSTRING:
         required: true
       GOOGLE_GEMINI_APIKEY:
