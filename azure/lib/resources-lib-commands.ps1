@@ -9,13 +9,13 @@ $baseDir = ([DirectoryInfo]"$resourcesCommandRoot\..").FullName
 
 function Login() {
     # upgrade az, there is some troubles when using dce and dcr (with the version : 2022-04-01)
-    az config set auto-upgrade.enable=yes *>$null
+    az config set auto-upgrade.enable=yes
     # equivalent to : az upgrade --yes *>$null
 
     # disable the subscription selector feature once logged in
-    az config set core.login_experience_v2=off *>$null
+    az config set core.login_experience_v2=off
     # enable dynamic install
-    az config set extension.use_dynamic_install=yes_without_prompt *>$null
+    az config set extension.use_dynamic_install=yes_without_prompt
     
     # login with device code
     $subscription = az login --use-device-code | ConvertFrom-Json | Select-Object -First 1
@@ -71,13 +71,8 @@ function Set-RessourceGroup(
     }
     $result | Get-RessourceGroup | New-Resource-File
 
-    $spList = $resource.servicePrincipals
-    if ($null -eq $spList -or -not($spList -is [array])) { 
-        $spList = @() 
-    }
-        
-    foreach ($sp in $spList) {
-        $sp | Set-ServicePrincipal -scopes $result.id
+    $resource.servicePrincipals | ForEach-Object {
+        $_ | Set-ServicePrincipal -scopes $result.id
     }
 
     return $result
@@ -323,23 +318,23 @@ function Set-Monitor-DataCollection-Rule(
     [Parameter(Mandatory = $true)]
     [string] $ErrorFile
 ) {
-    $result = $resource | Get-Monitor-DataCollection-Rule
-    if ($null -eq $result) {
-        $ruleFile = $resource | Set-Rule-File -references $references        
+    # always update the dcr !
+    $msg = "Updated"
+    if ($null -eq ($resource | Get-Monitor-DataCollection-Rule)) { $msg = "Created" }
+    
+    $ruleFile = $resource | Set-Rule-File -references $references 
+    
+    $cmd = "az monitor data-collection rule create"
+    $cmd += " -n $($resource.name)"
+    $cmd += " -g $($resource.resourceGroup)"
+    $cmd += " -l $location"
+    $cmd += " --rule-file ""$($ruleFile.FullName)"""
+    $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
+    $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+    
+    Write-Host "resource '$($resource.name)' is $msg" -ForegroundColor Yellow    
 
-        $cmd = "az monitor data-collection rule create"
-        $cmd += " -n $($resource.name)"
-        $cmd += " -g $($resource.resourceGroup)"
-        $cmd += " -l $location"
-        $cmd += " --rule-file ""$($ruleFile.FullName)"""
-        $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
-    }
-    else {
-        Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
-    }
-
-    $result | Get-Monitor-DataCollection-Rule | New-Resource-File
+    $resource | Get-Monitor-DataCollection-Rule | New-Resource-File
 }
 
 function Set-Rule-File(

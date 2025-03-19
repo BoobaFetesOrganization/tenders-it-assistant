@@ -94,10 +94,7 @@ function Set-ServicePrincipal(
         $cmd += " -n $($sp.name)"
         $cmd += " --role ""$($sp.role)"""
         $cmd += " --scopes $scopes"
-        $servicePrincipal = $cmd | Invoke-Az-Command -name $sp.name -ErrorFile $ErrorFile -TestIsValidFunc { 
-            param([string]$errorContent)
-            return $errorContent -match "The output includes credentials that you must protect" 
-        }
+        $servicePrincipal = $cmd | Invoke-Az-Command -name $sp.name -ErrorFile $ErrorFile
         
         $servicePrincipal | New-Resource-File-Service-Principal -resource $resource
     }

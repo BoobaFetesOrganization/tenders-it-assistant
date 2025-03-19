@@ -30,10 +30,10 @@ try {
             foreach ($item in $_.servicePrincipals) {
                 $sp = $item | Get-ServicePrincipal
                 if ($sp -eq $null) {
-                    Write-Host "service principal '$($item.name)' not found" -ForegroundColor Yellow
+                    Write-Host "service principal '$($item.name)' not found" -ForegroundColor Red
                     continue
                 }
-                Write-Host "destroy service principal $($sp.appDisplayName) (id: '$($sp.appId)')" -ForegroundColor Yellow
+                Write-Host "destroy service principal $($sp.appDisplayName) (id: '$($sp.appId)')" -ForegroundColor Green
                 az ad sp delete --id $sp.appId
             }
         } 
@@ -41,7 +41,8 @@ try {
 
     $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
     if ($null -eq $resourceGroup) {    
-        Write-Host "resource group not found." -ForegroundColor Yellow
+        Write-Host "resource group not found." -ForegroundColor Red
+        exit 1
     }
 
     # ACT : delete Monitor resources : dcr 
@@ -49,7 +50,7 @@ try {
         $settings.resources `
         | Where-Object { $_.kind -eq "monitor data-collection rule" } `
         | Foreach-Object {
-            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
             az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
         }
     }
@@ -59,13 +60,13 @@ try {
         $settings.resources `
         | Where-Object { $_.kind -eq "monitor data-collection endpoint" } `
         | Foreach-Object {
-            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Yellow
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
             az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
         }
     }
     
     # ACT : delete resources    
-    Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Yellow
+    Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Green
     az group delete -n $resourceGroup.name --yes    
 }
 catch {

@@ -22,7 +22,7 @@
         },
         {
           "name": "tenders-it-assistant-log-analytics-sp",
-          "role": "Log Analytics Contributor"
+          "role": "Monitoring Metrics Publisher"
         }
       ]
     },
@@ -96,7 +96,7 @@
           },
           {
             "placeholder": "<datasource_name>",
-            "value": "WebApp-ds"
+            "value": "datasource"
           },
           {
             "placeholder": "<workspace_id>",
