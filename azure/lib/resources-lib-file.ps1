@@ -44,15 +44,15 @@ function Get-Service-Principal-FileName-From-Azure(
 }
 function Get-Service-Principal-FileName-From-Settings(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource
+    [object] $servicePrincipal
 ) {
-    return $resource.name | Get-Service-Principal-FileName-Internal
+    return $servicePrincipal.name | Get-Service-Principal-FileName-Internal
 }
 function Get-Service-Principal-FileName-Internal(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [string] $name
+    [string] $servicePrincipal
 ) {
-    $short = "\resources\$name--service-principal.json"
+    $short = "\resources\$servicePrincipal--service-principal.json"
     return @{
         short = $short
         full  = Join-Path $baseDir $short
@@ -60,9 +60,7 @@ function Get-Service-Principal-FileName-Internal(
 }
 function New-Resource-File-Service-Principal(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $servicePrincipal,
-    [Parameter(Mandatory = $true)]
-    [object] $resource
+    [object] $servicePrincipal
 ) {
     $spFile = $servicePrincipal | Get-Service-Principal-FileName-From-Azure
     $servicePrincipal | ConvertTo-Json | Format-Json | Out-File -FilePath $spFile.full -Force
@@ -157,24 +155,25 @@ function Format-Json {
 
 function Get-Value-From(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [string] $path,
+    [PsCustomObject] $map,
     [scriptblock] $getReferenceFunc
 ) {
-
-    return Get-Settings | Get-Value -path $path -getReferenceFunc $getReferenceFunc
+    return Get-Settings | Get-Value -map $map -getReferenceFunc $getReferenceFunc
 }
     
 function Get-Value(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $reference,
     [Parameter(Mandatory = $true)]
-    [string] $path,
+    [PsCustomObject] $map,
     [scriptblock] $getReferenceFunc
 ) {
-
-
+    if ($map.value ) { 
+        return $map.value
+    }
+    
     $ref = $reference
-    $paths = $path.Split(".")
+    $paths = $map.path.Split(".")
     foreach ($p in $paths) {
         if ($p.StartsWith('$ref|') ) {
             $value = $p.Substring('$ref|'.Length)

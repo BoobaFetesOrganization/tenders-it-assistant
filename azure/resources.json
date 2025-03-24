@@ -23,6 +23,10 @@
         {
           "name": "tenders-it-assistant-log-analytics-sp",
           "role": "Monitoring Metrics Publisher"
+        },
+        {
+          "name": "tenders-it-assistant-log-analytics-sp-dev",
+          "role": "Monitoring Metrics Publisher"
         }
       ]
     },
@@ -31,18 +35,6 @@
       "name": "tenders-it-assistant-app-service-plan",
       "resourceGroup": "tenders-it-assistant-rg",
       "sku": "F1"
-    },
-    {
-      "kind": "webapp",
-      "name": "tenders-it-assistant-web-app",
-      "plan": "tenders-it-assistant-app-service-plan",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "runtime": "dotnet:9",
-      "deployment": {
-        "source": "github",
-        "branch": "main",
-        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
-      }
     },
     {
       "kind": "storage account",
@@ -69,6 +61,12 @@
       "public-network-access": "Enabled"
     },
     {
+      "kind": "monitor data-collection endpoint",
+      "name": "tenders-it-assistant-dce-dev",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "public-network-access": "Enabled"
+    },
+    {
       "kind": "log analytics workspace table",
       "name": "WebApp_CL",
       "workspaceName": "tenders-it-assistant-log-analytics",
@@ -77,14 +75,24 @@
       "plan": "Analytics"
     },
     {
+      "kind": "log analytics workspace table",
+      "name": "WebAppDev_CL",
+      "workspaceName": "tenders-it-assistant-log-analytics",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "columnsFile": "./templates/log-analytics--table-columns.txt",
+      "plan": "Analytics"
+    },
+    {
       "kind": "monitor data-collection rule",
       "name": "tenders-it-assistant-WebAppLogs-dcr",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "endpoint": "tenders-it-assistant-dce",
       "template": {
         "file": "./templates/log-analytics--dcr.json",
         "mapping": [
           {
             "placeholder": "<rule_name>",
-            "path": "resources[kind='monitor data-collection rule'].name"
+            "value": "tenders-it-assistant-WebAppLogs-dcr"
           },
           {
             "placeholder": "<location>",
@@ -92,7 +100,7 @@
           },
           {
             "placeholder": "<endpoint_id>",
-            "path": "$ref|endpoint.id"
+            "path": "$ref|tenders-it-assistant-dce.id"
           },
           {
             "placeholder": "<datasource_name>",
@@ -100,24 +108,109 @@
           },
           {
             "placeholder": "<workspace_id>",
-            "path": "$ref|workspace.id"
+            "path": "$ref|tenders-it-assistant-log-analytics.id"
           },
           {
             "placeholder": "<workspace_customerId>",
-            "path": "$ref|workspace.customerId"
+            "path": "$ref|tenders-it-assistant-log-analytics.customerId"
           },
           {
             "placeholder": "<workspace_name>",
-            "path": "$ref|workspace.name"
+            "path": "$ref|tenders-it-assistant-log-analytics.name"
           },
           {
             "placeholder": "<table_name>",
-            "path": "resources[kind='log analytics workspace table'].name"
+            "value": "WebApp_CL"
           }
         ]
-      },
+      }
+    },
+    {
+      "kind": "monitor data-collection rule",
+      "name": "tenders-it-assistant-WebAppLogs-dcr-dev",
       "resourceGroup": "tenders-it-assistant-rg",
-      "endpoint": "tenders-it-assistant-dce"
+      "endpoint": "tenders-it-assistant-dce-dev",
+      "template": {
+        "file": "./templates/log-analytics--dcr.json",
+        "mapping": [
+          {
+            "placeholder": "<rule_name>",
+            "value": "tenders-it-assistant-WebAppLogs-dcr-dev"
+          },
+          {
+            "placeholder": "<location>",
+            "path": "location"
+          },
+          {
+            "placeholder": "<endpoint_id>",
+            "path": "$ref|tenders-it-assistant-dce-dev.id"
+          },
+          {
+            "placeholder": "<datasource_name>",
+            "value": "datasource"
+          },
+          {
+            "placeholder": "<workspace_id>",
+            "path": "$ref|tenders-it-assistant-log-analytics.id"
+          },
+          {
+            "placeholder": "<workspace_customerId>",
+            "path": "$ref|tenders-it-assistant-log-analytics.customerId"
+          },
+          {
+            "placeholder": "<workspace_name>",
+            "path": "$ref|tenders-it-assistant-log-analytics.name"
+          },
+          {
+            "placeholder": "<table_name>",
+            "value": "WebAppDev_CL"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "webapp",
+      "name": "tenders-it-assistant-web-app",
+      "plan": "tenders-it-assistant-app-service-plan",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "runtime": "dotnet:9",
+      "deployment": {
+        "source": "github",
+        "branch": "main",
+        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
+      },
+      "siteConfig": {
+        "appSettings": [
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:endpoint",
+            "path": "$ref|tenders-it-assistant-dce.logsIngestion.endpoint"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:immutableId",
+            "path": "$ref|tenders-it-assistant-WebAppLogs-dcr.immutableId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:tenantId",
+            "path": "$ref|subscription.tenantId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientId",
+            "path": "$ref|tenders-it-assistant-log-analytics-sp.appId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientSecret",
+            "path": "$ref|tenders-it-assistant-log-analytics-sp.password"
+          },
+          {
+            "name": "ConnectionStrings:accountstorage",
+            "path": "$ref|tendersassiststorage.connectionString"
+          },
+          {
+            "name": "AI:Gemini_ApiKey",
+            "value": "<gemini_api_key_do_it_by_yourself>"
+          }
+        ]
+      }
     }
   ]
 }

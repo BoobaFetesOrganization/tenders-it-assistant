@@ -27,6 +27,11 @@ function Login() {
     return $subscription
 }
 
+############################################################################################################
+# Subscription
+############################################################################################################
+
+
 function Get-Subscription(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [string] $name
@@ -40,6 +45,11 @@ function Set-Subscription(
 ) {
     return (az account set --subscription $name)
 }
+
+############################################################################################################
+# Ressource Group
+############################################################################################################
+
 function Get-RessourceGroup(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource
@@ -50,6 +60,8 @@ function Get-RessourceGroup(
 function Set-RessourceGroup(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references,
     [Parameter(Mandatory = $true)]
     [string] $location, 
     [Parameter()]
@@ -64,19 +76,23 @@ function Set-RessourceGroup(
         $cmd += " -n $($resource.name)"
         $cmd += " -l $($location)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+        $result = $resource | Get-RessourceGroup
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
-    $result | Get-RessourceGroup | New-Resource-File
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 
     $resource.servicePrincipals | ForEach-Object {
-        $_ | Set-ServicePrincipal -scopes $result.id
+        $_ | Set-ServicePrincipal -references $references -scopes $result.id
     }
-
-    return $result
 }
+
+############################################################################################################
+# Web App
+############################################################################################################
 
 function Get-AppService-Plan(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -88,6 +104,8 @@ function Get-AppService-Plan(
 function Set-AppService-Plan(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references,
     [Parameter(Mandatory = $true)]
     [string] $location, 
     [Parameter()]
@@ -104,14 +122,17 @@ function Set-AppService-Plan(
         $cmd += " -l $($location)"
         $cmd += " --sku $($resource.sku)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+        $result = $resource | Get-AppService-Plan
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | Get-AppService-Plan | New-Resource-File
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
+
 
 function Get-WebApp(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -122,8 +143,10 @@ function Get-WebApp(
 function Set-WebApp(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references,    
     [Parameter()]
-    [object[]] $tags,    
+    [object[]] $tags, 
     [Parameter(Mandatory = $true)]
     [string] $ErrorFile
 ) {
@@ -136,14 +159,73 @@ function Set-WebApp(
         $cmd += " -r $($resource.runtime)"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
         $cmd += " --https-only"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+        $result = $resource | Get-WebApp
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | Get-WebApp | New-Resource-File
+    # refresh the result with new appsettings config
+    $result = $resource | Get-WebApp 
+    $result | New-Resource-File
+    
+    # set the appsettings after resource file creation becase data are sensitive
+    $appSettings = $resource | Set-WebApp-AppSettings -references $references -ErrorFile $ErrorFile
+
+    # add the appsettings to the references but not in the file
+    $result | Add-Member -MemberType NoteProperty -Name "appSettings" -Value $appSettings
+    $references[$resource.name] = $result
 }
+
+function Set-WebApp-AppSettings(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource,  
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references, 
+    [Parameter(Mandatory = $true)]
+    [string] $ErrorFile
+) {
+    if (-not $resource.siteConfig -or -not $resource.siteConfig.appSettings) { 
+        Write-Host "no app settings to set (path : resources[kind=webapp].siteConfig.appSettings)" -ForegroundColor Yellow
+        return 
+    }
+
+    ## delete the file if it exists
+    $appSettingsFile = [FileInfo]"$baseDir\resources\$($resource.name)-appsettings.json"
+    if ($appSettingsFile.Exists) { $appSettingsFile.Delete() }
+
+    #set values from the references
+    $appSettings = @()
+    foreach ($map in $resource.siteConfig.appSettings) {
+        $item = @{
+            name  = $map.name 
+            value = $map | Get-Value-From -getReferenceFunc {
+                param([string] $path)
+                return $references.$path
+            }
+        }
+        $appSettings += $item
+    }
+    $appSettings | ConvertTo-Json | Out-File -FilePath $appSettingsFile.FullName -Force
+
+    # execute the command
+    $cmd = "az webapp config appsettings set"
+    $cmd += " -n $($resource.name)"
+    $cmd += " -g $($resource.resourceGroup)"
+    $cmd += " --settings @$($appSettingsFile.FullName)"
+    $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
+    
+    # finally delete the file because it's confidential
+    $appSettingsFile.Refresh()
+    if ($appSettingsFile.Exists) { $appSettingsFile.Delete() }
+
+    return $appSettings
+}
+
+############################################################################################################
+# Storage Account
+############################################################################################################
 
 function Get-Storage-Account(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -154,6 +236,8 @@ function Get-Storage-Account(
 function Set-Storage-Account(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references,
     [Parameter()]
     [object[]] $tags,    
     [Parameter(Mandatory = $true)]
@@ -167,19 +251,24 @@ function Set-Storage-Account(
         $cmd += " --sku $($resource.sku)"
         $cmd += " --kind $($resource."azure-kind")"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile  | Out-Null
+        $result = $resource | Get-Storage-Account 
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | Get-Storage-Account | New-Resource-File
+    $connectringResult = (az storage account show-connection-string -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json
+    $result  | Add-Member -MemberType NoteProperty -Name "connectionString" -Value $connectringResult.connectionString
+
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
 
 
 function Set-Storage-Table(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource, 
+    [object] $resource,
     [Parameter()]
     [object[]] $tags,    
     [Parameter(Mandatory = $true)]
@@ -198,6 +287,11 @@ function Set-Storage-Table(
     }
 }
 
+
+############################################################################################################
+# Log Analytics Workspace
+############################################################################################################
+
 function Get-Log-Analytics-Workspace(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource
@@ -207,6 +301,8 @@ function Get-Log-Analytics-Workspace(
 function Set-Log-Analytics-Workspace(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references,
     [Parameter(Mandatory = $true)]
     [string] $location, 
     [Parameter()]
@@ -222,15 +318,22 @@ function Set-Log-Analytics-Workspace(
         $cmd += " --sku $($resource.sku)"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+        $result = $resource | Get-Log-Analytics-Workspace
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | Get-Log-Analytics-Workspace | New-Resource-File
-    return $result
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
+
+
+
+############################################################################################################
+# Monitor Data Collection
+############################################################################################################
 
 function Get-Monitor-DataCollection-Endpoint(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -241,6 +344,8 @@ function Get-Monitor-DataCollection-Endpoint(
 function Set-Monitor-DataCollection-Endpoint(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references,
     [Parameter(Mandatory = $true)]
     [string] $location, 
     [Parameter()]
@@ -256,14 +361,15 @@ function Set-Monitor-DataCollection-Endpoint(
         $cmd += " --public-network-access $($resource."public-network-access")"
         $cmd += " -l $location"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+        $result = $resource | get-Monitor-DataCollection-Endpoint
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | Get-Monitor-DataCollection-Endpoint | New-Resource-File
-    return $result
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
 
 function Get-Log-Analytics-Workspace-Table(
@@ -274,7 +380,9 @@ function Get-Log-Analytics-Workspace-Table(
 }
 function Set-Log-Analytics-Workspace-Table(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource,    
+    [object] $resource,   
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references, 
     [Parameter(Mandatory = $true)]
     [string] $ErrorFile
 ) {    
@@ -292,12 +400,14 @@ function Set-Log-Analytics-Workspace-Table(
         $cmd += " --plan $($resource.plan)"
         $cmd += " --columns $($columns)"
         $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
-        $resource | Get-Log-Analytics-Workspace-Table | New-Resource-File
+        $result = $resource | Get-Log-Analytics-Workspace-Table
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
-        $result | New-Resource-File
     }
+    
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
 
 function Get-Monitor-DataCollection-Rule(
@@ -310,9 +420,9 @@ function Set-Monitor-DataCollection-Rule(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
     [Parameter(Mandatory = $true)]
-    [string] $location, 
-    [Parameter(Mandatory = $true)]
     [Hashtable] $references, 
+    [Parameter(Mandatory = $true)]
+    [string] $location, 
     [Parameter()]
     [object[]] $tags,
     [Parameter(Mandatory = $true)]
@@ -334,7 +444,9 @@ function Set-Monitor-DataCollection-Rule(
     
     Write-Host "resource '$($resource.name)' is $msg" -ForegroundColor Yellow    
 
-    $resource | Get-Monitor-DataCollection-Rule | New-Resource-File
+    $result = $resource | Get-Monitor-DataCollection-Rule 
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
 
 function Set-Rule-File(
@@ -345,7 +457,7 @@ function Set-Rule-File(
 ) {
     $file = [FileInfo]"$baseDir\$($resource.template.file)"
     if (-not $file.Exists) {
-        throw "file '$file' not found"
+        throw "file not found : '$($file.FullName)'"
     }
         
     $ruleFile = [FileInfo]"$baseDir\resources\$($resource.name)-sent--keep.json"    
@@ -353,18 +465,13 @@ function Set-Rule-File(
     $rules = (Get-Content -Path $file.FullName) -join " "
     $rules > $ruleFile.FullName
     foreach ($map in $resource.template.mapping) {
-        if ($map.path) { 
-            $value = Get-Value-From -path $map.path -getReferenceFunc {
-                param([string] $path)
-                return $references.$path
-            }
-        }
-        else { 
-            $value = $map.value 
-        }
+        $value = $map | Get-Value-From -getReferenceFunc {
+            param([string] $path)
+            return $references.$path
+        }        
         $rules = $rules -replace $map.placeholder, $value
-        $rules > $ruleFile.FullName
     }
 
+    $rules > $ruleFile.FullName
     return $ruleFile
 }

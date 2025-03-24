@@ -29,7 +29,7 @@ function Invoke-Az-Command(
         # .. or contains a false error message from az cli extensions
         $hasWarning = { param([string]$content)
             $falseErrors = @()
-            $falseErrors += $content -match "^az : .*\\.azure\\cliextensions(.*)invalid escape(.|\r\n)*Create a data collection rule\.\r\n$"  
+            $falseErrors += $content -match "^az : .*\\.azure\\cliextensions(.|\r\n)*invalid escape(.|\r\n)*Create a data collection rule\.\r\n$"  
             $falseErrors += $content -match "^az :.*UserWarning: You are using cryptography(.|\r\n)*NativeCommandError(.|\r\n)*\r\n$"   
             $falseErrors += $content -match "^az : WARNING(.|\r\n)*The output includes credentials that you must protect(.|\r\n)*https://aka.ms/azadsp-cli\r\n$"
             return ($falseErrors | Where-Object { $_ -eq $true }).Count -gt 0
@@ -44,17 +44,17 @@ function Invoke-Az-Command(
     }
 
     if ($hasError) {
-        Write-Host "resource '$name' creation fails" -ForegroundColor Red
+        Write-Host "command for '$name' fails" -ForegroundColor Red
         Write-Host ""
         Write-Host " > Command : " -ForegroundColor Red
         Write-Host $cmd -ForegroundColor Red
         Write-Host ""
         Write-Host " > Error : " -ForegroundColor Red
         Write-Host $content -ForegroundColor Red
-        throw "resource '$name' creation fails. see above error message"
+        throw "command for '$name' creation fails. see above error message"
     }
 
-    Write-Host "resource '$name' created" -ForegroundColor Green
+    Write-Host "command for '$name' succesfully executed" -ForegroundColor Green
     return $response | ConvertFrom-Json
 }
 
@@ -86,6 +86,8 @@ function Set-ServicePrincipal(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $sp,
     [Parameter(Mandatory = $true)]
+    [Hashtable] $references,  
+    [Parameter(Mandatory = $true)]
     [string] $scopes
 ) {
     $result = $sp | Get-ServicePrincipal
@@ -94,11 +96,14 @@ function Set-ServicePrincipal(
         $cmd += " -n $($sp.name)"
         $cmd += " --role ""$($sp.role)"""
         $cmd += " --scopes $scopes"
-        $servicePrincipal = $cmd | Invoke-Az-Command -name $sp.name -ErrorFile $ErrorFile
-        
-        $servicePrincipal | New-Resource-File-Service-Principal -resource $resource
+        $servicePrincipal = $cmd | Invoke-Az-Command -name $sp.name -ErrorFile $ErrorFile        
+        $servicePrincipal | New-Resource-File-Service-Principal
     }
     else {
         Write-Host "service principal '$($result.appDisplayName)' already exists" -ForegroundColor Yellow
+        $spFile = $sp | Get-Service-Principal-FileName-From-Settings
+        $servicePrincipal = Get-Content -Path $resourcesLibAzureRoot/../$($spFile.short) -Raw | ConvertFrom-Json
     }
+
+    $references[$sp.name] = $servicePrincipal
 }

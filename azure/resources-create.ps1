@@ -29,38 +29,36 @@ try {
     # ACT
     $references = [hashtable]@{
         subscription = $subscription
-        endpoint     = $null;
-        workspace    = $null 
     }
     foreach ($resource in $settings.resources) {
         if ($resource.disabled) { continue }
         switch ($resource.kind) {
             "resource group" { 
-                $resource | Set-RessourceGroup -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-RessourceGroup -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "appservice plan" { 
-                $resource | Set-AppService-Plan -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-AppService-Plan -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "webapp" { 
-                $resource | Set-WebApp -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-WebApp -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }       
             "storage account" { 
-                $resource | Set-Storage-Account -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-Storage-Account -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "storage table" { 
                 $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "log analytics workspace" { 
-                $references.workspace = $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
+                $resource | Set-Log-Analytics-Workspace -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "monitor data-collection endpoint" {
-                $references.endpoint = $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile
+                $resource | Set-Monitor-DataCollection-Endpoint -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "log analytics workspace table" { 
-                $resource | Set-Log-Analytics-Workspace-Table -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-Log-Analytics-Workspace-Table -references $references -ErrorFile $ErrorFile | Out-Null
             }
             "monitor data-collection rule" {
-                $resource | Set-Monitor-DataCollection-Rule -location $settings.location -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null                
+                $resource | Set-Monitor-DataCollection-Rule -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null                
             }
             Default {}
         }

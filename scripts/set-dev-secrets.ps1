@@ -109,11 +109,17 @@ try {
     }
     
     write-host 'set new secrets'
+    if ($secrets.ContainsKey("GOOGLE_GEMINI_APIKEY")) {
+        dotnet user-secrets set "AI:Gemini_ApiKey" "$($secrets.GOOGLE_GEMINI_APIKEY)"    
+    }
     if ($secrets.ContainsKey("AZURE_STORAGE_CONNECTIONSTRING")) {
         dotnet user-secrets set "ConnectionStrings:accountstorage" "$($secrets.AZURE_STORAGE_CONNECTIONSTRING)"
     }
-    if ($secrets.ContainsKey("GOOGLE_GEMINI_APIKEY")) {
-        dotnet user-secrets set "AI:Gemini_ApiKey" "$($secrets.GOOGLE_GEMINI_APIKEY)"    
+    if ($secrets.ContainsKey("AZURE_DCE_ENDPOINT")) {
+        dotnet user-secrets set "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:endpoint" "$($secrets.AZURE_DCE_ENDPOINT)"
+    }
+    if ($secrets.ContainsKey("AZURE_DCR_ID")) {
+        dotnet user-secrets set "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:immutableId" "$($secrets.AZURE_DCR_ID)"
     }
     if ($secrets.ContainsKey("AZURE_TENANT_ID")) {
         dotnet user-secrets set "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:tenantId" "$($secrets.AZURE_TENANT_ID)"
