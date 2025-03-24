@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Serilog;
+using System.Text.Json;
 using TendersITAssistant.Application.Command.Common;
 using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Filter;
@@ -11,12 +12,16 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<ProjectDomain> CreateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("create - {1}", JsonSerializer.Serialize(domain));
+
             await ThrowIfNameAlreadyExists(domain, cancellationToken);
             return await mediator.Send(new CreateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
         }
 
         public async override Task<bool> UpdateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("update - {1}", JsonSerializer.Serialize(domain));
+
             await ThrowIfNameAlreadyExists(domain, cancellationToken);
             return await mediator.Send(new UpdateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
         }

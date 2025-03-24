@@ -1,28 +1,35 @@
-﻿using TendersITAssistant.Domain.Document;
+﻿using Serilog;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using TendersITAssistant.Domain.Document;
 using TendersITAssistant.Infrastructure.Api.Gemini.Configuation;
 using TendersITAssistant.Infrastructure.Api.Gemini.Converter;
+using TendersITAssistant.Infrastructure.Api.Gemini.Extensions;
 
 namespace TendersITAssistant.Infrastructure.Api.Gemini.Service
 {
     public class GeminiFileService
     {
+        private readonly ILogger logger;
         private readonly HttpClient _httpClient;
         private readonly GeminiApiConfiguration _apiConfiguration;
         private string Endpoint { get => $"https://generativelanguage.googleapis.com/upload/v1beta/files?key={_apiConfiguration.ApiKey}"; }
 
-        public GeminiFileService(HttpClient httpClient, GeminiApiConfiguration apiConfiguration)
+        public GeminiFileService(HttpClient httpClient, GeminiApiConfiguration apiConfiguration, ILogger logger)
         {
             _apiConfiguration = apiConfiguration;
 
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            this.logger = logger.ForGeminiContext();
         }
 
         public async Task UploadAsync(DocumentDomain document, CancellationToken cancellationToken = default)
         {
+            logger.Information("UploadAsync document {Name} (length: {Length}", document.Name, document.Metadata.Length);
+
             // upoad file
             var uploadUrl = await UploadFileMetadataAsync(document, cancellationToken);
 

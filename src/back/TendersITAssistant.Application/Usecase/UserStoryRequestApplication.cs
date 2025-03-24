@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Serilog;
+using System.Text.Json;
 using TendersITAssistant.Application.Command.Common;
 using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Project;
@@ -11,6 +12,8 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<bool> UpdateAsync(UserStoryRequestDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("update - {1}", JsonSerializer.Serialize(domain));
+
             if (!await base.UpdateAsync(domain, cancellationToken)) return false;
 
             var group = await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = domain.GroupId }, cancellationToken)

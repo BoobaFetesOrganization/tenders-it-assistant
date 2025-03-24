@@ -24,6 +24,8 @@ namespace TendersITAssistant.Application.Usecase
 
         public async Task<UserStoryGroupDomain> CreateAsync(string projectId, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("create - group for project {projectId}", projectId);
+
             var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken) ?? throw new Exception("Project not found");
 
             UserStoryGroupDomain group = await base.CreateAsync(new()
@@ -51,21 +53,25 @@ namespace TendersITAssistant.Application.Usecase
                await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken),
                cancellationToken);
 
-        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? _project, UserStoryGroupDomain? _group, CancellationToken cancellationToken = default)
+        public async Task<UserStoryGroupDomain> GenerateUserStoriesAsync(ProjectDomain? project, UserStoryGroupDomain? group, CancellationToken cancellationToken = default)
         {
-            var project = _project ?? throw new Exception("Project  not found");
-            var group = _group ?? throw new Exception("Group not found");
+            base.logger.Information("generate usertories for project {Id}", project?.Id);
+
+            var _project = project ?? throw new Exception("Project  not found");
+            var _group = group ?? throw new Exception("Group not found");
 
             // actions
             List<Task> actions = [];
 
             // act : update documents
-            IEnumerable<DocumentDomain> documents = await RehydrateDocuments(group, actions, cancellationToken);
-            group.Response = await SendRequestToGenAi(group, documents, cancellationToken);
-            await mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = group }, cancellationToken);
+            base.logger.Debug("update documents for project {Id}", project?.Id);
+            IEnumerable<DocumentDomain> documents = await RehydrateDocuments(_group, actions, cancellationToken);
+            group.Response = await SendRequestToGenAi(_group, documents, cancellationToken);
+            await mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = _group }, cancellationToken);
 
 
             // act : update stories
+            base.logger.Debug("update stories for project {Id}", project?.Id);
             actions.AddRange(group.UserStories.Select(story => mediator.Send(new DeleteCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
             group.ClearUserStories();
             CreateGeneratedStories(group, GeminiResponse.LoadFrom(group.Response));
@@ -158,6 +164,7 @@ namespace TendersITAssistant.Application.Usecase
 
         private void ResetSelectedGroupOfTheProjectIfNeeded(ProjectDomain project, UserStoryGroupDomain domain, List<Task> actions, CancellationToken cancellationToken = default)
         {
+            base.logger.Debug("Reset selected group of the project {Id}", project?.Id);
             // when the selected group of the project is generated (or regenerated),
             // the selection must be unset
 
@@ -173,6 +180,8 @@ namespace TendersITAssistant.Application.Usecase
 
         public async Task<UserStoryGroupDomain> ValidateCostsAsync(string projectId, string groupId, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("validate cost for project {projectId} and group {groupId}", projectId, groupId);
+            
             var project = await mediator.Send(new GetByIdQuery<ProjectDomain>() { Id = projectId }, cancellationToken) ?? throw new Exception("Project not found");
             var group = await mediator.Send(new GetByIdQuery<UserStoryGroupDomain>() { Id = groupId }, cancellationToken) ?? throw new Exception("Group not found");
 
@@ -188,14 +197,16 @@ namespace TendersITAssistant.Application.Usecase
             return await GetByIdAsync(groupId, cancellationToken) ?? throw new Exception("new item not found !");
         }
         #region ValidateCostsAsync helpers
-        private static void ResetTaskCost(UserStoryGroupDomain item)
+        private void ResetTaskCost(UserStoryGroupDomain item)
         {
+            base.logger.Debug("reset task costs of group {Id}", item.Id);
             foreach (var story in item.UserStories)
                 foreach (var task in story.Tasks)
                     task.Cost = 0;
         }
-        private static void OverrideWithDefaultCost(UserStoryGroupDomain item)
+        private void OverrideWithDefaultCost(UserStoryGroupDomain item)
         {
+            base.logger.Debug("override task costs with gemini values for group {Id}", item.Id);
             foreach (var story in item.UserStories)
                 foreach (var task in story.Tasks)
                 {

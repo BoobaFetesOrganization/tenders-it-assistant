@@ -3,6 +3,9 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using TendersITAssistant.Infrastructure.Api.Gemini.Configuation;
+using Serilog;
+using TendersITAssistant.Infrastructure.Api.Gemini.Extensions;
+using Serilog.Core;
 
 namespace TendersITAssistant.Infrastructure.Api.Gemini.Service
 {
@@ -12,18 +15,23 @@ namespace TendersITAssistant.Infrastructure.Api.Gemini.Service
         private readonly HttpClient _httpClient;
         private readonly GeminiApiConfiguration _apiConfiguration;
         private string Endpoint { get => $"https://generativelanguage.googleapis.com/v1beta/models/{_apiConfiguration.Version}:generateContent?key={_apiConfiguration.ApiKey}"; }
+        private readonly ILogger logger;
 
-        public GeminiGenerateContentService(HttpClient httpClient, GeminiApiConfiguration apiConfiguration)
+        public GeminiGenerateContentService(HttpClient httpClient, GeminiApiConfiguration apiConfiguration, ILogger logger)
         {
             _apiConfiguration = apiConfiguration;
 
             _httpClient = httpClient;
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            this.logger= logger.ForGeminiContext();
         }
 
         public async Task<string> CallAsync(GeminiRequest data, CancellationToken cancellationToken = default)
         {
+            logger.Information("CallAsync - ", JsonSerializer.Serialize(data));
+
             var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(Endpoint, content, cancellationToken);
 

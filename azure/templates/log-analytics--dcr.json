@@ -9,26 +9,20 @@
       "Custom-<datasource_name>": {
         "columns": [
           { "name": "TimeGenerated", "type": "datetime" },
-          { "name": "ThreadId", "type": "int" },
-          { "name": "RawData", "type": "string" },
-          { "name": "RequestId", "type": "string" },
-          { "name": "Context", "type": "string" },
-          { "name": "MimeType", "type": "string" },
-          { "name": "ConnectionId", "type": "string" },
           { "name": "Level", "type": "string" },
-          { "name": "Host", "type": "string" },
+          { "name": "TraceId", "type": "string" },
           { "name": "Elapsed", "type": "string" },
-          { "name": "MachineName", "type": "string" },
           { "name": "Message", "type": "string" },
-          { "name": "Status", "type": "string" },
-          { "name": "Scheme", "type": "string" },
-          { "name": "Method", "type": "string" },
-          { "name": "ActionName", "type": "string" },
+          { "name": "StatusCode", "type": "int" },
+          { "name": "RequestMethod", "type": "string" },
           { "name": "RequestPath", "type": "string" },
-          { "name": "ActionId", "type": "string" },
-          { "name": "Data", "type": "string" },
-          { "name": "ExceptionDetail", "type": "string" },
-          { "name": "EventId", "type": "dynamic" }
+          { "name": "Data", "type": "dynamic" },
+          { "name": "Exception", "type": "string" },
+          { "name": "ExceptionDetail", "type": "dynamic" },
+          { "name": "SourceContext", "type": "string" },
+          { "name": "ConnectionId", "type": "string" },
+          { "name": "ThreadId", "type": "int" },
+          { "name": "Event", "type": "dynamic" }
         ]
       }
     },
@@ -44,7 +38,7 @@
     "dataFlows": [
       {
         "streams": ["Custom-<datasource_name>"],
-        "transformKql": "source",
+        "transformKql": "source | project  TimeGenerated = TimeGenerated, Level = tostring(Event.Level), TraceId = tostring(Event.TraceId), Elapsed = strcat(Event.Renderings.Elapsed[0].Rendering, ' ms'), Message = tostring(Message), StatusCode = toint(Event.Properties.StatusCode), RequestMethod = tostring(Event.Properties.RequestMethod), RequestPath = tostring(Event.Properties.RequestPath), Data = todynamic(Event.Properties.Data), Exception = tostring(Event.Exception), ExceptionDetail = todynamic(Event.Properties.ExceptionDetail), SourceContext = tostring(Event.Properties.SourceContext), ConnectionId = tostring(Event.Properties.ConnectionId), ThreadId = toint(Event.Properties.ThreadId), Event = todynamic(Event)",
         "destinations": ["<workspace_name>"],
         "outputStream": "Custom-<table_name>"
       }
