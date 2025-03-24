@@ -12,7 +12,7 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<bool> UpdateAsync(UserStoryRequestDomain domain, CancellationToken cancellationToken = default)
         {
-            base.logger.Information("update - {1}", JsonSerializer.Serialize(domain));
+            base.logger.Information("update - {0}", JsonSerializer.Serialize(domain));
 
             if (!await base.UpdateAsync(domain, cancellationToken)) return false;
 
