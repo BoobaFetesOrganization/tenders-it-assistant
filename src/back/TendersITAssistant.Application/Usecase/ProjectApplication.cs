@@ -12,7 +12,7 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<ProjectDomain> CreateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
-            base.logger.Information("create - {1}", JsonSerializer.Serialize(domain));
+            base.logger.Information("create - {0}", JsonSerializer.Serialize(domain));
 
             await ThrowIfNameAlreadyExists(domain, cancellationToken);
             return await mediator.Send(new CreateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
@@ -20,7 +20,7 @@ namespace TendersITAssistant.Application.Usecase
 
         public async override Task<bool> UpdateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
-            base.logger.Information("update - {1}", JsonSerializer.Serialize(domain));
+            base.logger.Information("update - {0}", JsonSerializer.Serialize(domain));
 
             await ThrowIfNameAlreadyExists(domain, cancellationToken);
             return await mediator.Send(new UpdateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);

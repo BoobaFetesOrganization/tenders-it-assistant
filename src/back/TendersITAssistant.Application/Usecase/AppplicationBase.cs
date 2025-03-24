@@ -30,21 +30,21 @@ namespace TendersITAssistant.Application.Usecase
 
         public async virtual Task<TDomain> CreateAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
-            logger.Information("create - ", JsonSerializer.Serialize(domain));
+            logger.Information("create - {0}", JsonSerializer.Serialize(domain));
 
             return await mediator.Send(new CreateCommand<TDomain> { Domain = domain }, cancellationToken);
         }
 
         public async virtual Task<bool> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
-            logger.Information("update - ", JsonSerializer.Serialize(domain));
+            logger.Information("update - {0}", JsonSerializer.Serialize(domain));
 
             return await mediator.Send(new UpdateCommand<TDomain> { Domain = domain }, cancellationToken);
         }
 
         public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
-            logger.Information("delete  - {id}", id);
+            logger.Information("delete - {id}", id);
 
             return await mediator.Send(new DeleteByIdCommand<TDomain> { Id = id }, cancellationToken);
         }

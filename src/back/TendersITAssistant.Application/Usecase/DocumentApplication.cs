@@ -14,7 +14,7 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
-            base.logger.Information("create - {1}", JsonSerializer.Serialize(domain));
+            base.logger.Information("create - {0}", JsonSerializer.Serialize(domain));
 
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");
@@ -31,7 +31,7 @@ namespace TendersITAssistant.Application.Usecase
 
         public async override Task<bool> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
-            base.logger.Information("update - {1}", JsonSerializer.Serialize(domain));
+            base.logger.Information("update - {0}", JsonSerializer.Serialize(domain));
 
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");

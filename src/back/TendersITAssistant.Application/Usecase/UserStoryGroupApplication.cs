@@ -64,21 +64,21 @@ namespace TendersITAssistant.Application.Usecase
             List<Task> actions = [];
 
             // act : update documents
-            base.logger.Debug("update documents for project {Id}", project?.Id);
+            base.logger.Debug("update documents for project {Id}", _project.Id);
             IEnumerable<DocumentDomain> documents = await RehydrateDocuments(_group, actions, cancellationToken);
             group.Response = await SendRequestToGenAi(_group, documents, cancellationToken);
             await mediator.Send(new UpdateCommand<UserStoryGroupDomain> { Domain = _group }, cancellationToken);
 
 
             // act : update stories
-            base.logger.Debug("update stories for project {Id}", project?.Id);
+            base.logger.Debug("update stories for project {Id}", _project.Id);
             actions.AddRange(group.UserStories.Select(story => mediator.Send(new DeleteCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
             group.ClearUserStories();
             CreateGeneratedStories(group, GeminiResponse.LoadFrom(group.Response));
             actions.AddRange(group.UserStories.Select(story => mediator.Send(new CreateCommand<UserStoryDomain> { Domain = story }, cancellationToken)));
 
             // reset property SelectGroupId of the project
-            ResetSelectedGroupOfTheProjectIfNeeded(project, group, actions, cancellationToken);
+            ResetSelectedGroupOfTheProjectIfNeeded(_project, group, actions, cancellationToken);
 
             // wait resolutions of the actions
             await Task.WhenAll(actions);
