@@ -1,9 +1,15 @@
+param (
+    [switch]$skipLogin,
+    [switch]$skipLogout
+)
+
 $scriptRoot = $PSScriptRoot
 . $scriptRoot\lib\resources-lib-commands.ps1
 
 function Test-User-Acceptance([Parameter(Mandatory = $true)][string]$message) {
     Write-Host $message -foregroundcolor Yellow
     Write-Host "(Y to accept otherwise any other caracter)" -foregroundcolor Gray
+    $Host.UI.RawUI.FlushInputBuffer()
     $key = $Host.UI.RawUI.ReadKey()
 
     $accepted = "$($key.Character)".ToLower() -eq "y"
@@ -14,7 +20,11 @@ function Test-User-Acceptance([Parameter(Mandatory = $true)][string]$message) {
 }
 
 try {
-    Login | Out-Null
+    if (-not $skipLogin) { Login }
+
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "    DESTROY RESOURCES                                       " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
 
     # ARRANGE
     $settings = Get-Settings
@@ -73,5 +83,5 @@ catch {
     Write-Error $Error[0]
 }
 finally {
-    az logout
+    if (-not $skipLogout) { az logout }
 }

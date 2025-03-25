@@ -13,6 +13,9 @@ function Invoke-Az-Command(
     [Parameter()]
     [ScriptBlock] $TestIsValidFunc
 ) {
+    Write-Host "Invoke command for '$name'"
+    Write-Host "  > az cli : " -NoNewline
+    Write-Host $cmd -ForegroundColor Blue
     $response = Invoke-Expression $cmd 2>$ErrorFile
     $err = [FileInfo] $ErrorFile
     
@@ -42,22 +45,17 @@ function Invoke-Az-Command(
         if (-not $hasError) { 
             Remove-Item -Path $ErrorFile -Force 
         }
-
-        return $response | ConvertFrom-Json
     }
 
+    Write-Host "  > Status : " -NoNewline
     if ($hasError) {
-        Write-Host "command for '$name' fails" -ForegroundColor Red
-        Write-Host ""
-        Write-Host " > Command : " -ForegroundColor Red
-        Write-Host $cmd -ForegroundColor Red
-        Write-Host ""
-        Write-Host " > Error : " -ForegroundColor Red
+        Write-Host "fails" -ForegroundColor Red
+        Write-Host "  > Error : " -ForegroundColor Red
         Write-Host $content -ForegroundColor Red
         throw "command for '$name' creation fails. see above error message"
     }
 
-    Write-Host "command for '$name' succesfully executed" -ForegroundColor Green
+    Write-Host "success" -ForegroundColor Green
     return $response | ConvertFrom-Json
 }
 

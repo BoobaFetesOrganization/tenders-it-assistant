@@ -248,7 +248,7 @@ function Set-Storage-Account(
         $cmd += " --sku $($resource.sku)"
         $cmd += " --kind $($resource."azure-kind")"
         $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile  | Out-Null
+        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
         $result = $resource | Get-Storage-Account 
     }
     else {

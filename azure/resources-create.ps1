@@ -1,6 +1,10 @@
+param (
+    [switch]$skipLogin,
+    [switch]$skipLogout
+)
+
 $scriptRoot = $PSScriptRoot
 . $scriptRoot\lib\resources-lib-commands.ps1
-
 
 #clean error file
 $ErrorFile = "$($scriptRoot)\error.log"
@@ -9,11 +13,16 @@ $ErrorFile | Clear-Error-File
 #clean all resources files
 Clear-Resources-Files
 
-try {
-    $subscription = Login
-      
-    # ARRANGE
+try {    
     $settings = Get-Settings
+
+    if ($skipLogin) { $subscription = $settings.subscription | Get-Subscription }
+    else { $subscription = Login }
+      
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "    CREATE RESOURCES                                        " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+
 
     # if current subscription is not the one involved, switch to it
     if ($subscription.name -ne $settings.subscription) {
@@ -67,6 +76,6 @@ try {
 catch {
     Write-Error $Error[0]
 }
-finally {
-    az logout
+finally {   
+    if (-not $skipLogout) { az logout }
 }
