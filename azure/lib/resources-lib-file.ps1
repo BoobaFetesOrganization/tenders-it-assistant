@@ -1,6 +1,10 @@
+using namespace System.IO;
+
 $resourcesLibFileRoot = $PSScriptRoot
 
 $baseDir = ([DirectoryInfo]"$resourcesLibFileRoot\..").FullName
+$global:resourcesDir = ([DirectoryInfo]"$resourcesLibFileRoot\..\..\.resources").FullName
+$global:secretsDir = ([DirectoryInfo]"$resourcesLibFileRoot\..\..\.secrets").FullName
 
 function Clear-Error-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -12,11 +16,10 @@ function Clear-Error-File(
 }
 
 function Clear-Resources-Files {
-    Remove-Item -Path "$baseDir\resources\*" `
-        -Exclude ".gitkeep", "*--service-principal.json", "*--keep.json" `
+    Remove-Item -Path "$global:resourcesDir\*" `
+        -Exclude ".gitkeep" `
         -Recurse -Force 
 }
-
 
 $script:settings = $null
 function Get-Settings {
@@ -30,41 +33,42 @@ function New-Resource-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource
 ) {
-    $file = "\resources\$($resource.name).json"
-    $fullfileName = Join-Path $baseDir $file
-    $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $fullfileName -Force
-    Write-Host " > stored in '.$file'"
+    $file = $resource.name | Get-Ressource-File
+    $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $file -Force
+    Write-Host " > stored in '.\.resources\$($file.Name)'"
+}
+function Get-Ressource-File(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [string] $name,
+    [string] $extension = "json"
+) {
+    return [FileInfo](Join-Path $global:resourcesDir "$name.$extension")
 }
 
-function Get-Service-Principal-FileName-From-Azure(
+function New-Secret-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $servicePrincipal
+    [object] $resource
 ) {
-    return $servicePrincipal.displayName | Get-Service-Principal-FileName-Internal
+    $file = $resource.name | Get-Secret-File
+    $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $file -Force
+    Write-Host " > stored in '.\.secrets\$($file.Name)'"
 }
-function Get-Service-Principal-FileName-From-Settings(
+
+function Get-Secret-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $servicePrincipal
+    [string] $name,
+    [string] $extension = "json"
 ) {
-    return $servicePrincipal.name | Get-Service-Principal-FileName-Internal
+    return [FileInfo](Join-Path $global:secretsDir "$name.$extension")
 }
-function Get-Service-Principal-FileName-Internal(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [string] $servicePrincipal
-) {
-    $short = "\resources\$servicePrincipal--service-principal.json"
-    return @{
-        short = $short
-        full  = Join-Path $baseDir $short
-    }
-}
+
 function New-Resource-File-Service-Principal(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $servicePrincipal
 ) {
-    $spFile = $servicePrincipal | Get-Service-Principal-FileName-From-Azure
-    $servicePrincipal | ConvertTo-Json | Format-Json | Out-File -FilePath $spFile.full -Force
-    Write-Host "service principal '$($servicePrincipal.displayName)' stored in '.$($spFile.short)'"
+    $spFile = $servicePrincipal.displayName | Get-Secret-File
+    $servicePrincipal | ConvertTo-Json | Format-Json | Out-File -FilePath $spFile.FullName -Force
+    Write-Host "service principal stored in '.\.secrets\$($spFile.Name)'"
 }
 
 # code found at : https://stackoverflow.com/questions/56322993/proper-formating-of-json-using-powershell

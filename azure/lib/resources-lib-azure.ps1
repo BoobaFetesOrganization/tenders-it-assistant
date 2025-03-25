@@ -30,7 +30,8 @@ function Invoke-Az-Command(
         $hasWarning = { param([string]$content)
             $falseErrors = @()
             $falseErrors += $content -match "^az : .*\\.azure\\cliextensions(.|\r\n)*invalid escape(.|\r\n)*Create a data collection rule\.\r\n$"  
-            $falseErrors += $content -match "^az :.*UserWarning: You are using cryptography(.|\r\n)*NativeCommandError(.|\r\n)*\r\n$"   
+            $falseErrors += $content -match "^az :.* UserWarning: You are using cryptography(.|\r\n)*NativeCommandError(.|\r\n)*\r\n$"   
+            $falseErrors += $content -match "^.* UserWarning: You are using cryptography(.|\r\n)*resources-create.ps1(\r\n)*\r\n$"   
             $falseErrors += $content -match "^az : WARNING(.|\r\n)*The output includes credentials that you must protect(.|\r\n)*https://aka.ms/azadsp-cli\r\n$"
             return ($falseErrors | Where-Object { $_ -eq $true }).Count -gt 0
         }
@@ -41,6 +42,8 @@ function Invoke-Az-Command(
         if (-not $hasError) { 
             Remove-Item -Path $ErrorFile -Force 
         }
+
+        return $response | ConvertFrom-Json
     }
 
     if ($hasError) {
@@ -101,8 +104,8 @@ function Set-ServicePrincipal(
     }
     else {
         Write-Host "service principal '$($result.appDisplayName)' already exists" -ForegroundColor Yellow
-        $spFile = $sp | Get-Service-Principal-FileName-From-Settings
-        $servicePrincipal = Get-Content -Path $resourcesLibAzureRoot/../$($spFile.short) -Raw | ConvertFrom-Json
+        $spFile = $sp.name | Get-Secret-File
+        $servicePrincipal = Get-Content -Path $spFile.FullName -Raw | ConvertFrom-Json
     }
 
     $references[$sp.name] = $servicePrincipal

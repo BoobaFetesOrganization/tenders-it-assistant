@@ -191,11 +191,12 @@ function Set-WebApp-AppSettings(
         return 
     }
 
-    ## delete the file if it exists
-    $appSettingsFile = [FileInfo]"$baseDir\resources\$($resource.name)-appsettings.json"
+    # delete the file if it exists
+    $name = "$($resource.name)-appsettings"
+    $appSettingsFile = $name | Get-Secret-File
     if ($appSettingsFile.Exists) { $appSettingsFile.Delete() }
 
-    #set values from the references
+    # set values from the references
     $appSettings = @()
     foreach ($map in $resource.siteConfig.appSettings) {
         $item = @{
@@ -207,19 +208,15 @@ function Set-WebApp-AppSettings(
         }
         $appSettings += $item
     }
-    $appSettings | ConvertTo-Json | Out-File -FilePath $appSettingsFile.FullName -Force
 
     # execute the command
     $cmd = "az webapp config appsettings set"
     $cmd += " -n $($resource.name)"
     $cmd += " -g $($resource.resourceGroup)"
     $cmd += " --settings @$($appSettingsFile.FullName)"
-    $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
+    $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
+    @{name = $name; values = $appSettings } | New-Secret-File
     
-    # finally delete the file because it's confidential
-    $appSettingsFile.Refresh()
-    if ($appSettingsFile.Exists) { $appSettingsFile.Delete() }
-
     return $appSettings
 }
 
@@ -258,9 +255,11 @@ function Set-Storage-Account(
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $connectringResult = (az storage account show-connection-string -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json
-    $result  | Add-Member -MemberType NoteProperty -Name "connectionString" -Value $connectringResult.connectionString
+    $connectionstringResult = (az storage account show-connection-string -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json
+    $connectionstringResult | Add-Member -MemberType NoteProperty -Name "name" -Value "$($resource.name)-connectionstring"
+    $result | Add-Member -MemberType NoteProperty -Name "connectionString" -Value $connectionstringResult.connectionString
 
+    $connectionstringResult | New-Secret-File
     $result | New-Resource-File
     $references[$resource.name] = $result
 }
@@ -440,7 +439,7 @@ function Set-Monitor-DataCollection-Rule(
     $cmd += " -l $location"
     $cmd += " --rule-file ""$($ruleFile.FullName)"""
     $cmd += " --tags $(Get-Tags-AsKeyValue-ToString -tags $tags)"
-    $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile
+    $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
     
     Write-Host "resource '$($resource.name)' is $msg" -ForegroundColor Yellow    
 
@@ -460,7 +459,7 @@ function Set-Rule-File(
         throw "file not found : '$($file.FullName)'"
     }
         
-    $ruleFile = [FileInfo]"$baseDir\resources\$($resource.name)-sent--keep.json"    
+    $ruleFile = "$($resource.name)-sent" | Get-Secret-File
     if ($ruleFile.Exists) { $ruleFile.Delete() }
     $rules = (Get-Content -Path $file.FullName) -join " "
     $rules > $ruleFile.FullName
