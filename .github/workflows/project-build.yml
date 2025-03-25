@@ -8,17 +8,6 @@ on:
   pull_request:
     branches: ["*"]
   workflow_call:
-    secrets:
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_WEBAPP_LOG_ID:
-        required: true
-      AZURE_WEBAPP_LOG_SECRET:
-        required: true
-      AZURE_STORAGE_CONNECTIONSTRING:
-        required: true
-      GOOGLE_GEMINI_APIKEY:
-        required: true
 
 permissions:
   contents: read
@@ -37,4 +26,3 @@ jobs:
       artifact-name: "web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
       version: "9.0.x"
       working-directory: "src/back/TendersITAssistant.Presentation.API"
-    secrets: inherit

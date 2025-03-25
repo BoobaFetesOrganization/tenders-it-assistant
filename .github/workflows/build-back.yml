@@ -19,17 +19,6 @@ on:
         description: "The path to the working directory"
         type: string
         required: true
-    secrets:
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_WEBAPP_LOG_ID:
-        required: true
-      AZURE_WEBAPP_LOG_SECRET:
-        required: true
-      AZURE_STORAGE_CONNECTIONSTRING:
-        required: true
-      GOOGLE_GEMINI_APIKEY:
-        required: true
 
 permissions:
   contents: read
