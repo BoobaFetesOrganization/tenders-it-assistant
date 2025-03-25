@@ -1,11 +1,10 @@
-﻿using TendersITAssistant.Domain.Gemini;
+﻿using Serilog;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using TendersITAssistant.Domain.Gemini;
 using TendersITAssistant.Infrastructure.Api.Gemini.Configuation;
-using Serilog;
 using TendersITAssistant.Infrastructure.Api.Gemini.Extensions;
-using Serilog.Core;
 
 namespace TendersITAssistant.Infrastructure.Api.Gemini.Service
 {
@@ -25,7 +24,7 @@ namespace TendersITAssistant.Infrastructure.Api.Gemini.Service
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            this.logger= logger.ForGeminiContext();
+            this.logger = logger.ForGeminiContext();
         }
 
         public async Task<string> CallAsync(GeminiRequest data, CancellationToken cancellationToken = default)
@@ -42,6 +41,7 @@ namespace TendersITAssistant.Infrastructure.Api.Gemini.Service
                     new Exception(result)
                     ]);
 
+            logger.Information("CallAsync - response - {0}", result ?? "null");
             return result;
         }
     }

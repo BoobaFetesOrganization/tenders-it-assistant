@@ -16,37 +16,57 @@ namespace TendersITAssistant.Application.Usecase
 
         public async Task<Paged<TDomain>> GetAllPagedAsync(PaginationOptions options, IFilter? filter = null, CancellationToken cancellationToken = default)
         {
-            logger.Information("get all - {options} - {filter}", options, filter);
+            logger.Information("application - get all - args - {options} - {filter}", options, filter);
 
-            return await mediator.Send(new GetAllPagedQuery<TDomain> { Options = options, Filter = filter }, cancellationToken);
+            var response = await mediator.Send(new GetAllPagedQuery<TDomain> { Options = options, Filter = filter }, cancellationToken);
+
+            logger.Information("application - get all - response - {response}", response is not null ?JsonSerializer.Serialize(response):"null");
+
+            return response;
         }
 
         public async Task<TDomain?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         {
-            logger.Information("get - {id}", id);
+            logger.Information("application - get - {id}", id);
 
-            return await mediator.Send(new GetByIdQuery<TDomain> { Id = id }, cancellationToken);
+            var response = await mediator.Send(new GetByIdQuery<TDomain> { Id = id }, cancellationToken);
+
+            logger.Information("application - get - response - {0}", response is not null ? JsonSerializer.Serialize(response) : "null");
+
+            return response;
         }
 
         public async virtual Task<TDomain> CreateAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
-            logger.Information("create - {0}", JsonSerializer.Serialize(domain));
+            logger.Information("application - create - args - {0}", JsonSerializer.Serialize(domain));
 
-            return await mediator.Send(new CreateCommand<TDomain> { Domain = domain }, cancellationToken);
+            var response = await mediator.Send(new CreateCommand<TDomain> { Domain = domain }, cancellationToken);
+
+            logger.Information("application - create - response - {0}", JsonSerializer.Serialize(response));
+
+            return response!;
         }
 
         public async virtual Task<bool> UpdateAsync(TDomain domain, CancellationToken cancellationToken = default)
         {
-            logger.Information("update - {0}", JsonSerializer.Serialize(domain));
+            logger.Information("application - update - args - {0}", JsonSerializer.Serialize(domain));
 
-            return await mediator.Send(new UpdateCommand<TDomain> { Domain = domain }, cancellationToken);
+            var response = await mediator.Send(new UpdateCommand<TDomain> { Domain = domain }, cancellationToken);
+
+            logger.Information("application - update - response - {0}", response);
+
+            return response;
         }
 
         public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken = default)
         {
-            logger.Information("delete - {id}", id);
+            logger.Information("application - delete - {id}", id);
 
-            return await mediator.Send(new DeleteByIdCommand<TDomain> { Id = id }, cancellationToken);
+            var response = await mediator.Send(new DeleteByIdCommand<TDomain> { Id = id }, cancellationToken);
+
+            logger.Information("application - delete - response - {0}", response);
+
+            return response;
         }
     }
 }

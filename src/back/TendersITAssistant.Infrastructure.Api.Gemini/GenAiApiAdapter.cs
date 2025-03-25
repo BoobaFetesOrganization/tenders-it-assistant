@@ -14,7 +14,7 @@ namespace TendersITAssistant.Infrastructure.Api.Gemini
 
         public async Task<string> SendRequestAsync(GeminiRequest request, CancellationToken cancellationToken = default)
         {
-            logger.Debug("SendRequestAsync - ", JsonSerializer.Serialize(request));
+            logger.Debug("SendRequestAsync - {0}", JsonSerializer.Serialize(request));
             return await generateContentService.CallAsync(request, cancellationToken);
         }
 
