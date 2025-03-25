@@ -16,6 +16,7 @@ function Invoke-Az-Command(
     Write-Host "Invoke command for '$name'"
     Write-Host "  > az cli : " -NoNewline
     Write-Host $cmd -ForegroundColor Blue
+    Write-Host "  > Status : " -NoNewline
     $response = Invoke-Expression $cmd 2>$ErrorFile
     $err = [FileInfo] $ErrorFile
     
@@ -47,7 +48,6 @@ function Invoke-Az-Command(
         }
     }
 
-    Write-Host "  > Status : " -NoNewline
     if ($hasError) {
         Write-Host "fails" -ForegroundColor Red
         Write-Host "  > Error : " -ForegroundColor Red
