@@ -1,6 +1,6 @@
 param (
-    [switch]$skipLogin,
-    [switch]$skipLogout
+    [switch]$noLogin,
+    [switch]$noLogout
 )
 
 $scriptRoot = $PSScriptRoot
@@ -20,7 +20,7 @@ function Test-User-Acceptance([Parameter(Mandatory = $true)][string]$message) {
 }
 
 try {
-    if (-not $skipLogin) { Login }
+    if (-not $noLogin) { Login }
 
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host "    DESTROY RESOURCES                                       " -ForegroundColor Green
@@ -83,5 +83,5 @@ catch {
     Write-Error $Error[0]
 }
 finally {
-    if (-not $skipLogout) { az logout }
+    if (-not $noLogout) { az logout }
 }

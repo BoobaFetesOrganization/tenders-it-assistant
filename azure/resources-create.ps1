@@ -1,6 +1,6 @@
 param (
-    [switch]$skipLogin,
-    [switch]$skipLogout
+    [switch]$noLogin,
+    [switch]$noLogout
 )
 
 $scriptRoot = $PSScriptRoot
@@ -16,7 +16,7 @@ Clear-Resources-Files
 try {    
     $settings = Get-Settings
 
-    if ($skipLogin) { $subscription = $settings.subscription | Get-Subscription }
+    if ($noLogin) { $subscription = $settings.subscription | Get-Subscription }
     else { $subscription = Login }
       
     Write-Host "============================================================" -ForegroundColor Green
@@ -77,5 +77,5 @@ catch {
     Write-Error $Error[0]
 }
 finally {   
-    if (-not $skipLogout) { az logout }
+    if (-not $noLogout) { az logout }
 }
