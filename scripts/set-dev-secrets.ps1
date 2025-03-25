@@ -1,41 +1,40 @@
 using namespace System.IO;
 
-$ErrorActionPreference = "Stop"
+# arrange
 $root = ([DirectoryInfo](Join-Path $PSScriptRoot "..")).FullName
+$projectPath = [DirectoryInfo](Join-Path $root "src\back\TendersITAssistant.Presentation.API")    
+$secretsFile = [FileInfo](Join-Path $root ".secrets/development/env-variables-dev.json")
+
+# load dependencies
+. "$root\azure\lib\resources-lib-file.ps1"
 
 $location = Get-Location
-try {
+try {  
     Set-Location $projectPath
 
-    # arrange
-    $projectPath = [DirectoryInfo](Join-Path $root "src\back\TendersITAssistant.Presentation.API")    
-    $secretsFile = [FileInfo](Join-Path $root ".secrets/env-variables-dev.json")
-   
     # check constraints
     if (-not $projectPath.Exists) { throw "Project path not found: $projectPath" }
     if (-not $secretsFile.Directory.Exists) { $secretsFile.Directory.Create() }
     
     # Create secrets file as a template if needed then stop the script
-    if ($secretsFile.Exists) { 
+    if (-not $secretsFile.Exists) { 
         Write-Host "Creating secrets file template..." -ForegroundColor Yellow
 
-        $items = @{
-            AI      = @{ Gemini_ApiKey = "<your-api-key>" }
+        $content = @{
+            AI      = @{ Gemini_ApiKey = "your-api-key" }
             Serilog = @{ WriteTo = @{ AzureLogAnalytics = @{ Args = @{ credentials = @{
-                                endpoint     = "<your-endpoint>"; 
-                                immutableId  = "<your-immutable-id>";
-                                tenantId     = "<your-tenant-id>"; 
-                                clientId     = "<your-client-id>";
-                                clientSecret = "<your-client-secret>"; 
+                                endpoint     = "your-endpoint"; 
+                                immutableId  = "your-immutable-id";
+                                tenantId     = "your-tenant-id"; 
+                                clientId     = "your-client-id";
+                                clientSecret = "your-client-secret"; 
                             }                         
                         }                     
                     }                 
                 } 
             }
-        }    
-
-        $content = @{ production = $items; development = $items } 
-        $content | ConvertTo-Json -Depth 20 | Out-File -FilePath $secretsFile.FullName -Encoding utf8
+        }
+        $content | ConvertTo-Json -Depth 20 | Format-Json | Out-File -FilePath $secretsFile.FullName -Encoding utf8
 
         Write-Host " > created at: $($secretsFile.FullName)"
         Write-Host " > fill the template then execute once again" -ForegroundColor Yellow

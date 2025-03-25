@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch current script",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "${file}",
+      "cwd": "${cwd}"
+    },
+    {
       "name": "Launch resource-create.ps1",
       "type": "PowerShell",
       "request": "launch",

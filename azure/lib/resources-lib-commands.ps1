@@ -193,8 +193,8 @@ function Set-WebApp-AppSettings(
 
     # delete the file if it exists
     $name = "$($resource.name)-appsettings"
-    $appSettingsFile = $name | Get-Secret-File
-    if ($appSettingsFile.Exists) { $appSettingsFile.Delete() }
+    $file = $name | Get-Secret-File
+    if ($file.Exists) { $file.Delete() }
 
     # set values from the references
     $appSettings = @()
@@ -208,14 +208,15 @@ function Set-WebApp-AppSettings(
         }
         $appSettings += $item
     }
+    $appSettings | ConvertTo-Json | Format-Json | Out-File -FilePath $file -Force
+    Write-Host "  > stored : '.\.secrets\$($file.Name)'"
 
     # execute the command
     $cmd = "az webapp config appsettings set"
     $cmd += " -n $($resource.name)"
     $cmd += " -g $($resource.resourceGroup)"
-    $cmd += " --settings @$($appSettingsFile.FullName)"
+    $cmd += " --settings @$($file.FullName)"
     $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
-    @{name = $name; values = $appSettings } | New-Secret-File
     
     return $appSettings
 }
