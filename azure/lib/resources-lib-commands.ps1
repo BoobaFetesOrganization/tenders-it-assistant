@@ -328,6 +328,65 @@ function Set-Log-Analytics-Workspace(
     $references[$resource.name] = $result
 }
 
+function Get-Log-Analytics-Workspace-Table(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    return (az monitor log-analytics workspace table show -n $resource.name -g $resource.resourceGroup --workspace-name $resource.workspaceName 2>$null) | ConvertFrom-Json
+}
+function Set-Log-Analytics-Workspace-Table(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource,   
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references, 
+    [Parameter(Mandatory = $true)]
+    [string] $ErrorFile
+) {    
+    $result = $resource | Get-Log-Analytics-Workspace-Table
+    if ($null -eq $result) {
+        $file = [FileInfo]"$baseDir\$($resource.columnsFile)"
+        if (-not $file.Exists) {
+            throw "file '$file' not found"
+        }
+        $columns = (Get-Content -Path $file.FullName) -join " "
+        $cmd = "az monitor log-analytics workspace table create"
+        $cmd += " -n $($resource.name)"
+        $cmd += " -g $($resource.resourceGroup)"
+        $cmd += " --workspace-name $($resource.workspaceName)"
+        $cmd += " --plan $($resource.plan)"
+        $cmd += " --columns $($columns)"
+        
+        $attempt = 1; $maxAttempts = 3
+        while ($attempt -le $maxAttempts) {
+            try {
+                $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null    
+            }
+            catch {     
+                $workspaceNotActive = $_.Exception.Message -match "Workspace is not active" 
+                if (-not $workspaceNotActive) { throw $_ }      
+                if ($attempt -gt $maxAttempts) { 
+                    Write-Error "command for '$($resource.name)' creation fails too many times. see above error message"
+                    throw $_
+                }
+                $attempt++
+                Start-Sleep -Seconds 10 # Délai avant la nouvelle tentative
+                # open the line for attempt messages
+                Write-Host "[!] retrying the creation of '$($resource.name)' (attempt : $attempt/$maxAttempts)" -ForegroundColor Yellow
+            }
+        }
+        
+        $result = $resource | Get-Log-Analytics-Workspace-Table
+    }
+    else {
+        Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
+    }
+
+    if ($attempt -eq 0) {
+        # pas la peine de sauvegarder 3 fois le fichier..
+        $result | New-Resource-File
+        $references[$resource.name] = $result
+    }
+}
 
 
 ############################################################################################################
@@ -367,44 +426,6 @@ function Set-Monitor-DataCollection-Endpoint(
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    $result | New-Resource-File
-    $references[$resource.name] = $result
-}
-
-function Get-Log-Analytics-Workspace-Table(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource
-) {
-    return (az monitor log-analytics workspace table show -n $resource.name -g $resource.resourceGroup --workspace-name $resource.workspaceName 2>$null) | ConvertFrom-Json
-}
-function Set-Log-Analytics-Workspace-Table(
-    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-    [object] $resource,   
-    [Parameter(Mandatory = $true)]
-    [Hashtable] $references, 
-    [Parameter(Mandatory = $true)]
-    [string] $ErrorFile
-) {    
-    $result = $resource | Get-Log-Analytics-Workspace-Table
-    if ($null -eq $result) {
-        $file = [FileInfo]"$baseDir\$($resource.columnsFile)"
-        if (-not $file.Exists) {
-            throw "file '$file' not found"
-        }
-        $columns = (Get-Content -Path $file.FullName) -join " "
-        $cmd = "az monitor log-analytics workspace table create"
-        $cmd += " -n $($resource.name)"
-        $cmd += " -g $($resource.resourceGroup)"
-        $cmd += " --workspace-name $($resource.workspaceName)"
-        $cmd += " --plan $($resource.plan)"
-        $cmd += " --columns $($columns)"
-        $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null
-        $result = $resource | Get-Log-Analytics-Workspace-Table
-    }
-    else {
-        Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
-    }
-    
     $result | New-Resource-File
     $references[$resource.name] = $result
 }

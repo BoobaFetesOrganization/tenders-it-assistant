@@ -49,31 +49,35 @@ try {
         } 
     }
 
-    $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
-    if ($null -eq $resourceGroup) {    
-        Write-Host "resource group not found." -ForegroundColor Red
-        exit 1
-    }
 
-    # ACT : delete Monitor resources : dcr 
-    $settings.resources `
-    | Where-Object { $_.kind -eq "monitor data-collection rule" } `
-    | Foreach-Object {
-        Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
-        az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
-    }
+    # ACT : delete resources and resource group    
+    if (Test-User-Acceptance "Do you want to proceed with deleting the resource group?") {
+        # CHK : check if resource group exists
+        $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
+        if ($null -eq $resourceGroup) {    
+            Write-Host "resource group not found." -ForegroundColor Red
+            exit 1
+        }
 
-    # ACT : delete Monitor resources : dce 
-    $settings.resources `
-    | Where-Object { $_.kind -eq "monitor data-collection endpoint" } `
-    | Foreach-Object {
-        Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
-        az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
-    }
+        # ACT : delete Monitor resources : dcr 
+        $settings.resources `
+        | Where-Object { $_.kind -eq "monitor data-collection rule" } `
+        | Foreach-Object {
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
+            az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
+        }
+
+        # ACT : delete Monitor resources : dce 
+        $settings.resources `
+        | Where-Object { $_.kind -eq "monitor data-collection endpoint" } `
+        | Foreach-Object {
+            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
+            az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
+        }
     
-    # ACT : delete resources    
-    Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Green
-    az group delete -n $resourceGroup.name --yes    
+        Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Green
+        az group delete -n $resourceGroup.name --yes    
+    }
 }
 catch {
     Write-Error $Error[0]

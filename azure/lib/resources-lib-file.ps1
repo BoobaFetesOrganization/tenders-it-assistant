@@ -35,7 +35,7 @@ function New-Resource-File(
 ) {
     $file = $resource.name | Get-Ressource-File
     $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $file -Force
-    Write-Host " > stored in '.\.resources\$($file.Name)'"
+    Write-Host "  > stored : '.\.resources\$($file.Name)'"
 }
 function Get-Ressource-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -51,7 +51,7 @@ function New-Secret-File(
 ) {
     $file = $resource.name | Get-Secret-File
     $resource | ConvertTo-Json | Format-Json | Out-File -FilePath $file -Force
-    Write-Host " > stored in '.\.secrets\$($file.Name)'"
+    Write-Host "  > stored : '.\.secrets\$($file.Name)'"
 }
 
 function Get-Secret-File(

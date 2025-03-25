@@ -16,10 +16,15 @@ function Invoke-Az-Command(
     Write-Host "Invoke command for '$name'"
     Write-Host "  > az cli : " -NoNewline
     Write-Host $cmd -ForegroundColor Blue
-    Write-Host "  > Status : " -NoNewline
+    Write-Host "  > status : in progress" -NoNewline
     $response = Invoke-Expression $cmd 2>$ErrorFile
     $err = [FileInfo] $ErrorFile
-    
+    # '`r' => Retour chariot pour écraser la ligne précédente
+    # remplace la saisie console précédante par des vides afin de cleaner la console proprement
+    # puis retire les espaces inutiles
+    Write-Host "`r  > status :            " -NoNewline 
+    Write-Host "`r  > status : " -NoNewline
+
     # when error.log exists, the command should returns an error message..
     $hasError = $err.Exists
     if ($hasError) { 
@@ -103,6 +108,7 @@ function Set-ServicePrincipal(
     else {
         Write-Host "service principal '$($result.appDisplayName)' already exists" -ForegroundColor Yellow
         $spFile = $sp.name | Get-Secret-File
+        if (-not $spFile.Exists) { throw "service principal '$($result.appDisplayName)' already exists but the secret file is missing" }
         $servicePrincipal = Get-Content -Path $spFile.FullName -Raw | ConvertFrom-Json
     }
 
