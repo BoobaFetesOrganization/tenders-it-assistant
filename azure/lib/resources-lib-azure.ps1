@@ -18,7 +18,6 @@ function Invoke-Az-Command(
     Write-Host $cmd -ForegroundColor Blue
     Write-Host "  > status : in progress" -NoNewline
     $response = Invoke-Expression $cmd 2>$ErrorFile
-    $err = [FileInfo] $ErrorFile
     # '`r' => Retour chariot pour écraser la ligne précédente
     # remplace la saisie console précédante par des vides afin de cleaner la console proprement
     # puis retire les espaces inutiles
@@ -26,6 +25,7 @@ function Invoke-Az-Command(
     Write-Host "`r  > status : " -NoNewline
 
     # when error.log exists, the command should returns an error message..
+    $err = [FileInfo] $ErrorFile
     $hasError = $err.Exists
     if ($hasError) { 
         $content = Get-Content -Path $ErrorFile -Raw
@@ -39,8 +39,8 @@ function Invoke-Az-Command(
         $hasWarning = { param([string]$content)
             $falseErrors = @()
             $falseErrors += $content -match "^az : .*\\.azure\\cliextensions(.|\r\n)*invalid escape(.|\r\n)*Create a data collection rule\.\r\n$"  
-            $falseErrors += $content -match "^az :.* UserWarning: You are using cryptography(.|\r\n)*NativeCommandError(.|\r\n)*\r\n$"   
-            $falseErrors += $content -match "^.* UserWarning: You are using cryptography(.|\r\n)*resources-create.ps1(\r\n)*\r\n$"   
+            $falseErrors += $content -match "^az :.* UserWarning(.|\r\n)*cryptography(.|\r\n)*NativeCommandError(.|\r\n)*\r\n$"   
+            $falseErrors += $content -match "^.* UserWarning(.|\r\n)*cryptography(.|\r\n)*resources-create.ps1(\r\n)*\r\n$"   
             $falseErrors += $content -match "^az : WARNING(.|\r\n)*The output includes credentials that you must protect(.|\r\n)*https://aka.ms/azadsp-cli\r\n$"
             return ($falseErrors | Where-Object { $_ -eq $true }).Count -gt 0
         }

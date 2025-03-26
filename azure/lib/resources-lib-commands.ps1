@@ -167,7 +167,6 @@ function Set-WebApp(
     }
 
     # refresh the result with new appsettings config
-    $result = $resource | Get-WebApp 
     $result | New-Resource-File
     
     # set the appsettings after resource file creation becase data are sensitive
