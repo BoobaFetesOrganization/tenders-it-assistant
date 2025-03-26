@@ -361,9 +361,7 @@ function Set-Log-Analytics-Workspace-Table(
             try {
                 $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null    
             }
-            catch {     
-                $workspaceNotActive = $_.Exception.Message -match "Workspace is not active" 
-                if (-not $workspaceNotActive) { throw $_ }      
+            catch {                
                 if ($attempt -gt $maxAttempts) { 
                     Write-Error "command for '$($resource.name)' creation fails too many times. see above error message"
                     throw $_

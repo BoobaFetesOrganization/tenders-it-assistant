@@ -38,10 +38,10 @@ function Invoke-Az-Command(
         # .. or contains a false error message from az cli extensions
         $hasWarning = { param([string]$content)
             $falseErrors = @()
-            $falseErrors += $content -match "^az : .*\\.azure\\cliextensions(.|\r\n)*invalid escape(.|\r\n)*Create a data collection rule\.\r\n$"  
-            $falseErrors += $content -match "^az :.* UserWarning(.|\r\n)*cryptography(.|\r\n)*NativeCommandError(.|\r\n)*\r\n$"   
-            $falseErrors += $content -match "^.* UserWarning(.|\r\n)*cryptography(.|\r\n)*resources-create.ps1(\r\n)*\r\n$"   
-            $falseErrors += $content -match "^az : WARNING(.|\r\n)*The output includes credentials that you must protect(.|\r\n)*https://aka.ms/azadsp-cli\r\n$"
+            $falseErrors += $content -match "(?s)^az.*azure.*cliextensions.*invalid escape.*Create a data collection rule\.\r\n$"  
+            $falseErrors += $content -match "(?s)^a.*UserWarning.*cryptography.*NativeCommandError.*\r\n$"   
+            $falseErrors += $content -match "(?s)^.*UserWarning.*cryptography.*resources-create.ps1.*\r\n$"   
+            $falseErrors += $content -match "(?s)^az : WARNING.*The output includes credentials that you must protect.*https://aka.ms/azadsp-cli\r\n$"
             return ($falseErrors | Where-Object { $_ -eq $true }).Count -gt 0
         }
         if ($hasError -and $hasWarning.invoke($content)[0]) {

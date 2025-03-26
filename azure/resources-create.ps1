@@ -6,12 +6,6 @@ param (
 $scriptRoot = $PSScriptRoot
 . $scriptRoot\lib\resources-lib-commands.ps1
 
-#clean error file
-$ErrorFile = "$($scriptRoot)\error.log"
-$ErrorFile | Clear-Error-File
-
-#clean all resources files
-Clear-Resources-Files
 
 try {    
     $settings = Get-Settings
@@ -23,6 +17,15 @@ try {
         Write-Error "No subscription found"
         exit
     }
+
+
+    #clean error file
+    $ErrorFile = "$($scriptRoot)\error.log"
+    $ErrorFile | Clear-Error-File
+
+    #clean all resources files
+    Set-Resources-Folders -subs $subscription.id
+    Clear-Resources-Files
     
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host "    CREATE RESOURCES                                        " -ForegroundColor Green

@@ -2,10 +2,27 @@ using namespace System.IO;
 
 $resourcesLibFileRoot = $PSScriptRoot
 
+$rootDir = ([DirectoryInfo]"$resourcesLibFileRoot\..\..").FullName
 $baseDir = ([DirectoryInfo]"$resourcesLibFileRoot\..").FullName
-$global:resourcesDir = ([DirectoryInfo]"$resourcesLibFileRoot\..\..\.resources").FullName
-$global:secretsDir = ([DirectoryInfo]"$resourcesLibFileRoot\..\..\.secrets").FullName
+$global:resourcesDir = ([DirectoryInfo]"$rootDir\.resources").FullName
+$global:secretsDir = ([DirectoryInfo]"$rootDir\.secrets").FullName
 
+function Set-Resources-Folders(
+    [Parameter(Mandatory = $true)]
+    [array] $subs
+) {
+    $temps = @($rootDir, "<template>")
+    $temps = $temps + $subs
+    $segments = @()
+    foreach ($temp in $temps) { $segments += $temp.Trim("/").Trim("\") }
+    $path = $segments -join "/"
+
+    $global:resourcesDir = ([DirectoryInfo]($path -replace "<template>", ".resources")).FullName
+    if (-not(Test-Path $global:resourcesDir)) { New-Item -ItemType Directory -Path $global:resourcesDir }
+
+    $global:secretsDir = ([DirectoryInfo]($path -replace "<template>", ".secrets")).FullName
+    if (-not(Test-Path $global:secretsDir)) { New-Item -ItemType Directory -Path $global:secretsDir }
+}
 function Clear-Error-File(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [string] $ErrorFile
@@ -15,10 +32,8 @@ function Clear-Error-File(
     }
 }
 
-function Clear-Resources-Files {
-    Remove-Item -Path "$global:resourcesDir\*" `
-        -Exclude ".gitkeep" `
-        -Recurse -Force 
+function Clear-Resources-Files {  
+    Remove-Item -Path "$global:resourcesDir\*" -Recurse -Force 
 }
 
 $script:settings = $null
