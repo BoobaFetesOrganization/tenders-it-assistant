@@ -23,10 +23,6 @@
         {
           "name": "tenders-it-assistant-log-analytics-sp",
           "role": "Monitoring Metrics Publisher"
-        },
-        {
-          "name": "tenders-it-assistant-log-analytics-sp-dev",
-          "role": "Monitoring Metrics Publisher"
         }
       ]
     },
@@ -61,22 +57,8 @@
       "public-network-access": "Enabled"
     },
     {
-      "kind": "monitor data-collection endpoint",
-      "name": "tenders-it-assistant-dce-dev",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "public-network-access": "Enabled"
-    },
-    {
       "kind": "log analytics workspace table",
       "name": "WebApp_CL",
-      "workspaceName": "tenders-it-assistant-log-analytics",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "columnsFile": "./templates/log-analytics--table-columns.txt",
-      "plan": "Analytics"
-    },
-    {
-      "kind": "log analytics workspace table",
-      "name": "WebAppDev_CL",
       "workspaceName": "tenders-it-assistant-log-analytics",
       "resourceGroup": "tenders-it-assistant-rg",
       "columnsFile": "./templates/log-analytics--table-columns.txt",
@@ -121,49 +103,6 @@
           {
             "placeholder": "<table_name>",
             "value": "WebApp_CL"
-          }
-        ]
-      }
-    },
-    {
-      "kind": "monitor data-collection rule",
-      "name": "tenders-it-assistant-WebAppLogs-dcr-dev",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "endpoint": "tenders-it-assistant-dce-dev",
-      "template": {
-        "file": "./templates/log-analytics--dcr.json",
-        "mapping": [
-          {
-            "placeholder": "<rule_name>",
-            "value": "tenders-it-assistant-WebAppLogs-dcr-dev"
-          },
-          {
-            "placeholder": "<location>",
-            "path": "location"
-          },
-          {
-            "placeholder": "<endpoint_id>",
-            "path": "$ref|tenders-it-assistant-dce-dev.id"
-          },
-          {
-            "placeholder": "<datasource_name>",
-            "value": "datasource"
-          },
-          {
-            "placeholder": "<workspace_id>",
-            "path": "$ref|tenders-it-assistant-log-analytics.id"
-          },
-          {
-            "placeholder": "<workspace_customerId>",
-            "path": "$ref|tenders-it-assistant-log-analytics.customerId"
-          },
-          {
-            "placeholder": "<workspace_name>",
-            "path": "$ref|tenders-it-assistant-log-analytics.name"
-          },
-          {
-            "placeholder": "<table_name>",
-            "value": "WebAppDev_CL"
           }
         ]
       }
