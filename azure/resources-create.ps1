@@ -19,6 +19,11 @@ try {
     if ($noLogin) { $subscription = $settings.subscription | Get-Subscription }
     else { $subscription = Login }
       
+    if ($null -eq $subscription) {
+        Write-Error "No subscription found"
+        exit
+    }
+    
     Write-Host "============================================================" -ForegroundColor Green
     Write-Host "    CREATE RESOURCES                                        " -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
