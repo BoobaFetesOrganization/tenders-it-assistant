@@ -19,11 +19,6 @@ on:
         description: "The path to the working directory"
         type: string
         required: true
-    secrets:
-      AZURE_STORAGE_CONNECTIONSTRING:
-        required: true
-      GOOGLE_GEMINI_APIKEY:
-        required: true
 
 permissions:
   contents: read
@@ -41,13 +36,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ inputs.version }}
-
-      - name: set secrets for appsettings.json
-        run: |
-          escaped_connection_string=$(echo "${{ secrets.AZURE_STORAGE_CONNECTIONSTRING }}" | sed 's/[&/=\\;$"]/\\&/g')
-          sed -i "s/\"accountstorage\": \"[^\"]*\"/\"accountstorage\": \"$escaped_connection_string\"/g" ${{ inputs.working-directory }}/appsettings.json
-          sed -i 's/"Gemini_ApiKey": "[^"]*"/"Gemini_ApiKey": "${{ secrets.GOOGLE_GEMINI_APIKEY }}"/g' ${{ inputs.working-directory }}/appsettings.json
-          cat ${{ inputs.working-directory }}/appsettings.json
 
       - name: Set up dotnet dependency caching for faster builds
         uses: actions/cache@v3

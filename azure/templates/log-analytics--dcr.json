@@ -1,0 +1,47 @@
+{
+  "type": "Microsoft.Insights/dataCollectionRules",
+  "name": "<rule_name>",
+  "location": "<location>",
+  "kind": "Direct",
+  "properties": {
+    "dataCollectionEndpointId": "<endpoint_id>",
+    "streamDeclarations": {
+      "Custom-<datasource_name>": {
+        "columns": [
+          { "name": "TimeGenerated", "type": "datetime" },
+          { "name": "Level", "type": "string" },
+          { "name": "TraceId", "type": "string" },
+          { "name": "Elapsed", "type": "string" },
+          { "name": "Message", "type": "string" },
+          { "name": "StatusCode", "type": "int" },
+          { "name": "RequestMethod", "type": "string" },
+          { "name": "RequestPath", "type": "string" },
+          { "name": "Data", "type": "dynamic" },
+          { "name": "Exception", "type": "string" },
+          { "name": "ExceptionDetail", "type": "dynamic" },
+          { "name": "SourceContext", "type": "string" },
+          { "name": "ConnectionId", "type": "string" },
+          { "name": "ThreadId", "type": "int" },
+          { "name": "Event", "type": "dynamic" }
+        ]
+      }
+    },
+    "destinations": {
+      "logAnalytics": [
+        {
+          "workspaceResourceId": "<workspace_id>",
+          "workspaceId": "<workspace_customerId>",
+          "name": "<workspace_name>"
+        }
+      ]
+    },
+    "dataFlows": [
+      {
+        "streams": ["Custom-<datasource_name>"],
+        "transformKql": "source | project  TimeGenerated = TimeGenerated, Level = tostring(Event.Level), TraceId = tostring(Event.TraceId), Elapsed = strcat(Event.Renderings.Elapsed[0].Rendering, ' ms'), Message = tostring(Message), StatusCode = toint(Event.Properties.StatusCode), RequestMethod = tostring(Event.Properties.RequestMethod), RequestPath = tostring(Event.Properties.RequestPath), Data = todynamic(Event.Properties.Data), Exception = tostring(Event.Exception), ExceptionDetail = todynamic(Event.Properties.ExceptionDetail), SourceContext = tostring(Event.Properties.SourceContext), ConnectionId = tostring(Event.Properties.ConnectionId), ThreadId = toint(Event.Properties.ThreadId), Event = todynamic(Event)",
+        "destinations": ["<workspace_name>"],
+        "outputStream": "Custom-<table_name>"
+      }
+    ]
+  }
+}

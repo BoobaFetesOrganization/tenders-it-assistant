@@ -1,0 +1,15 @@
+TimeGenerated=datetime
+Level=string
+TraceId=string
+Elapsed=string
+Message=string
+StatusCode=int
+RequestMethod=string
+RequestPath=string
+Data=dynamic
+Exception=string
+ExceptionDetail=dynamic
+SourceContext=string
+ConnectionId=string
+ThreadId=int
+Event=dynamic

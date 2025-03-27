@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Serilog;
+using System.Text.Json;
 using TendersITAssistant.Application.Command.Common;
 using TendersITAssistant.Application.Usecase.Interface;
 using TendersITAssistant.Domain.Filter;
@@ -11,14 +12,26 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<ProjectDomain> CreateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("application - create - args - {0}", JsonSerializer.Serialize(domain));
+
             await ThrowIfNameAlreadyExists(domain, cancellationToken);
-            return await mediator.Send(new CreateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
+            var response = await mediator.Send(new CreateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
+            
+            base.logger.Information("application - create - response - {0}", JsonSerializer.Serialize(response));
+
+            return response;
         }
 
         public async override Task<bool> UpdateAsync(ProjectDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("application - update - args - {0}", JsonSerializer.Serialize(domain));
+
             await ThrowIfNameAlreadyExists(domain, cancellationToken);
-            return await mediator.Send(new UpdateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
+            var response= await mediator.Send(new UpdateCommand<ProjectDomain>() { Domain = domain }, cancellationToken);
+
+            base.logger.Information("application - update - response - {0}", JsonSerializer.Serialize(response));
+
+            return response;
         }
 
         private async Task ThrowIfNameAlreadyExists(ProjectDomain domain, CancellationToken cancellationToken = default)

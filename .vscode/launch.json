@@ -1,0 +1,29 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch current script",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "${file}",
+      "cwd": "${cwd}"
+    },
+    {
+      "name": "Launch resource-create.ps1",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "${workspaceFolder}/azure/resources-create.ps1",
+      "args": ["-noLogin", "-noLogout"]
+    },
+    {
+      "name": "Launch resource-destroy.ps1",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "${workspaceFolder}/azure/resources-destroy.ps1",
+      "args": ["-noLogin", "-noLogout"]
+    }
+  ]
+}

@@ -1,19 +1,36 @@
+param (
+    [switch]$noLogin,
+    [switch]$noLogout
+)
+
 $scriptRoot = $PSScriptRoot
-. $scriptRoot\resources-lib-commands.ps1
+. $scriptRoot\lib\resources-lib-commands.ps1
 
 
-#clean error file
-$ErrorFile = "$($scriptRoot)\error.log"
-$ErrorFile | Clear-Error-File
-
-#clean all resources files
-Clear-Resources-Files
-
-try {
-    $subscription = Login
-      
-    # ARRANGE
+try {    
     $settings = Get-Settings
+
+    if ($noLogin) { $subscription = $settings.subscription | Get-Subscription }
+    else { $subscription = Login }
+      
+    if ($null -eq $subscription) {
+        Write-Error "No subscription found"
+        exit
+    }
+
+
+    #clean error file
+    $ErrorFile = "$($scriptRoot)\error.log"
+    $ErrorFile | Clear-Error-File
+
+    #clean all resources files
+    Set-Resources-Folders -subs $subscription.id
+    Clear-Resources-Files
+    
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "    CREATE RESOURCES                                        " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+
 
     # if current subscription is not the one involved, switch to it
     if ($subscription.name -ne $settings.subscription) {
@@ -27,36 +44,39 @@ try {
     $subscription | New-Resource-File
 
     # ACT
+    $references = [hashtable]@{
+        subscription = $subscription
+    }
     foreach ($resource in $settings.resources) {
         if ($resource.disabled) { continue }
         switch ($resource.kind) {
             "resource group" { 
-                $resource | Set-RessourceGroup -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-RessourceGroup -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "appservice plan" { 
-                $resource | Set-AppService-Plan -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-AppService-Plan -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "webapp" { 
-                $resource | Set-WebApp -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-WebApp -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }       
             "storage account" { 
-                $resource | Set-Storage-Account -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-Storage-Account -references $references -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "storage table" { 
                 $resource | Set-Storage-Table -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
             "log analytics workspace" { 
-                $resource | Set-Log-Analytics-Workspace -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+                $resource | Set-Log-Analytics-Workspace -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
-            # ne fonctionne pas encore =>  "monitor data-collection endpoint" {
-            # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Endpoint -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore =>  }
-            # ne fonctionne pas encore =>  "monitor data-collection rule" {
-            # ne fonctionne pas encore =>      $resource | Set-Monitor-DataCollection-Rule -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore =>  }
-            # ne fonctionne pas encore => "log analytics workspace table" { 
-            # ne fonctionne pas encore =>     $resource | Set-Log-Analytics-Workspace-Table -ErrorFile $ErrorFile | Out-Null
-            # ne fonctionne pas encore => }
+            "monitor data-collection endpoint" {
+                $resource | Set-Monitor-DataCollection-Endpoint -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
+            }
+            "log analytics workspace table" { 
+                $resource | Set-Log-Analytics-Workspace-Table -references $references -ErrorFile $ErrorFile | Out-Null
+            }
+            "monitor data-collection rule" {
+                $resource | Set-Monitor-DataCollection-Rule -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null                
+            }
             Default {}
         }
     }
@@ -64,6 +84,6 @@ try {
 catch {
     Write-Error $Error[0]
 }
-finally {
-    az logout
+finally {   
+    if (-not $noLogout) { az logout }
 }

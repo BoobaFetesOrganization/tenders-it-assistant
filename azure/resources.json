@@ -14,26 +14,23 @@
   "resources": [
     {
       "kind": "resource group",
-      "name": "tenders-it-assistant-rg"
+      "name": "tenders-it-assistant-rg",
+      "servicePrincipals": [
+        {
+          "name": "tenders-it-assistant-web-app-deploy-sp",
+          "role": "Contributor"
+        },
+        {
+          "name": "tenders-it-assistant-log-analytics-sp",
+          "role": "Monitoring Metrics Publisher"
+        }
+      ]
     },
     {
       "kind": "appservice plan",
       "name": "tenders-it-assistant-app-service-plan",
       "resourceGroup": "tenders-it-assistant-rg",
       "sku": "F1"
-    },
-    {
-      "kind": "webapp",
-      "name": "tenders-it-assistant-web-app",
-      "plan": "tenders-it-assistant-app-service-plan",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "runtime": "dotnet:9",
-      "deployment": {
-        "source": "github",
-        "branch": "main",
-        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
-      },
-      "servicePrincipal": "tenders-it-assistant-web-app-deploy-sp"
     },
     {
       "kind": "storage account",
@@ -51,31 +48,108 @@
       "kind": "log analytics workspace",
       "name": "tenders-it-assistant-log-analytics",
       "resourceGroup": "tenders-it-assistant-rg",
-      "sku": "PerGB2018",
-      "servicePrincipal": "tenders-it-assistant-log-analytics-sp"
+      "sku": "PerGB2018"
     },
     {
       "kind": "monitor data-collection endpoint",
-      "name": "DCE-WebAppLogs",
+      "name": "tenders-it-assistant-dce",
       "resourceGroup": "tenders-it-assistant-rg",
-      "public-network-access": "Enabled",
-      "azure-kind": "Linux"
-    },
-    {
-      "kind": "monitor data-collection rule",
-      "name": "DCR-WebAppLogs",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "endpoint": "DCE-WebAppLogs",
-      "azure-kind": "Linux"
+      "public-network-access": "Enabled"
     },
     {
       "kind": "log analytics workspace table",
-      "name": "WebAppLogs",
+      "name": "WebApp_CL",
       "workspaceName": "tenders-it-assistant-log-analytics",
       "resourceGroup": "tenders-it-assistant-rg",
-      "plan": "Basic",
-      "retentionTime": 4,
-      "totalRetentionTime": 8
+      "columnsFile": "./templates/log-analytics--table-columns.txt",
+      "plan": "Analytics"
+    },
+    {
+      "kind": "monitor data-collection rule",
+      "name": "tenders-it-assistant-WebAppLogs-dcr",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "endpoint": "tenders-it-assistant-dce",
+      "template": {
+        "file": "./templates/log-analytics--dcr.json",
+        "mapping": [
+          {
+            "placeholder": "<rule_name>",
+            "value": "tenders-it-assistant-WebAppLogs-dcr"
+          },
+          {
+            "placeholder": "<location>",
+            "path": "location"
+          },
+          {
+            "placeholder": "<endpoint_id>",
+            "path": "$ref|tenders-it-assistant-dce.id"
+          },
+          {
+            "placeholder": "<datasource_name>",
+            "value": "datasource"
+          },
+          {
+            "placeholder": "<workspace_id>",
+            "path": "$ref|tenders-it-assistant-log-analytics.id"
+          },
+          {
+            "placeholder": "<workspace_customerId>",
+            "path": "$ref|tenders-it-assistant-log-analytics.customerId"
+          },
+          {
+            "placeholder": "<workspace_name>",
+            "path": "$ref|tenders-it-assistant-log-analytics.name"
+          },
+          {
+            "placeholder": "<table_name>",
+            "value": "WebApp_CL"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "webapp",
+      "name": "tenders-it-assistant-web-app",
+      "plan": "tenders-it-assistant-app-service-plan",
+      "resourceGroup": "tenders-it-assistant-rg",
+      "runtime": "dotnet:9",
+      "deployment": {
+        "source": "github",
+        "branch": "main",
+        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
+      },
+      "siteConfig": {
+        "appSettings": [
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:endpoint",
+            "path": "$ref|tenders-it-assistant-dce.logsIngestion.endpoint"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:immutableId",
+            "path": "$ref|tenders-it-assistant-WebAppLogs-dcr.immutableId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:tenantId",
+            "path": "$ref|subscription.tenantId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientId",
+            "path": "$ref|tenders-it-assistant-log-analytics-sp.appId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientSecret",
+            "path": "$ref|tenders-it-assistant-log-analytics-sp.password"
+          },
+          {
+            "name": "ConnectionStrings:accountstorage",
+            "path": "$ref|tendersassiststorage.connectionString"
+          },
+          {
+            "name": "AI:Gemini_ApiKey",
+            "value": "<gemini_api_key_do_it_by_yourself>"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,5 +1,4 @@
 using Serilog;
-using Serilog.Events;
 using TendersITAssistant.Application;
 using TendersITAssistant.Infrastructure;
 using TendersITAssistant.Infrastructure.Api.Gemini;

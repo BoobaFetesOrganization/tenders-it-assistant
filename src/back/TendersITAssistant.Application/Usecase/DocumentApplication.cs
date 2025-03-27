@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Serilog;
+using System.Text.Json;
 using TendersITAssistant.Application.Adapter.Api;
 using TendersITAssistant.Application.Command.Common;
 using TendersITAssistant.Application.Usecase.Interface;
@@ -13,6 +14,8 @@ namespace TendersITAssistant.Application.Usecase
     {
         public async override Task<DocumentDomain> CreateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("application - create - args - {0}", JsonSerializer.Serialize(domain));
+
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");
 
@@ -23,18 +26,27 @@ namespace TendersITAssistant.Application.Usecase
             await genAiAdapter.SendFilesAsync([domain], cancellationToken);
 
             var result = await mediator.Send(new CreateCommand<DocumentDomain>() { Domain = domain }, cancellationToken);
+
+            base.logger.Information("application - create - response - {0}", result is not null ? JsonSerializer.Serialize(result) : "null");
+
             return result;
         }
 
         public async override Task<bool> UpdateAsync(DocumentDomain domain, CancellationToken cancellationToken = default)
         {
+            base.logger.Information("application - update - {0}", JsonSerializer.Serialize(domain));
+
             if (string.IsNullOrEmpty(domain.Name)) throw new Exception("Name should not be empty");
             if (domain.Content.Length == 0) throw new Exception("Content is required");
 
             // upload files to the GenAI and update the docs if successful
             await genAiAdapter.SendFilesAsync([domain], cancellationToken);
 
-            return await mediator.Send(new UpdateCommand<DocumentDomain>() { Domain = domain }, cancellationToken);
+            var response = await mediator.Send(new UpdateCommand<DocumentDomain>() { Domain = domain }, cancellationToken);
+
+            base.logger.Information("application - update - response - {0}", response);
+
+            return response;
         }
     }
 }
