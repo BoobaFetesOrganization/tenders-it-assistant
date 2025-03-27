@@ -84,10 +84,6 @@ function Set-RessourceGroup(
     }
     $result | New-Resource-File
     $references[$resource.name] = $result
-
-    $resource.servicePrincipals | ForEach-Object {
-        $_ | Set-ServicePrincipal -references $references -scopes $result.id
-    }
 }
 
 ############################################################################################################
@@ -492,4 +488,50 @@ function Set-Rule-File(
 
     $rules > $ruleFile.FullName
     return $ruleFile
+}
+
+############################################################################################################
+# Active Directory - Service Principals
+############################################################################################################
+
+function Get-ServicePrincipal(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $sp
+) {
+    return (az ad sp list --filter "displayname eq '$($sp.name)'" | ConvertFrom-Json)[0]
+}
+
+function Set-ServicePrincipal(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $sp,
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $references, 
+    [Parameter(Mandatory = $true)]
+    [string] $ErrorFile
+) {
+    $result = $sp | Get-ServicePrincipal
+    if ($null -eq $result) {
+        $scopes = @()
+        $sp.scopes | ForEach-Object {
+            $scope = $_ | Get-Value-From -getReferenceFunc {
+                param([string] $path)
+                return $references.$path
+            }
+            $scopes += $scope
+        }
+        $cmd = "az ad sp create-for-rbac"
+        $cmd += " -n $($sp.name)"
+        $cmd += " --role ""$($sp.role)"""
+        $cmd += " --scopes $($scopes -join " ")"
+        $servicePrincipal = $cmd | Invoke-Az-Command -name $sp.name -ErrorFile $ErrorFile        
+        $servicePrincipal | New-Resource-File-Service-Principal
+    }
+    else {
+        Write-Host "service principal '$($result.appDisplayName)' already exists" -ForegroundColor Yellow
+        $spFile = $sp.name | Get-Secret-File
+        if (-not $spFile.Exists) { throw "service principal '$($result.appDisplayName)' already exists but the secret file is missing" }
+        $servicePrincipal = Get-Content -Path $spFile.FullName -Raw | ConvertFrom-Json
+    }
+
+    $references[$sp.name] = $servicePrincipal
 }

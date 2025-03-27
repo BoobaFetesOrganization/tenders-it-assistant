@@ -8,30 +8,25 @@ $scriptRoot = $PSScriptRoot
 
 
 try {    
-    $settings = Get-Settings
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "    INITIALIZE                                              " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
 
-    if ($noLogin) { $subscription = $settings.subscription | Get-Subscription }
+    #clean error file
+    $ErrorFile = "$($scriptRoot)\error.log"
+    $ErrorFile | Clear-Error-File
+
+    $settings = Get-Settings
+    if ($noLogin) {
+        $subscription = $settings.subscription | Get-Subscription
+        Write-Host ($subscription | ConvertTo-Json | Format-Json)
+    }
     else { $subscription = Login }
       
     if ($null -eq $subscription) {
         Write-Error "No subscription found"
         exit
     }
-
-
-    #clean error file
-    $ErrorFile = "$($scriptRoot)\error.log"
-    $ErrorFile | Clear-Error-File
-
-    #clean all resources files
-    Set-Resources-Folders -subs $subscription.id
-    Clear-Resources-Files
-    
-    Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "    CREATE RESOURCES                                        " -ForegroundColor Green
-    Write-Host "============================================================" -ForegroundColor Green
-
-
     # if current subscription is not the one involved, switch to it
     if ($subscription.name -ne $settings.subscription) {
         Write-Host "set active account to ""$($settings.subscription)""" -ForegroundColor Yellow
@@ -39,16 +34,24 @@ try {
         
         # find subscription and print it in the console
         $subscription = $settings.subscription | Get-Subscription
-        Write-Host "active account : `n$($subscription | ConvertTo-Json)"
+        Write-Host "active account : `n$($subscription | ConvertTo-Json | Format-Json)"
     }
     $subscription | New-Resource-File
-
+    
+    #clean all resources files
+    Set-Resources-Folders -subs $subscription.id
+    Clear-Resources-Files
+    
     # ACT
     $references = [hashtable]@{
         subscription = $subscription
     }
+    
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "    CREATE RESOURCES                                        " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+
     foreach ($resource in $settings.resources) {
-        if ($resource.disabled) { continue }
         switch ($resource.kind) {
             "resource group" { 
                 $resource | Set-RessourceGroup -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
@@ -79,6 +82,16 @@ try {
             }
             Default {}
         }
+    }
+    
+
+
+    Write-Host "============================================================" -ForegroundColor Green
+    Write-Host "    CREATE SERVICE PRINCIPALS                               " -ForegroundColor Green
+    Write-Host "============================================================" -ForegroundColor Green
+
+    foreach ($servicePrincipal in $settings.servicePrincipals) {
+        $servicePrincipal | Set-ServicePrincipal -references $references -ErrorFile $ErrorFile | Out-Null
     }
 }
 catch {

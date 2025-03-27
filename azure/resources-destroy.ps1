@@ -35,17 +35,15 @@ try {
 
     # ACT : delete service principals    
     if (Test-User-Acceptance "Do you want to proceed with deleting the service principals?") {
-        $settings.resources | Where-Object { $_.servicePrincipals -is [array] } `
-        | ForEach-Object {
-            foreach ($item in $_.servicePrincipals) {
-                $sp = $item | Get-ServicePrincipal
-                if ($sp -eq $null) {
-                    Write-Host "service principal '$($item.name)' not found" -ForegroundColor Red
-                    continue
-                }
-                Write-Host "destroy service principal $($sp.appDisplayName) (id: '$($sp.appId)')" -ForegroundColor Green
-                az ad sp delete --id $sp.appId
+        $settings.servicePrincipals `
+        | ForEach-Object {           
+            $sp = $_ | Get-ServicePrincipal
+            if ($sp -eq $null) {
+                Write-Host "service principal '$($item.name)' not found" -ForegroundColor Red
+                continue
             }
+            Write-Host "destroy service principal $($sp.appDisplayName) (id: '$($sp.appId)')" -ForegroundColor Green
+            az ad sp delete --id $sp.appId
         } 
     }
 
