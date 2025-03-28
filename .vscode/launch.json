@@ -16,14 +16,14 @@
       "type": "PowerShell",
       "request": "launch",
       "script": "${workspaceFolder}/azure/resources-create.ps1",
-      "args": ["-name", "sandbox", "-noLogin", "-noLogout"]
+      "args": ["-name", "personal", "-noLogin", "-noLogout"]
     },
     {
       "name": "Launch resource-destroy.ps1",
       "type": "PowerShell",
       "request": "launch",
       "script": "${workspaceFolder}/azure/resources-destroy.ps1",
-      "args": ["-name", "sandbox", "-noLogin", "-noLogout"]
+      "args": ["-name", "personal", "-noLogin", "-noLogout"]
     }
   ]
 }
