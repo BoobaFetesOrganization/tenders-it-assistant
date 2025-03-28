@@ -486,7 +486,7 @@ function Remove-Monitor-DataCollection-Endpoint(
         Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
     }
     else { 
-        $result = (az monitor data-collection endpoint delete -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+        $result = (az monitor data-collection endpoint delete -y -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
     }
     return $result
 }
