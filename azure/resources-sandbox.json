@@ -150,7 +150,7 @@
           },
           {
             "name": "ConnectionStrings:accountstorage",
-            "path": "$ref|tendersassiststorage.connectionString"
+            "path": "$ref|tendersassiststoragedevo.connectionString"
           },
           {
             "name": "AI:Gemini_ApiKey",
