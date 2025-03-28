@@ -11,20 +11,22 @@
       "value": "devoteam"
     }
   ],
+  "servicePrincipals": [
+    {
+      "name": "tenders-it-assistant-web-app-deploy-sp",
+      "role": "Contributor",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-web-app.id" }]
+    },
+    {
+      "name": "tenders-it-assistant-log-analytics-sp",
+      "role": "Monitoring Metrics Publisher",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-log-analytics.id" }]
+    }
+  ],
   "resources": [
     {
       "kind": "resource group",
-      "name": "tenders-it-assistant-rg",
-      "servicePrincipals": [
-        {
-          "name": "tenders-it-assistant-web-app-deploy-sp",
-          "role": "Contributor"
-        },
-        {
-          "name": "tenders-it-assistant-log-analytics-sp",
-          "role": "Monitoring Metrics Publisher"
-        }
-      ]
+      "name": "tenders-it-assistant-rg"
     },
     {
       "kind": "appservice plan",
