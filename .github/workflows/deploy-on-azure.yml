@@ -63,10 +63,15 @@ jobs:
       contents: none
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
+      name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Debug var and secrets
+        run: |
+          echo "AZURE_WEBAPP_NAME: ${{ inputs.azure-webapp-name }}"
+          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
       - name: Azure Login
         uses: azure/login@v2
         with:

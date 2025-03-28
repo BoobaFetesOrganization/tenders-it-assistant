@@ -6,15 +6,36 @@ on:
     branches: ["*"]
 
 jobs:
-  project:
-    uses: ./.github/workflows/project-build.yml
+  front:
+    uses: ./.github/workflows/build-front.yml
+    with:
+      artifact-name: "web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
+      version: "latest"
+      working-directory: "src/front"
+
+  back:
+    uses: ./.github/workflows/build-back.yml
+    with:
+      artifact-name: "web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
+      version: "9.0.x"
+      working-directory: "src/back/TendersITAssistant.Presentation.API"
 
   azure:
-    needs: [project]
-    uses: ./.github/workflows/deploy-on-azure.yml
-    with:
-      artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-      artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-      azure-webapp-name: "tenders-it-assistant-web-app"
-      azure-webapp-package-path: "."
-    secrets: inherit
+    needs: [front, back]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
+    steps:
+      - name: Debug var and secrets
+        run: |
+          echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
+          echo "AZURE_WEBAPP_NAME: ${{ env.AZURE_WEBAPP_NAME }}"
+          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
+      - name: Deploy to Azure Web App
+        uses: ./.github/workflows/deploy-on-azure.yml
+        with:
+          artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+          artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+          azure-webapp-name: ${{ env.AZURE_WEBAPP_NAME }}
+          azure-webapp-package-path: "."
