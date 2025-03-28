@@ -26,6 +26,20 @@
   "resources": [
     {
       "kind": "resource group",
+      "name": "tenders-it-assistant-rg",
+      "tags": [
+        {
+          "name": "project",
+          "value": "tenders-it-assistant"
+        },
+        {
+          "name": "for",
+          "value": "devoteam"
+        }
+      ]
+    },
+    {
+      "kind": "resource group",
       "name": "tenders-it-assistant-rg"
     },
     {
@@ -51,6 +65,12 @@
       "name": "tenders-it-assistant-log-analytics",
       "resourceGroup": "tenders-it-assistant-rg",
       "sku": "PerGB2018"
+    },
+    {
+      "kind": "service principal",
+      "name": "tenders-it-assistant-log-analytics-sp",
+      "role": "Monitoring Metrics Publisher",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-log-analytics.id" }]
     },
     {
       "kind": "monitor data-collection endpoint",
@@ -152,6 +172,12 @@
           }
         ]
       }
+    },
+    {
+      "kind": "service principal",
+      "name": "tenders-it-assistant-web-app-deploy-sp",
+      "role": "Contributor",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-web-app.id" }]
     }
   ]
 }

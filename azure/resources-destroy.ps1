@@ -1,4 +1,6 @@
 param (
+    [Parameter(Mandatory = $true)]
+    [string] $name,
     [switch]$noLogin,
     [switch]$noLogout
 )
@@ -23,58 +25,67 @@ try {
     if (-not $noLogin) { Login }
 
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "    DESTROY RESOURCES                                       " -ForegroundColor Green
+    Write-Host "    DESTROY RESOURCES  - $name                              " -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
 
     # ARRANGE
-    $settings = Get-Settings
+    $settings = Get-Settings -name $name
     
     $settings.subscription | Set-Subscription
     $subscription = $settings.subscription | Get-Subscription
     Write-Host "subscription : `n$($subscription | ConvertTo-Json | Format-Json)"
 
-    # ACT : delete service principals    
-    if (Test-User-Acceptance "Do you want to proceed with deleting the service principals?") {
-        $settings.servicePrincipals `
-        | ForEach-Object {           
-            $sp = $_ | Get-ServicePrincipal
-            if ($sp -eq $null) {
-                Write-Host "service principal '$($item.name)' not found" -ForegroundColor Red
-                continue
-            }
-            Write-Host "destroy service principal $($sp.appDisplayName) (id: '$($sp.appId)')" -ForegroundColor Green
-            az ad sp delete --id $sp.appId
-        } 
+    if ($null -eq $subscription) {
+        Write-Error "No subscription found"
+        exit
     }
+    #clean error file
+    $ErrorFile = "$($scriptRoot)\error.log"
+    $ErrorFile | Clear-Error-File    
+    #clean all resources files
+    Set-Resources-Folders -subs $name
 
-
-    # ACT : delete resources and resource group    
-    if (Test-User-Acceptance "Do you want to proceed with deleting the resource group?") {
-        # CHK : check if resource group exists
-        $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
-        if ($null -eq $resourceGroup) {    
-            Write-Host "resource group not found." -ForegroundColor Red
-            exit 1
+    $resourceGroup = $settings.resources | Where-Object { $_.kind -eq "resource group" } | Get-RessourceGroup
+    if ($null -eq $resourceGroup) {    
+        Write-Host "resource group not found." -ForegroundColor Red
+        exit 1
+    }
+    if (Test-User-Acceptance "Do you want to proceed with deleting the resources in the resource group '$($resourceGroup.name)' ?") {
+        for ($index = $settings.resources.Count - 1 ; $index -ge 0; $index--) {        
+            $resource = $settings.resources[$index]
+            Write-Host "destroy resource '$($resource.name)' of kind '$($resource.kind)'" -ForegroundColor Green
+            switch ($resource.kind) {
+                "resource group" { 
+                    # do nothing because devoteam sandboxes doesn't allow to create resource
+                }
+                "appservice plan" { 
+                    $resource | Remove-AppService-Plan | Out-Null
+                }
+                "webapp" { 
+                    $resource | Remove-WebApp | Out-Null
+                }       
+                "storage account" { 
+                    $resource | Remove-Storage-Account | Out-Null
+                }
+                "storage table" { 
+                    $resource | Remove-Storage-Table | Out-Null
+                }
+                "log analytics workspace" { 
+                    $resource | Remove-Log-Analytics-Workspace | Out-Null
+                }
+                "monitor data-collection endpoint" {
+                    $resource | Remove-Monitor-DataCollection-Endpoint | Out-Null
+                }
+                "log analytics workspace table" { 
+                    $resource | Remove-Log-Analytics-Workspace-Table | Out-Null
+                }
+                "monitor data-collection rule" {
+                    $resource | Remove-Monitor-DataCollection-Rule | Out-Null                
+                }
+                Default {}
+            }
         }
-
-        # ACT : delete Monitor resources : dcr 
-        $settings.resources `
-        | Where-Object { $_.kind -eq "monitor data-collection rule" } `
-        | Foreach-Object {
-            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
-            az monitor data-collection rule delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
-        }
-
-        # ACT : delete Monitor resources : dce 
-        $settings.resources `
-        | Where-Object { $_.kind -eq "monitor data-collection endpoint" } `
-        | Foreach-Object {
-            Write-Host "destroy monitor's data collection $($_.name)" -ForegroundColor Green
-            az monitor data-collection endpoint delete --yes --name $_.name --resource-group $_.resourceGroup --subscription $subscription.id
-        }
-    
-        Write-Host "destroy resource group $($resourceGroup.name)" -ForegroundColor Green
-        az group delete -n $resourceGroup.name --yes    
+        Clear-Resources-Files 
     }
 }
 catch {
