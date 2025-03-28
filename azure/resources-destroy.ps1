@@ -55,6 +55,9 @@ try {
             $resource = $settings.resources[$index]
             Write-Host "destroy resource '$($resource.name)' of kind '$($resource.kind)'" -ForegroundColor Green
             switch ($resource.kind) {
+                "service principal" {
+                    $resource | Remove-ServicePrincipal -references $references -ErrorFile $ErrorFile | Out-Null
+                }
                 "resource group" { 
                     # do nothing because devoteam sandboxes doesn't allow to create resource
                 }
