@@ -11,10 +11,15 @@ jobs:
 
   azure:
     needs: [project]
-    uses: ./.github/workflows/deploy-on-azure.yml
-    with:
-      artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-      artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-      azure-webapp-name: "tenders-it-assistant-web-app"
-      azure-webapp-package-path: "."
-    secrets: inherit
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
+    steps:
+      - name: Deploy to Azure Web App
+        uses: ./.github/workflows/deploy-on-azure.yml
+        with:
+          artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+          artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+          azure-webapp-name: ${{ env.AZURE_WEBAPP_NAME }}
+          azure-webapp-package-path: "."
+        secrets: inherit
