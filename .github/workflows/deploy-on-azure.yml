@@ -67,6 +67,11 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Debug var and secrets
+        run: |
+          echo "AZURE_WEBAPP_NAME: ${{ inputs.azure-webapp-name }}"
+          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
       - name: Azure Login
         uses: azure/login@v2
         with:

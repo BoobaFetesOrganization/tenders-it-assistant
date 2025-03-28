@@ -15,6 +15,11 @@ jobs:
     environment:
       name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
     steps:
+      - name: Debug var and secrets
+        run: |
+          echo "AZURE_WEBAPP_NAME: ${{ env.AZURE_WEBAPP_NAME }}"
+          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+
       - name: Deploy to Azure Web App
         uses: ./.github/workflows/deploy-on-azure.yml
         with:
@@ -22,4 +27,3 @@ jobs:
           artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
           azure-webapp-name: ${{ env.AZURE_WEBAPP_NAME }}
           azure-webapp-package-path: "."
-        secrets: inherit
