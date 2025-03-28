@@ -1,4 +1,6 @@
 param (
+    [Parameter(Mandatory = $true)]
+    [string] $name,
     [switch]$noLogin,
     [switch]$noLogout
 )
@@ -9,14 +11,11 @@ $scriptRoot = $PSScriptRoot
 
 try {    
     Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "    INITIALIZE                                              " -ForegroundColor Green
+    Write-Host "    INITIALIZE - $name                                      " -ForegroundColor Green
     Write-Host "============================================================" -ForegroundColor Green
 
-    #clean error file
-    $ErrorFile = "$($scriptRoot)\error.log"
-    $ErrorFile | Clear-Error-File
 
-    $settings = Get-Settings
+    $settings = Get-Settings -name $name
     if ($noLogin) {
         $subscription = $settings.subscription | Get-Subscription
         Write-Host ($subscription | ConvertTo-Json | Format-Json)
@@ -26,7 +25,15 @@ try {
     if ($null -eq $subscription) {
         Write-Error "No subscription found"
         exit
-    }
+    }   
+    #clean error file
+    $ErrorFile = "$($scriptRoot)\error.log"
+    $ErrorFile | Clear-Error-File
+
+    #clean all resources files
+    Set-Resources-Folders -subs $name
+    Clear-Resources-Files
+
     # if current subscription is not the one involved, switch to it
     if ($subscription.name -ne $settings.subscription) {
         Write-Host "set active account to ""$($settings.subscription)""" -ForegroundColor Yellow
@@ -37,10 +44,6 @@ try {
         Write-Host "active account : `n$($subscription | ConvertTo-Json | Format-Json)"
     }
     $subscription | New-Resource-File
-    
-    #clean all resources files
-    Set-Resources-Folders -subs $subscription.id
-    Clear-Resources-Files
     
     # ACT
     $references = [hashtable]@{
@@ -53,6 +56,9 @@ try {
 
     foreach ($resource in $settings.resources) {
         switch ($resource.kind) {
+            "service principal" {
+                $resource | Set-ServicePrincipal -references $references -ErrorFile $ErrorFile | Out-Null
+            }
             "resource group" { 
                 $resource | Set-RessourceGroup -references $references -location $settings.location -tags $settings.tags -ErrorFile $ErrorFile | Out-Null
             }
@@ -82,16 +88,6 @@ try {
             }
             Default {}
         }
-    }
-    
-
-
-    Write-Host "============================================================" -ForegroundColor Green
-    Write-Host "    CREATE SERVICE PRINCIPALS                               " -ForegroundColor Green
-    Write-Host "============================================================" -ForegroundColor Green
-
-    foreach ($servicePrincipal in $settings.servicePrincipals) {
-        $servicePrincipal | Set-ServicePrincipal -references $references -ErrorFile $ErrorFile | Out-Null
     }
 }
 catch {

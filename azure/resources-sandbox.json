@@ -1,0 +1,169 @@
+{
+  "subscription": "2025 - IDF - Tribe Azure - Playground",
+  "location": "francecentral",
+  "tags": [
+    {
+      "name": "project",
+      "value": "tenders-it-assistant"
+    },
+    {
+      "name": "for",
+      "value": "devoteam"
+    }
+  ],
+  "servicePrincipals": [
+    {
+      "name": "tenders-it-assistant-web-app-deploy-sp",
+      "role": "Contributor",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-web-app.id" }]
+    },
+    {
+      "name": "tenders-it-assistant-log-analytics-sp",
+      "role": "Monitoring Metrics Publisher",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-log-analytics.id" }]
+    }
+  ],
+  "resources": [
+    {
+      "kind": "resource group",
+      "name": "RG-Axel-Roland-Gosselin"
+    },
+    {
+      "kind": "appservice plan",
+      "name": "tenders-it-assistant-app-service-plan",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "sku": "F1"
+    },
+    {
+      "kind": "storage account",
+      "name": "tendersassiststoragedevo",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "sku": "Standard_LRS",
+      "azure-kind": "StorageV2"
+    },
+    {
+      "kind": "storage table",
+      "name": "database",
+      "account": "tendersassiststoragedevo"
+    },
+    {
+      "kind": "log analytics workspace",
+      "name": "tenders-it-assistant-log-analytics",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "sku": "PerGB2018"
+    },
+    {
+      "kind": "service principal",
+      "name": "tenders-it-assistant-log-analytics-sp",
+      "role": "Monitoring Metrics Publisher",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-log-analytics.id" }]
+    },
+    {
+      "kind": "monitor data-collection endpoint",
+      "name": "tenders-it-assistant-dce",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "public-network-access": "Enabled"
+    },
+    {
+      "kind": "log analytics workspace table",
+      "name": "WebApp_CL",
+      "workspaceName": "tenders-it-assistant-log-analytics",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "columnsFile": "./templates/log-analytics--table-columns.txt",
+      "plan": "Analytics"
+    },
+    {
+      "kind": "monitor data-collection rule",
+      "name": "tenders-it-assistant-WebAppLogs-dcr",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "endpoint": "tenders-it-assistant-dce",
+      "template": {
+        "file": "./templates/log-analytics--dcr.json",
+        "mapping": [
+          {
+            "placeholder": "<rule_name>",
+            "value": "tenders-it-assistant-WebAppLogs-dcr"
+          },
+          {
+            "placeholder": "<location>",
+            "path": "location"
+          },
+          {
+            "placeholder": "<endpoint_id>",
+            "path": "$ref|tenders-it-assistant-dce.id"
+          },
+          {
+            "placeholder": "<datasource_name>",
+            "value": "datasource"
+          },
+          {
+            "placeholder": "<workspace_id>",
+            "path": "$ref|tenders-it-assistant-log-analytics.id"
+          },
+          {
+            "placeholder": "<workspace_customerId>",
+            "path": "$ref|tenders-it-assistant-log-analytics.customerId"
+          },
+          {
+            "placeholder": "<workspace_name>",
+            "path": "$ref|tenders-it-assistant-log-analytics.name"
+          },
+          {
+            "placeholder": "<table_name>",
+            "value": "WebApp_CL"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "webapp",
+      "name": "tenders-it-assistant-app",
+      "plan": "tenders-it-assistant-app-service-plan",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "runtime": "dotnet:9",
+      "deployment": {
+        "source": "github",
+        "branch": "main",
+        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
+      },
+      "siteConfig": {
+        "appSettings": [
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:endpoint",
+            "path": "$ref|tenders-it-assistant-dce.logsIngestion.endpoint"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:immutableId",
+            "path": "$ref|tenders-it-assistant-WebAppLogs-dcr.immutableId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:tenantId",
+            "path": "$ref|subscription.tenantId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientId",
+            "path": "$ref|tenders-it-assistant-log-analytics-sp.appId"
+          },
+          {
+            "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientSecret",
+            "path": "$ref|tenders-it-assistant-log-analytics-sp.password"
+          },
+          {
+            "name": "ConnectionStrings:accountstorage",
+            "path": "$ref|tendersassiststoragedevo.connectionString"
+          },
+          {
+            "name": "AI:Gemini_ApiKey",
+            "value": "<gemini_api_key_do_it_by_yourself>"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "service principal",
+      "name": "tenders-it-assistant-web-app-deploy-sp",
+      "role": "Contributor",
+      "scopes": [{ "path": "$ref|tenders-it-assistant-app.id" }]
+    }
+  ]
+}

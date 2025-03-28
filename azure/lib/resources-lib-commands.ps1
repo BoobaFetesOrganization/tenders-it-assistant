@@ -13,7 +13,7 @@ function Login() {
     # equivalent to : az upgrade --yes *>$null
 
     # disable the subscription selector feature once logged in
-    az config set core.login_experience_v2=off
+    az config set core.login_experience_v2=on
     # enable dynamic install
     az config set extension.use_dynamic_install=yes_without_prompt
     
@@ -56,7 +56,19 @@ function Get-RessourceGroup(
 ) {
     return (az group show -n $resource.name 2>$null) | ConvertFrom-Json
 }
-
+function Remove-RessourceGroup(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-RessourceGroup
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az group delete -y -n $resource.name) | ConvertFrom-Json 
+    }
+    return $result
+}
 function Set-RessourceGroup(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
@@ -96,7 +108,19 @@ function Get-AppService-Plan(
 ) {
     return (az appservice plan show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
 }
-
+function Remove-AppService-Plan(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {    
+    $result = $resource | Get-AppService-Plan
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az appservice plan delete -y -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+    }
+    return $result
+}
 function Set-AppService-Plan(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
@@ -135,6 +159,19 @@ function Get-WebApp(
     [object] $resource
 ) {
     return (az webapp show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
+}
+function Remove-WebApp(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-WebApp
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az webapp delete -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+    }
+    return $result
 }
 function Set-WebApp(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -226,6 +263,19 @@ function Get-Storage-Account(
 ) {
     return (az storage account show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
 }
+function Remove-Storage-Account(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-Storage-Account
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az storage account delete -y -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+    }
+    return $result
+}
 function Set-Storage-Account(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource, 
@@ -260,7 +310,19 @@ function Set-Storage-Account(
     $references[$resource.name] = $result
 }
 
-
+function Remove-Storage-Table(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $tableStorage = (az storage table exists -n $resource.name --account-name $resource.account 2>$null) | ConvertFrom-Json
+    if (-not $tableStorage.exists) {
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az storage table delete -n $resource.name --account-name $resource.account) | ConvertFrom-Json 
+    }
+    return $result
+}
 function Set-Storage-Table(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource,
@@ -292,6 +354,19 @@ function Get-Log-Analytics-Workspace(
     [object] $resource
 ) {
     return (az monitor log-analytics workspace show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
+}
+function Remove-Log-Analytics-Workspace(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-Log-Analytics-Workspace
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az monitor log-analytics workspace delete -y --force -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+    }
+    return $result
 }
 function Set-Log-Analytics-Workspace(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -330,6 +405,19 @@ function Get-Log-Analytics-Workspace-Table(
 ) {
     return (az monitor log-analytics workspace table show -n $resource.name -g $resource.resourceGroup --workspace-name $resource.workspaceName 2>$null) | ConvertFrom-Json
 }
+function Remove-Log-Analytics-Workspace-Table(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-Log-Analytics-Workspace
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az monitor log-analytics workspace table delete -y -n $resource.name -g $resource.resourceGroup --workspace-name $resource.workspaceName) | ConvertFrom-Json 
+    }
+    return $result
+}
 function Set-Log-Analytics-Workspace-Table(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $resource,   
@@ -352,34 +440,30 @@ function Set-Log-Analytics-Workspace-Table(
         $cmd += " --plan $($resource.plan)"
         $cmd += " --columns $($columns)"
         
-        $attempt = 1; $maxAttempts = 3
-        while ($attempt -le $maxAttempts) {
+        $attempt = 0; $maxAttempts = 3
+        while (($null -eq $result) -and ($attempt -le $maxAttempts)) {
             try {
-                $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile | Out-Null    
+                $attempt++
+                $result = $cmd | Invoke-Az-Command -name $resource.name -ErrorFile $ErrorFile 
             }
             catch {                
                 if ($attempt -gt $maxAttempts) { 
                     Write-Error "command for '$($resource.name)' creation fails too many times. see above error message"
                     throw $_
                 }
-                $attempt++
                 Start-Sleep -Seconds 10 # Délai avant la nouvelle tentative
                 # open the line for attempt messages
                 Write-Host "[!] retrying the creation of '$($resource.name)' (attempt : $attempt/$maxAttempts)" -ForegroundColor Yellow
             }
         }
-        
-        $result = $resource | Get-Log-Analytics-Workspace-Table
     }
     else {
         Write-Host "resource '$($resource.name)' already exists" -ForegroundColor Yellow
     }
 
-    if ($attempt -eq 0) {
-        # pas la peine de sauvegarder 3 fois le fichier..
-        $result | New-Resource-File
-        $references[$resource.name] = $result
-    }
+    # pas la peine de sauvegarder 3 fois le fichier..
+    $result | New-Resource-File
+    $references[$resource.name] = $result
 }
 
 
@@ -392,6 +476,19 @@ function Get-Monitor-DataCollection-Endpoint(
     [object] $resource
 ) {
     return (az monitor data-collection endpoint show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
+}
+function Remove-Monitor-DataCollection-Endpoint(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-Monitor-DataCollection-Endpoint
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az monitor data-collection endpoint delete -y -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+    }
+    return $result
 }
 function Set-Monitor-DataCollection-Endpoint(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -429,6 +526,19 @@ function Get-Monitor-DataCollection-Rule(
     [object] $resource
 ) {
     return (az monitor data-collection rule show -n $resource.name -g $resource.resourceGroup 2>$null) | ConvertFrom-Json
+}
+function Remove-Monitor-DataCollection-Rule(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $resource
+) {
+    $result = $resource | Get-Monitor-DataCollection-Rule
+    if ($null -eq $result) { 
+        Write-Host "resource '$($resource.name)' ('$($resource.kind)') not found" -ForegroundColor Red 
+    }
+    else { 
+        $result = (az monitor data-collection rule delete -y -n $resource.name -g $resource.resourceGroup) | ConvertFrom-Json 
+    }
+    return $result
 }
 function Set-Monitor-DataCollection-Rule(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
@@ -500,7 +610,22 @@ function Get-ServicePrincipal(
 ) {
     return (az ad sp list --filter "displayname eq '$($sp.name)'" | ConvertFrom-Json)[0]
 }
+function Remove-ServicePrincipal(
+    [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+    [object] $sp
+) {
+    $result = @{servicePrincipal = $null; application = $null }
 
+    $servicePrincipal = $sp | Get-ServicePrincipal
+    if ($null -eq $servicePrincipal) {
+        Write-Host "service principal '$($sp.name)' not found" -ForegroundColor Red
+    }
+    else {
+        $result.servicePrincipal = (az ad sp delete --id $servicePrincipal.appId | ConvertFrom-Json)
+        $result.application = (az ad app delete --id $servicePrincipal.appId | ConvertFrom-Json)
+    }
+    return $result
+}
 function Set-ServicePrincipal(
     [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
     [object] $sp,

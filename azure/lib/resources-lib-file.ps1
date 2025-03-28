@@ -35,11 +35,21 @@ function Clear-Error-File(
 function Clear-Resources-Files {  
     Remove-Item -Path "$global:resourcesDir\*" -Recurse -Force 
 }
+function Clear-Secrets-Files {  
+    Remove-Item -Path "$global:secretsDir\*" -Recurse -Force 
+}
 
 $script:settings = $null
-function Get-Settings {
+function Get-Settings([string] $name) {
     if ($null -eq $script:settings) {
-        $script:settings = Get-Content -path "$baseDir\resources.json" -Raw | ConvertFrom-Json
+        $path = "$baseDir\resources-$name.json"
+        if (-not(Test-Path $path)) {
+            throw "No settings found in '$path'"
+        }
+        $script:settings = Get-Content -path $path -Raw | ConvertFrom-Json
+        if ($null -eq $script:settings) {
+            throw "settings file can not be read or is empty. file: '$path'"
+        }
     }
     return $script:settings
 }
