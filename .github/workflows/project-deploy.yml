@@ -6,7 +6,6 @@ on:
     branches: ["*"]
 
 env:
-  environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
   back-artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
   back-version: "9.0.x"
   back-working-directory: "src/back/TendersITAssistant.Presentation.API"
@@ -18,13 +17,13 @@ jobs:
   init:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ env.environment }}
+      name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
     steps:
       - name: check vars and secrets
         run: |
           echo checking vars and secrets
           echo "github.ref_name: ${{ github.ref_name }}"
-          echo "environment: ${{ env.environment }}"
+          echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
           echo "vars :"
           echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
           echo ""
