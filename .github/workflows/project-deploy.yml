@@ -13,27 +13,16 @@ jobs:
     steps:
       - name: check vars and secrets
         run: |
-          echo checking vars and secrets
+          echo print vars and secrets
           echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
           echo "vars :"
           echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
           echo ""
-          echo env:
-          echo back-artifact-back-name: ${{ env.back-artifact-back-name }}
-          echo back-version: ${{ env.back-version }}
-          echo back-working-directory: ${{ env.back-working-directory }}
-          echo front-artifact-name: ${{ env.front-artifact-name }}
-          echo front-version: ${{ env.front-version }}
-          echo front-working-directory: ${{ env.front-working-directory }}
-          echo ""
           echo secrets:
-          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          echo "AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}"
-          echo "AZURE_DEPLOY_CLIENT_ID: ${{ secrets.AZURE_DEPLOY_CLIENT_ID }}"
-          echo "AZURE_DEPLOY_CLIENT_SECRET: ${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}"
           echo "AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
 
   front:
+    needs: [init]
     uses: ./.github/workflows/build-front.yml
     with:
       artifact-name: "web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
@@ -41,6 +30,7 @@ jobs:
       working-directory: "src/front"
 
   back:
+    needs: [init]
     uses: ./.github/workflows/build-back.yml
     with:
       artifact-name: "web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
