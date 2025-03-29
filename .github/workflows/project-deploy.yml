@@ -6,6 +6,21 @@ on:
     branches: ["*"]
 
 jobs:
+  # init:
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
+  #   steps:
+  #     - name: check vars and secrets
+  #       run: |
+  #         echo print vars and secrets
+  #         echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
+  #         echo "vars :"
+  #         echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
+  #         echo ""
+  #         echo secrets:
+  #         echo "AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
+
   front:
     uses: ./.github/workflows/build-front.yml
     with:
@@ -22,20 +37,9 @@ jobs:
 
   azure:
     needs: [front, back]
-    runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
-    steps:
-      - name: Debug var and secrets
-        run: |
-          echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
-          echo "AZURE_WEBAPP_NAME: ${{ env.AZURE_WEBAPP_NAME }}"
-          echo "AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-
-      - name: Deploy to Azure Web App
-        uses: ./.github/workflows/deploy-on-azure.yml
-        with:
-          artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-          artifact-front-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-          azure-webapp-name: ${{ env.AZURE_WEBAPP_NAME }}
-          azure-webapp-package-path: "."
+    uses: ./.github/workflows/deploy-on-azure.yml
+    with:
+      artifact-front-name: "web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
+      artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+      azure-webapp-package-path: "."
+    secrets: inherit

@@ -27,6 +27,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: print inputs
+        run: |
+          echo "ARTIFACT_NAME: ${{ inputs.artifact-name }}"
+          echo "VERSION: ${{ inputs.version }}"
+          echo "WORKING_DIRECTORY: ${{ inputs.working-directory }}"
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
