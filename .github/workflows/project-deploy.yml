@@ -5,14 +5,6 @@ on:
   push:
     branches: ["*"]
 
-env:
-  back-artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-  back-version: "9.0.x"
-  back-working-directory: "src/back/TendersITAssistant.Presentation.API"
-  front-artifact-name: web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
-  front-version: "latest"
-  front-working-directory: "src/front"
-
 jobs:
   init:
     runs-on: ubuntu-latest
@@ -22,7 +14,6 @@ jobs:
       - name: check vars and secrets
         run: |
           echo checking vars and secrets
-          echo "github.ref_name: ${{ github.ref_name }}"
           echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
           echo "vars :"
           echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
@@ -42,65 +33,24 @@ jobs:
           echo "AZURE_DEPLOY_CLIENT_SECRET: ${{ secrets.AZURE_DEPLOY_CLIENT_SECRET }}"
           echo "AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
 
-  # front:
-  #   uses: ./.github/workflows/build-front.yml
-  #   with:
-  #     artifact-name: ${{ env.front-artifact-name }}
-  #     version: "latest"
-  #     working-directory: "src/front"
+  front:
+    uses: ./.github/workflows/build-front.yml
+    with:
+      artifact-name: "web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
+      version: "latest"
+      working-directory: "src/front"
 
-  # back:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ github.ref }}
+  back:
+    uses: ./.github/workflows/build-back.yml
+    with:
+      artifact-name: "web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
+      version: "9.0.x"
+      working-directory: "src/back/TendersITAssistant.Presentation.API"
 
-  #     - name: Set up dotnet environement
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: ${{ env.back-version }}
-
-  #     - name: Set up dotnet dependency caching for faster builds
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: ~/.nuget/packages
-  #         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-nuget-${{ env.back-version }}
-
-  #     - name: install nugget packages
-  #       run: dotnet restore
-  #       working-directory: ${{ env.back-working-directory }}
-
-  #     - name: build
-  #       run: dotnet build --no-restore
-  #       working-directory: ${{ env.back-working-directory }}
-
-  #     - name: test
-  #       run: dotnet test --no-build --verbosity normal
-  #       working-directory: ${{ env.back-working-directory }}
-
-  #     - name: publish
-  #       run: dotnet publish -c Release -o ./artefact
-  #       working-directory: ${{ env.back-working-directory }}
-
-  #     - name: upload artifact for deployment job
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: ${{ env.back-artifact-name }}
-  #         path: ${{ env.back-working-directory }}/artefact
-
-  # azure:
-  #   needs: [front, back]
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
-  #   steps:
-  #     - name: Deploy to Azure Web App
-  #       uses: ./.github/workflows/deploy-on-azure.yml
-  #       with:
-  #         artifact-back-name: ${{ env.artifact-back-name }}
-  #         artifact-front-name: ${{ env.artifact-front-name }}
-  #         azure-webapp-name: ${{ vars.AZURE_WEBAPP_NAME }}
-  #         azure-webapp-package-path: "."
+  azure:
+    needs: [front, back]
+    uses: ./.github/workflows/deploy-on-azure.yml
+    with:
+      artifact-front-name: "web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
+      artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+      azure-webapp-package-path: "."
