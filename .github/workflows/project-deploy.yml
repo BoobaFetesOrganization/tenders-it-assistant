@@ -6,20 +6,17 @@ on:
     branches: ["*"]
 
 jobs:
-  # init:
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
-  #   steps:
-  #     - name: check vars and secrets
-  #       run: |
-  #         echo print vars and secrets
-  #         echo "environment: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }}"
-  #         echo "vars :"
-  #         echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
-  #         echo ""
-  #         echo secrets:
-  #         echo "AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
+  init:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'Development' }} # Set environment dynamically
+    steps:
+      - name: check vars and secrets
+        run: |
+          echo print vars and secrets
+          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "github.ref: ${{ github.ref  }}"
+          echo "environment: ${{ github.ref_name == 'main' && 'production' || 'Development' }}"
+          echo "var.SAZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
 
   front:
     uses: ./.github/workflows/build-front.yml

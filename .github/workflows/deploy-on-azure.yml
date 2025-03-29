@@ -58,13 +58,11 @@ jobs:
     permissions:
       contents: none
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name == 'refs/heads/main' && 'production' || 'Development' }} # Set environment dynamically
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    environment: ${{ github.ref_name == 'main' && 'production' || 'Development' }} # Set environment dynamically
     steps:
       - name: Debug var and secrets
         run: |
+          echo "environment: ${{ github.ref_name == 'main' && 'production' || 'Development' }}"
           echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
           echo "AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
 
