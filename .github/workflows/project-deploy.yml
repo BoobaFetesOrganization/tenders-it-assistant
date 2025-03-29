@@ -18,7 +18,7 @@ jobs:
   init:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ env.environement }}
+      name: ${{ env.environment }}
     steps:
       - name: check vars and secrets
         run: |
