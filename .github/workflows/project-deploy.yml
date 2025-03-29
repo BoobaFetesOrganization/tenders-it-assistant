@@ -54,3 +54,4 @@ jobs:
       artifact-front-name: "web-client-${{ github.head_ref == '' && github.ref_name || github.head_ref }}"
       artifact-back-name: web-api-${{ github.head_ref == '' && github.ref_name || github.head_ref }}
       azure-webapp-package-path: "."
+    secrets: inherit
