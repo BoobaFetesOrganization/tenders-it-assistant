@@ -8,14 +8,14 @@ on:
 jobs:
   init:
     runs-on: ubuntu-latest
-    environment: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'v')) && 'production' || 'Development' }} # Set environment dynamically
+    environment: ${{ startsWith(github.ref_name, 'v') && 'production' || 'Development' }} # Set environment dynamically
     steps:
       - name: check vars and secrets
         run: |
           echo print vars and secrets
           echo "github.ref_name: ${{ github.ref_name }}"
           echo "github.ref: ${{ github.ref  }}"
-          echo "environment: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'v')) && 'production' || 'Development' }}"
+          echo "environment: ${{ startsWith(github.ref_name, 'v') && 'production' || 'Development' }}"
           echo "var.SAZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
 
   front:

@@ -59,13 +59,13 @@ jobs:
       contents: none
     runs-on: ubuntu-latest
     environment:
-      name: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'v')) && 'production' || 'Development' }} # Set environment dynamically
+      name: ${{ startsWith(github.ref_name, 'v') && 'production' || 'Development' }} # Set environment dynamically
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }} # display the url of the webapp in the github action page
     steps:
       - name: Debug var and secrets
         run: |
           echo "startsWith(github.ref_name, 'v'): ${{ startsWith(github.ref_name, 'v') }}"
-          echo "environment: ${{ (github.ref_name == 'main' || startsWith(github.ref_name, 'v')) && 'production' || 'Development' }}"
+          echo "environment: ${{ startsWith(github.ref_name, 'v') && 'production' || 'Development' }}"
           echo "AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}"
 
       - name: Azure Login
