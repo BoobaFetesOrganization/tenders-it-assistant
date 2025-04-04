@@ -42,7 +42,7 @@ function Clear-Secrets-Files {
 $script:settings = $null
 function Get-Settings([string] $name) {
     if ($null -eq $script:settings) {
-        $path = "$baseDir\resources-$name.json"
+        $path = "$baseDir\$name.json"
         if (-not(Test-Path $path)) {
             throw "No settings found in '$path'"
         }

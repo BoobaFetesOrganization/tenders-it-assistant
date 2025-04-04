@@ -2,3 +2,4 @@
 .resources/**/*
 azure/localhost/azurite.log
 azure/localhost/azurite/**/*
+azure/profils/*

@@ -1,10 +1,10 @@
 {
-  "subscription": "subscription-pay-as-you-go",
+  "subscription": "2025 - IDF - Tribe Azure - Playground",
   "location": "francecentral",
   "tags": [
     {
       "name": "project",
-      "value": "tenders-it-assistant"
+      "value": "tenders"
     },
     {
       "name": "for",
@@ -14,67 +14,57 @@
   "resources": [
     {
       "kind": "resource group",
-      "name": "tenders-it-assistant-rg"
-    },
-    {
-      "kind": "resource group",
-      "name": "tenders-it-assistant-rg"
+      "name": "RG-Axel-Roland-Gosselin"
     },
     {
       "kind": "appservice plan",
-      "name": "tenders-it-assistant-app-service-plan",
-      "resourceGroup": "tenders-it-assistant-rg",
+      "name": "tenders-app-service-plan",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
       "sku": "F1"
     },
     {
       "kind": "storage account",
-      "name": "tendersassiststorage",
-      "resourceGroup": "tenders-it-assistant-rg",
+      "name": "tendersassiststorageprod",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
       "sku": "Standard_LRS",
       "azure-kind": "StorageV2"
     },
     {
       "kind": "storage table",
       "name": "database",
-      "account": "tendersassiststorage"
+      "account": "tendersassiststorageprod"
     },
     {
       "kind": "log analytics workspace",
-      "name": "tenders-it-assistant-log-analytics",
-      "resourceGroup": "tenders-it-assistant-rg",
+      "name": "tenders-log-analytics",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
       "sku": "PerGB2018"
     },
     {
-      "kind": "service principal",
-      "name": "tenders-it-assistant-log-analytics-sp",
-      "role": "Monitoring Metrics Publisher",
-      "scopes": [{ "path": "$ref|tenders-it-assistant-log-analytics.id" }]
-    },
-    {
       "kind": "monitor data-collection endpoint",
-      "name": "tenders-it-assistant-dce",
-      "resourceGroup": "tenders-it-assistant-rg",
+      "name": "tenders-dce",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
       "public-network-access": "Enabled"
     },
     {
       "kind": "log analytics workspace table",
       "name": "WebApp_CL",
-      "workspaceName": "tenders-it-assistant-log-analytics",
-      "resourceGroup": "tenders-it-assistant-rg",
+      "workspaceName": "tenders-log-analytics",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
       "columnsFile": "./templates/log-analytics--table-columns.txt",
       "plan": "Analytics"
     },
     {
       "kind": "monitor data-collection rule",
-      "name": "tenders-it-assistant-WebAppLogs-dcr",
-      "resourceGroup": "tenders-it-assistant-rg",
-      "endpoint": "tenders-it-assistant-dce",
+      "name": "tenders-webapp-dcr",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
+      "endpoint": "tenders-dce",
       "template": {
         "file": "./templates/log-analytics--dcr.json",
         "mapping": [
           {
             "placeholder": "<rule_name>",
-            "value": "tenders-it-assistant-WebAppLogs-dcr"
+            "value": "tenders-webapp-dcr"
           },
           {
             "placeholder": "<location>",
@@ -82,7 +72,7 @@
           },
           {
             "placeholder": "<endpoint_id>",
-            "path": "$ref|tenders-it-assistant-dce.id"
+            "path": "$ref|tenders-dce.id"
           },
           {
             "placeholder": "<datasource_name>",
@@ -90,15 +80,15 @@
           },
           {
             "placeholder": "<workspace_id>",
-            "path": "$ref|tenders-it-assistant-log-analytics.id"
+            "path": "$ref|tenders-log-analytics.id"
           },
           {
             "placeholder": "<workspace_customerId>",
-            "path": "$ref|tenders-it-assistant-log-analytics.customerId"
+            "path": "$ref|tenders-log-analytics.customerId"
           },
           {
             "placeholder": "<workspace_name>",
-            "path": "$ref|tenders-it-assistant-log-analytics.name"
+            "path": "$ref|tenders-log-analytics.name"
           },
           {
             "placeholder": "<table_name>",
@@ -108,25 +98,35 @@
       }
     },
     {
+      "kind": "service principal",
+      "name": "tenders-monitor-sp",
+      "role": "Monitoring Metrics Publisher",
+      "scopes": [
+        { "path": "$ref|tenders-log-analytics.id" },
+        { "path": "$ref|tenders-dce.id" },
+        { "path": "$ref|tenders-webapp-dcr.id" }
+      ]
+    },
+    {
       "kind": "webapp",
-      "name": "tenders-it-assistant-web-app",
-      "plan": "tenders-it-assistant-app-service-plan",
-      "resourceGroup": "tenders-it-assistant-rg",
+      "name": "tenders-web-app-prod",
+      "plan": "tenders-app-service-plan",
+      "resourceGroup": "RG-Axel-Roland-Gosselin",
       "runtime": "dotnet:9",
       "deployment": {
         "source": "github",
         "branch": "main",
-        "repoUrl": "https://github.com/BoobaFetes/tenders-it-assistant"
+        "repoUrl": "https://github.com/BoobaFetes/tenders"
       },
       "siteConfig": {
         "appSettings": [
           {
             "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:endpoint",
-            "path": "$ref|tenders-it-assistant-dce.logsIngestion.endpoint"
+            "path": "$ref|tenders-dce.logsIngestion.endpoint"
           },
           {
             "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:immutableId",
-            "path": "$ref|tenders-it-assistant-WebAppLogs-dcr.immutableId"
+            "path": "$ref|tenders-webapp-dcr.immutableId"
           },
           {
             "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:tenantId",
@@ -134,15 +134,15 @@
           },
           {
             "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientId",
-            "path": "$ref|tenders-it-assistant-log-analytics-sp.appId"
+            "path": "$ref|tenders-monitor-sp.appId"
           },
           {
             "name": "Serilog:WriteTo:AzureLogAnalytics:Args:credentials:clientSecret",
-            "path": "$ref|tenders-it-assistant-log-analytics-sp.password"
+            "path": "$ref|tenders-monitor-sp.password"
           },
           {
             "name": "ConnectionStrings:accountstorage",
-            "path": "$ref|tendersassiststorage.connectionString"
+            "path": "$ref|tendersassiststorageprod.connectionString"
           },
           {
             "name": "AI:Gemini_ApiKey",
@@ -153,9 +153,9 @@
     },
     {
       "kind": "service principal",
-      "name": "tenders-it-assistant-web-app-deploy-sp",
+      "name": "tenders-web-app-deploy-sp",
       "role": "Contributor",
-      "scopes": [{ "path": "$ref|tenders-it-assistant-web-app.id" }]
+      "scopes": [{ "path": "$ref|tenders-web-app-prod.id" }]
     }
   ]
 }
